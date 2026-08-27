@@ -1,0 +1,393 @@
+import type { TranslationKeys } from "./uz";
+
+export const ru: TranslationKeys = {
+  // Common
+  common: {
+    search: "Поиск",
+    all: "Все",
+    loading: "Загрузка...",
+    error: "Произошла ошибка",
+    retry: "Повторить",
+    save: "Сохранить",
+    cancel: "Отмена",
+    delete: "Удалить",
+    edit: "Редактировать",
+    view: "Просмотр",
+    close: "Закрыть",
+    submit: "Отправить",
+    back: "Назад",
+    next: "Далее",
+    previous: "Предыдущий",
+    yes: "Да",
+    no: "Нет",
+    or: "или",
+    and: "и",
+  },
+
+  // Navigation
+  nav: {
+    home: "Главная",
+    listings: "Объявления",
+    buy: "Купить",
+    rent: "Снять",
+    mortgage: "Ипотечный калькулятор",
+    marketPrices: "Цены на рынке",
+    postListing: "Подать объявление",
+    agents: "Агенты",
+    agencies: "Агентства",
+    login: "Войти",
+    register: "Регистрация",
+    profile: "Профиль",
+    favorites: "Избранное",
+    myListings: "Мои объявления",
+    dashboard: "Панель управления",
+    messages: "Сообщения",
+    notifications: "Уведомления",
+    logout: "Выйти",
+  },
+
+  // Homepage
+  home: {
+    heroTitle: "Найдите свой дом в Узбекистане",
+    heroSubtitle: "Проверенные объявления, реальные цены и профессиональные агенты — всё на одной платформе.",
+    searchPlaceholder: "Город, район или улица",
+    propertyTypes: "Типы недвижимости",
+    featuredListings: "Избранные объявления",
+    viewAll: "Все",
+    byCity: "По городам",
+    verifiedListings: "Проверенные объявления",
+    verifiedListingsDesc: "Каждое объявление проходит модерацию — никаких поддельных цен и фото.",
+    realPrices: "Реальные рыночные цены",
+    realPricesDesc: "Динамика цен за 1 м² и показатели роста по районам.",
+    mortgageHelper: "Ипотечный помощник",
+    mortgageHelperDesc: "Рассчитайте ежемесячный платёж за несколько секунд и выберите банк.",
+    listingsCount: "объявлений",
+  },
+
+  // Deal types
+  deal: {
+    buy: "Купить",
+    rent: "Снять",
+    sale: "Продажа",
+    forRent: "Аренда",
+  },
+
+  // Property types
+  propertyType: {
+    apartment: "Квартира",
+    house: "Дом",
+    office: "Офис",
+    land: "Земельный участок",
+    commercial: "Коммерческая",
+    apartments: "Квартиры",
+    houses: "Дома",
+    offices: "Офисы",
+    lands: "Земельные участки",
+  },
+
+  // Filters
+  filters: {
+    title: "Фильтры",
+    dealType: "Тип сделки",
+    city: "Город",
+    allCities: "Все города",
+    propertyType: "Тип недвижимости",
+    allTypes: "Все",
+    rooms: "Комнаты",
+    roomsMin: "Комнат (минимум)",
+    anyRooms: "Любое",
+    maxPrice: "Максимальная цена",
+    minPrice: "Минимальная цена",
+    priceRange: "Диапазон цен",
+    area: "Площадь",
+    minArea: "Минимальная площадь",
+    maxArea: "Максимальная площадь",
+    floor: "Этаж",
+    yearBuilt: "Год постройки",
+    condition: "Состояние",
+    clearFilters: "Сбросить фильтры",
+    apply: "Применить",
+  },
+
+  // Sorting
+  sort: {
+    title: "Сортировка",
+    recommended: "Рекомендуемые",
+    newest: "Новые",
+    cheapest: "Сначала дешевле",
+    expensive: "Сначала дороже",
+    areaLow: "Площадь: по возрастанию",
+    areaHigh: "Площадь: по убыванию",
+    popular: "Популярность",
+    rating: "Рейтинг",
+  },
+
+  // Listings page
+  listings: {
+    title: "Объявления",
+    saleListings: "Недвижимость на продажу",
+    rentListings: "Недвижимость в аренду",
+    foundListings: "объявлений найдено",
+    noResults: "Ничего не найдено",
+    noResultsDesc: "Попробуйте расширить фильтры или выбрать другой город.",
+    allListings: "Все объявления",
+  },
+
+  // Property details
+  property: {
+    rooms: "Комнаты",
+    area: "Площадь",
+    floor: "Этаж",
+    yearBuilt: "Год постройки",
+    description: "Описание",
+    amenities: "Удобства",
+    similar: "Похожие объявления",
+    rating: "рейтинг",
+    mortgageEstimate: "В ипотеку примерно",
+    perMonth: "/мес",
+    downPayment: "первоначальный",
+    years: "лет",
+    contact: "Связаться",
+    call: "Позвонить",
+    message: "Написать",
+    share: "Поделиться",
+    calculateMortgage: "Рассчитать ипотеку",
+    agent: "Агент",
+    seller: "Продавец",
+    agency: "Агентство",
+    verified: "Проверено",
+    featured: "Избранное",
+    premium: "Премиум",
+  },
+
+  // Post listing
+  postListing: {
+    title: "Подать объявление",
+    subtitle: "Заполните данные — модератор подтвердит объявление в течение часа.",
+    listingTitle: "Заголовок объявления",
+    titlePlaceholder: "Например: 3-комнатная квартира на Юнусабаде",
+    price: "Цена",
+    phone: "Телефон",
+    description: "Описание",
+    descriptionPlaceholder: "Подробно опишите недвижимость...",
+    submitFree: "Подать бесплатно",
+    success: "Объявление принято!",
+    successDesc: "После проверки модератором объявление появится на сайте.",
+  },
+
+  // Mortgage calculator
+  mortgage: {
+    title: "Ипотечный калькулятор",
+    subtitle: "Введите цену, первоначальный взнос, срок и процент — ежемесячный платёж рассчитается мгновенно.",
+    propertyPrice: "Цена недвижимости",
+    downPayment: "Первоначальный взнос",
+    loanTerm: "Срок",
+    interestRate: "Годовая процентная ставка",
+    monthlyPayment: "Ежемесячный платёж",
+    loanAmount: "Сумма кредита",
+    totalPayment: "Общая выплата",
+    totalInterest: "Общие проценты",
+    disclaimer: "Расчёт приблизительный. Точные условия уточняйте в банке.",
+  },
+
+  // Market prices
+  market: {
+    title: "Средние цены по городам",
+    subtitle: "Данные обновляются ежемесячно на основе объявлений и сделок на платформе. Цены за 1 м² в долларах США.",
+    analysis: "Анализ рынка",
+    pricePerSqm: "/м²",
+    yearlyChange: "Изменение за год",
+    rentalYield: "Доходность аренды",
+    perYear: "в год",
+  },
+
+  // Auth
+  auth: {
+    login: "Войти",
+    register: "Регистрация",
+    email: "Email",
+    phone: "Телефон",
+    password: "Пароль",
+    confirmPassword: "Подтвердите пароль",
+    forgotPassword: "Забыли пароль?",
+    resetPassword: "Восстановить пароль",
+    name: "Имя",
+    fullName: "Полное имя",
+    rememberMe: "Запомнить меня",
+    loginWithGoogle: "Войти через Google",
+    loginWithYandex: "Войти через Yandex",
+    noAccount: "Нет аккаунта?",
+    hasAccount: "Уже есть аккаунт?",
+    createAccount: "Создать аккаунт",
+    loginNow: "Войти",
+  },
+
+  // User profile
+  profile: {
+    title: "Профиль",
+    settings: "Настройки",
+    avatar: "Фото",
+    personalInfo: "Личные данные",
+    language: "Язык",
+    currency: "Валюта",
+    notifications: "Уведомления",
+    savedProperties: "Сохранённая недвижимость",
+    accountSettings: "Настройки аккаунта",
+    changePassword: "Изменить пароль",
+    deleteAccount: "Удалить аккаунт",
+  },
+
+  // Favorites
+  favorites: {
+    title: "Избранное",
+    empty: "Нет избранных объявлений",
+    emptyDesc: "Нажмите на сердечко, чтобы сохранить понравившееся объявление.",
+    addToFavorites: "Добавить в избранное",
+    removeFromFavorites: "Удалить из избранного",
+    folders: "Папки",
+    allFavorites: "Все избранные",
+    createFolder: "Создать папку",
+    folderName: "Название папки",
+  },
+
+  // Messages
+  messages: {
+    title: "Сообщения",
+    empty: "Нет сообщений",
+    emptyDesc: "Вы ещё ни с кем не переписывались.",
+    newMessage: "Новое сообщение",
+    typeMessage: "Введите сообщение...",
+    send: "Отправить",
+  },
+
+  // Notifications
+  notifications: {
+    title: "Уведомления",
+    empty: "Нет уведомлений",
+    markAllRead: "Отметить все как прочитанные",
+    newMessage: "Новое сообщение",
+    newLead: "Новый запрос",
+    listingApproved: "Объявление одобрено",
+    listingRejected: "Объявление отклонено",
+    priceDropped: "Цена снижена",
+    newReview: "Новый отзыв",
+  },
+
+  // Agent dashboard
+  dashboard: {
+    title: "Панель управления",
+    overview: "Обзор",
+    myListings: "Мои объявления",
+    analytics: "Аналитика",
+    leads: "Запросы",
+    messages: "Сообщения",
+    settings: "Настройки",
+    totalListings: "Всего объявлений",
+    activeListings: "Активных",
+    soldListings: "Продано",
+    pendingListings: "На проверке",
+    totalViews: "Всего просмотров",
+    totalFavorites: "В избранном",
+    totalLeads: "Всего запросов",
+    createListing: "Создать объявление",
+  },
+
+  // Listing status
+  listingStatus: {
+    draft: "Черновик",
+    pending: "На проверке",
+    active: "Активно",
+    sold: "Продано",
+    rented: "Сдано",
+    paused: "Приостановлено",
+    rejected: "Отклонено",
+    archived: "В архиве",
+  },
+
+  // Admin
+  admin: {
+    title: "Админ панель",
+    dashboard: "Панель управления",
+    listings: "Объявления",
+    moderation: "Модерация",
+    users: "Пользователи",
+    agents: "Агенты",
+    agencies: "Агентства",
+    reviews: "Отзывы",
+    analytics: "Аналитика",
+    content: "Контент",
+    settings: "Настройки",
+    approve: "Одобрить",
+    reject: "Отклонить",
+  },
+
+  // Footer
+  footer: {
+    description: "Самая надёжная платформа недвижимости в Узбекистане. Проверенные объявления, реальные цены и профессиональные консультации.",
+    forBuyers: "Покупателям",
+    forSellers: "Продавцам",
+    saleHouses: "Дома на продажу",
+    rentHouses: "Аренда жилья",
+    freeListing: "Бесплатное объявление",
+    contact: "Контакты",
+    allRightsReserved: "Все права защищены.",
+  },
+
+  // Errors
+  errors: {
+    notFound: "Страница не найдена",
+    notFoundDesc: "Страница, которую вы ищете, не существует или была перемещена.",
+    goHome: "На главную",
+    somethingWrong: "Что-то пошло не так",
+    tryAgain: "Попробовать снова",
+  },
+
+  // Cities
+  cities: {
+    tashkent: "Ташкент",
+    samarkand: "Самарканд",
+    bukhara: "Бухара",
+    andijan: "Андижан",
+    fergana: "Фергана",
+    namangan: "Наманган",
+    nukus: "Нукус",
+    karshi: "Карши",
+    gulistan: "Гулистан",
+    jizzakh: "Джизак",
+    termez: "Термез",
+    urgench: "Ургенч",
+  },
+
+  // Amenities
+  amenities: {
+    parking: "Парковка",
+    balcony: "Балкон",
+    terrace: "Терраса",
+    airConditioning: "Кондиционер",
+    elevator: "Лифт",
+    security: "Охрана",
+    furnished: "С мебелью",
+    kitchen: "Кухня",
+    heating: "Отопление",
+    internet: "Интернет",
+    pool: "Бассейн",
+    yard: "Двор",
+    garage: "Гараж",
+    generator: "Генератор",
+    playground: "Детская площадка",
+  },
+
+  // Currencies
+  currencies: {
+    uzs: "UZS (сум)",
+    usd: "USD (доллар)",
+    eur: "EUR (евро)",
+  },
+
+  // Languages
+  languages: {
+    uz: "O'zbekcha",
+    ru: "Русский",
+    en: "English",
+  },
+} as const;

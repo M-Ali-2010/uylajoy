@@ -13,12 +13,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   nitro: {
-    // Configure for Vercel deployment
+    // Use Vercel serverless functions preset
     preset: "vercel",
-    output: {
-      dir: ".output",
-      serverDir: ".output/server",
-      publicDir: ".output/public",
-    },
   },
 });

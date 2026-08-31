@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslation } from "@/i18n";
+import { useAuthStore } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/royxatdan-otish")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/royxatdan-otish")({
 function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const register = useAuthStore((state) => state.register);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
@@ -52,14 +54,15 @@ function RegisterPage() {
 
     setIsLoading(true);
 
-    // Simulate registration - will be replaced with real API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast.success("Hisobingiz yaratildi!", {
-      description: "Emailingizni tasdiqlang",
-    });
-    navigate({ to: "/kirish" });
-    setIsLoading(false);
+    try {
+      await register({ email, password, name, phone: phone || undefined });
+      toast.success("Hisobingiz yaratildi!");
+      navigate({ to: "/" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Xatolik yuz berdi");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslation } from "@/i18n";
+import { useAuthStore } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/kirish")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/kirish")({
 function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -31,13 +33,15 @@ function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login - will be replaced with real API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // For demo, just show success and redirect
-    toast.success("Muvaffaqiyatli kirdingiz!");
-    navigate({ to: "/" });
-    setIsLoading(false);
+    try {
+      await login(email, password);
+      toast.success("Muvaffaqiyatli kirdingiz!");
+      navigate({ to: "/" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Xatolik yuz berdi");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

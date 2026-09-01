@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@tanstack/react-router";
-import { Home, Menu, User, Heart, Plus, Search, ChevronDown, Sparkles, Building2 } from "lucide-react";
+import { Home, Menu, User, Heart, Plus, Search, Sparkles, Building2, Calculator, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -32,8 +32,8 @@ export function SiteHeader() {
   const nav = [
     { to: "/elonlar", label: t.nav.buy, search: { deal: "sotuv" }, icon: Building2 },
     { to: "/elonlar", label: t.nav.rent, search: { deal: "ijara" }, icon: Home },
-    { to: "/ipoteka", label: t.nav.mortgage, icon: Sparkles },
-    { to: "/narxlar", label: t.nav.marketPrices, icon: ChevronDown },
+    { to: "/ipoteka", label: t.nav.mortgage, icon: Calculator },
+    { to: "/narxlar", label: t.nav.marketPrices, icon: TrendingUp },
   ] as const;
 
   return (
@@ -44,33 +44,40 @@ export function SiteHeader() {
       className={cn(
         "sticky top-0 z-50 transition-all duration-500",
         scrolled
-          ? "border-b border-border/50 bg-background/80 shadow-lg shadow-black/[0.03] backdrop-blur-xl"
+          ? "border-b border-border/40 bg-background/85 shadow-lg shadow-black/[0.02] backdrop-blur-2xl supports-[backdrop-filter]:bg-background/75"
           : "bg-transparent"
       )}
     >
-      {/* Gradient line on top */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      {/* Gradient line on top - more subtle */}
+      <motion.div
+        className="absolute inset-x-0 top-0 h-px"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: scrolled ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="h-full bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      </motion.div>
 
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 lg:h-18 lg:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 lg:h-[72px] lg:px-6">
         {/* Logo */}
         <Link to="/" className="group flex items-center gap-2.5">
           <motion.div
-            whileHover={{ scale: 1.05, rotate: 3 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="relative flex size-10 items-center justify-center"
           >
             {/* Gradient background */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary via-primary to-accent shadow-lg shadow-primary/25" />
-            {/* Glow effect */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-accent opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-60" />
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary via-primary to-accent shadow-lg shadow-primary/20" />
+            {/* Glow effect on hover */}
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary to-accent opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-50" />
             {/* Icon */}
             <Home className="relative z-10 size-5 text-white" />
           </motion.div>
           <div className="flex flex-col">
-            <span className="font-display text-lg font-black tracking-tight">
+            <span className="font-display text-lg font-extrabold tracking-tight">
               Uy<span className="text-gradient-primary">Joy</span>
             </span>
-            <span className="hidden text-[10px] font-medium uppercase tracking-wider text-muted-foreground lg:block">
+            <span className="hidden text-[10px] font-medium uppercase tracking-widest text-muted-foreground lg:block">
               Real Estate
             </span>
           </div>
@@ -99,7 +106,7 @@ export function SiteHeader() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className="absolute inset-0 rounded-xl bg-secondary"
+                    className="absolute inset-0 rounded-xl bg-secondary/80"
                   />
                 )}
               </AnimatePresence>
@@ -108,26 +115,26 @@ export function SiteHeader() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <LanguageCurrencySelector />
 
           {/* Search button */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="gap-2 rounded-full border-border/60 bg-secondary/50 px-4 hover:border-primary/30 hover:bg-secondary"
+              className="gap-2 rounded-full px-4 text-muted-foreground hover:bg-secondary hover:text-foreground"
               asChild
             >
               <Link to="/elonlar">
-                <Search className="size-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t.common.search}</span>
+                <Search className="size-4" />
+                <span>{t.common.search}</span>
               </Link>
             </Button>
           </motion.div>
 
           {/* Favorites */}
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+          <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }}>
             <Button
               variant="ghost"
               size="icon"
@@ -137,7 +144,7 @@ export function SiteHeader() {
               <Link to="/sevimlilar">
                 <Heart className="size-5" />
                 {/* Notification badge */}
-                <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
+                <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white shadow-sm">
                   3
                 </span>
                 <span className="sr-only">{t.nav.favorites}</span>
@@ -145,13 +152,13 @@ export function SiteHeader() {
             </Button>
           </motion.div>
 
-          {/* Post listing button */}
+          {/* Post listing button - Premium CTA */}
           <motion.div
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.98 }}
           >
             <Button
-              className="gap-2 rounded-full bg-gradient-to-r from-primary to-primary/90 px-5 font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
+              className="btn-shine gap-2 rounded-full bg-gradient-to-r from-primary to-primary/90 px-5 font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25"
               asChild
             >
               <Link to="/elon-joylash">
@@ -166,7 +173,7 @@ export function SiteHeader() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative overflow-hidden rounded-full border border-border/60 text-muted-foreground hover:border-primary/30 hover:text-primary"
+              className="relative overflow-hidden rounded-full border border-border/50 text-muted-foreground hover:border-primary/30 hover:text-primary"
               asChild
             >
               <Link to="/kirish">
@@ -191,17 +198,17 @@ export function SiteHeader() {
               </Button>
             </motion.div>
           </SheetTrigger>
-          <SheetContent side="right" className="w-80 border-l border-border/50 bg-background/95 backdrop-blur-2xl">
+          <SheetContent side="right" className="w-80 border-l border-border/40 bg-background/98 backdrop-blur-2xl">
             <SheetHeader className="border-b border-border/50 pb-4">
-              <SheetTitle className="flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent">
-                  <Home className="size-4 text-white" />
+              <SheetTitle className="flex items-center gap-2.5">
+                <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent shadow-md">
+                  <Home className="size-4.5 text-white" />
                 </div>
                 <span className="font-display text-lg font-bold">UyJoy.uz</span>
               </SheetTitle>
             </SheetHeader>
 
-            <div className="mt-6 flex flex-col gap-2">
+            <div className="mt-6 flex flex-col gap-1">
               {nav.map((item, idx) => {
                 const Icon = item.icon;
                 return (
@@ -216,8 +223,8 @@ export function SiteHeader() {
                       search={("search" in item ? item.search : {}) as never}
                       className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors hover:bg-secondary"
                     >
-                      <div className="flex size-8 items-center justify-center rounded-lg bg-secondary">
-                        <Icon className="size-4 text-primary" />
+                      <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
+                        <Icon className="size-4.5 text-primary" />
                       </div>
                       {item.label}
                     </Link>
@@ -236,8 +243,8 @@ export function SiteHeader() {
                   to="/sevimlilar"
                   className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors hover:bg-secondary"
                 >
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-accent/10">
-                    <Heart className="size-4 text-accent" />
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-accent/10">
+                    <Heart className="size-4.5 text-accent" />
                   </div>
                   {t.nav.favorites}
                   <span className="ml-auto flex size-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
@@ -255,8 +262,8 @@ export function SiteHeader() {
                   to="/kirish"
                   className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors hover:bg-secondary"
                 >
-                  <div className="flex size-8 items-center justify-center rounded-lg bg-secondary">
-                    <User className="size-4 text-muted-foreground" />
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-secondary">
+                    <User className="size-4.5 text-muted-foreground" />
                   </div>
                   {t.nav.login}
                 </Link>
@@ -280,7 +287,7 @@ export function SiteHeader() {
                 className="mt-6 px-4"
               >
                 <Button
-                  className="w-full gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/90 py-6 font-semibold shadow-lg shadow-primary/25"
+                  className="btn-shine w-full gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/90 py-6 font-semibold shadow-lg shadow-primary/20"
                   asChild
                 >
                   <Link to="/elon-joylash">

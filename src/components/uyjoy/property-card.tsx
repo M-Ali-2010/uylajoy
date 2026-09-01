@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@tanstack/react-router";
-import { Bath, BedDouble, Heart, MapPin, Ruler, Star, Share2, ArrowUpRight, Sparkles } from "lucide-react";
+import { Bath, BedDouble, Heart, MapPin, Ruler, Star, Share2, ArrowUpRight, Sparkles, Building2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -81,7 +81,7 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group"
+      className="group h-full"
     >
       <Link
         to="/elonlar/$id"
@@ -89,16 +89,21 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
         className="block h-full"
       >
         <motion.article
-          whileHover={{ y: -8 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="relative h-full overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-shadow duration-500 hover:shadow-float"
+          whileHover={{ y: -6 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className="card-elevated relative h-full overflow-hidden"
         >
           {/* Image Container */}
           <div className="relative aspect-[4/3] overflow-hidden">
             {/* Skeleton loader */}
-            {!imageLoaded && (
-              <div className="absolute inset-0 animate-pulse bg-secondary" />
-            )}
+            <AnimatePresence>
+              {!imageLoaded && (
+                <motion.div
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 animate-pulse bg-secondary"
+                />
+              )}
+            </AnimatePresence>
 
             {/* Image */}
             <motion.img
@@ -110,12 +115,12 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
                 "size-full object-cover transition-all duration-700",
                 imageLoaded ? "opacity-100" : "opacity-0"
               )}
-              animate={{ scale: isHovered ? 1.08 : 1 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              animate={{ scale: isHovered ? 1.06 : 1 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             />
 
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80" />
+            {/* Gradient Overlay - more sophisticated */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
             {/* Top Badges */}
             <div className="absolute left-3 top-3 flex flex-wrap gap-2">
@@ -126,7 +131,7 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
               >
                 <Badge
                   variant={listing.deal === "ijara" ? "accent" : "default"}
-                  className="border-0 font-semibold shadow-lg backdrop-blur-md"
+                  className="border-0 px-3 py-1 font-semibold shadow-lg backdrop-blur-md"
                 >
                   {listing.deal === "ijara" ? t.deal.forRent : t.deal.sale}
                 </Badge>
@@ -138,9 +143,9 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <Badge variant="gold" className="gap-1 border-0 font-semibold shadow-lg backdrop-blur-md">
+                  <Badge variant="gold" className="gap-1 border-0 px-3 py-1 font-semibold shadow-lg backdrop-blur-md">
                     <Sparkles className="size-3" />
-                    {t.property.featured}
+                    Premium
                   </Badge>
                 </motion.div>
               )}
@@ -150,14 +155,14 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
             {showActions && (
               <div className="absolute right-3 top-3 flex flex-col gap-2">
                 <motion.button
-                  whileHover={{ scale: 1.15 }}
+                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={handleLike}
                   className={cn(
                     "flex size-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300",
                     isLiked
                       ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
-                      : "bg-white/90 text-muted-foreground hover:bg-white hover:text-red-500"
+                      : "bg-white/95 text-muted-foreground shadow-lg hover:text-red-500"
                   )}
                   aria-label={t.favorites.addToFavorites}
                 >
@@ -167,13 +172,13 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
                 <AnimatePresence>
                   {isHovered && (
                     <motion.button
-                      initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                      initial={{ opacity: 0, scale: 0.8, y: -8 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, y: -10 }}
-                      whileHover={{ scale: 1.15 }}
+                      exit={{ opacity: 0, scale: 0.8, y: -8 }}
+                      whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={handleShare}
-                      className="flex size-10 items-center justify-center rounded-full bg-white/90 text-muted-foreground backdrop-blur-md hover:bg-white hover:text-primary"
+                      className="flex size-10 items-center justify-center rounded-full bg-white/95 text-muted-foreground shadow-lg backdrop-blur-md hover:text-primary"
                       aria-label="Share"
                     >
                       <Share2 className="size-5" />
@@ -183,48 +188,52 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
               </div>
             )}
 
-            {/* Bottom Price & Location */}
+            {/* Bottom Price & Location - on image */}
             <div className="absolute bottom-0 left-0 right-0 p-4">
-              <motion.p
-                animate={{ y: isHovered ? -4 : 0 }}
-                className="font-display text-2xl font-extrabold text-white drop-shadow-lg"
-              >
-                {priceDisplay}
-              </motion.p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-white/90">
-                <MapPin className="size-3.5" />
-                {listing.district}, {listing.city}
-              </p>
+              <div className="flex items-end justify-between">
+                <div>
+                  <motion.p
+                    animate={{ y: isHovered ? -2 : 0 }}
+                    className="font-display text-2xl font-extrabold text-white drop-shadow-lg md:text-[1.75rem]"
+                  >
+                    {priceDisplay}
+                  </motion.p>
+                  <p className="mt-1 flex items-center gap-1.5 text-sm text-white/85">
+                    <MapPin className="size-3.5" />
+                    <span className="line-clamp-1">{listing.district}, {listing.city}</span>
+                  </p>
+                </div>
+
+                {/* Rating pill */}
+                <div className="flex items-center gap-1 rounded-full bg-black/30 px-2.5 py-1 backdrop-blur-sm">
+                  <Star className="size-3.5 fill-gold text-gold" />
+                  <span className="text-sm font-semibold text-white">{listing.rating.toFixed(1)}</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Content */}
-          <div className="space-y-3 p-4">
-            {/* Title & Rating */}
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="line-clamp-1 font-semibold transition-colors group-hover:text-primary">
-                {listing.title}
-              </h3>
-              <span className="flex shrink-0 items-center gap-1 rounded-full bg-gold/10 px-2 py-0.5 text-xs font-semibold text-gold">
-                <Star className="size-3 fill-gold" />
-                {listing.rating.toFixed(1)}
-              </span>
-            </div>
+          <div className="space-y-3 p-4 md:p-5">
+            {/* Title */}
+            <h3 className="line-clamp-1 font-display text-base font-bold transition-colors group-hover:text-primary md:text-lg">
+              {listing.title}
+            </h3>
 
-            {/* Features */}
+            {/* Features - cleaner tags */}
             <div className="flex flex-wrap items-center gap-2">
               {listing.rooms > 0 && (
-                <div className="flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1.5 text-xs font-medium">
-                  <BedDouble className="size-4 text-primary" />
+                <div className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium">
+                  <BedDouble className="size-3.5 text-primary" />
                   <span>{listing.rooms} xona</span>
                 </div>
               )}
-              <div className="flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1.5 text-xs font-medium">
-                <Ruler className="size-4 text-primary" />
+              <div className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium">
+                <Ruler className="size-3.5 text-primary" />
                 <span>{listing.area} m²</span>
               </div>
-              <div className="flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1.5 text-xs font-medium">
-                <Bath className="size-4 text-primary" />
+              <div className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-3 py-1.5 text-xs font-medium">
+                <Building2 className="size-3.5 text-primary" />
                 <span>{typeLabel}</span>
               </div>
             </div>
@@ -233,13 +242,13 @@ export function PropertyCard({ listing, variant = "default", showActions = true 
             <AnimatePresence>
               {isHovered && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="pt-2"
+                  exit={{ opacity: 0, y: 8 }}
+                  className="pt-1"
                 >
-                  <div className="flex items-center justify-between rounded-xl bg-primary/5 px-4 py-2.5">
-                    <span className="text-sm font-medium text-primary">Batafsil ko'rish</span>
+                  <div className="flex items-center justify-between rounded-xl bg-primary/8 px-4 py-2.5">
+                    <span className="text-sm font-semibold text-primary">Batafsil ko'rish</span>
                     <ArrowUpRight className="size-4 text-primary" />
                   </div>
                 </motion.div>
@@ -377,10 +386,10 @@ export function FeaturedPropertyCard({ listing }: { listing: Listing }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ y: -8 }}
-      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      whileHover={{ y: -6 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="group"
@@ -388,7 +397,7 @@ export function FeaturedPropertyCard({ listing }: { listing: Listing }) {
       <Link
         to="/elonlar/$id"
         params={{ id: listing.id }}
-        className="relative block overflow-hidden rounded-3xl"
+        className="relative block overflow-hidden rounded-2xl md:rounded-3xl"
       >
         {/* Image */}
         <div className="aspect-[21/10] overflow-hidden md:aspect-[21/9]">
@@ -396,25 +405,26 @@ export function FeaturedPropertyCard({ listing }: { listing: Listing }) {
             src={listing.image}
             alt={listing.title}
             className="size-full object-cover"
-            animate={{ scale: isHovered ? 1.05 : 1 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ scale: isHovered ? 1.04 : 1 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           />
         </div>
 
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+        {/* Gradient Overlay - cinematic */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
 
         {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6 text-white md:p-10">
+        <div className="absolute inset-0 flex flex-col justify-end p-5 text-white md:p-8 lg:p-10">
           {/* Badges */}
           <div className="mb-4 flex items-center gap-2">
-            <Badge variant="gold" className="gap-1 border-0 font-semibold shadow-lg backdrop-blur-md">
-              <Sparkles className="size-3" />
-              {t.property.featured}
+            <Badge variant="gold" className="gap-1.5 border-0 px-3 py-1.5 font-semibold shadow-lg backdrop-blur-md">
+              <Sparkles className="size-3.5" />
+              Premium
             </Badge>
             <Badge
               variant={listing.deal === "ijara" ? "accent" : "default"}
-              className="border-0 font-semibold shadow-lg backdrop-blur-md"
+              className="border-0 px-3 py-1.5 font-semibold shadow-lg backdrop-blur-md"
             >
               {listing.deal === "ijara" ? t.deal.forRent : t.deal.sale}
             </Badge>
@@ -442,14 +452,14 @@ export function FeaturedPropertyCard({ listing }: { listing: Listing }) {
               {priceDisplay}
             </motion.p>
 
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+            <div className="flex items-center gap-2 md:gap-3">
+              <span className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-sm font-medium backdrop-blur-sm md:px-4">
                 <BedDouble className="size-4" /> {listing.rooms} xona
               </span>
-              <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+              <span className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-sm font-medium backdrop-blur-sm md:px-4">
                 <Ruler className="size-4" /> {listing.area}m²
               </span>
-              <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+              <span className="hidden items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-sm font-medium backdrop-blur-sm sm:flex md:px-4">
                 <Star className="size-4 fill-gold text-gold" /> {listing.rating}
               </span>
             </div>
@@ -467,7 +477,7 @@ export function FeaturedPropertyCard({ listing }: { listing: Listing }) {
                 <Button
                   variant="glass"
                   size="lg"
-                  className="gap-2 rounded-full border-white/30 text-white"
+                  className="gap-2 rounded-full border-white/20 bg-white/15 text-white backdrop-blur-md hover:bg-white/25"
                 >
                   Batafsil ko'rish
                   <ArrowUpRight className="size-4" />
@@ -489,7 +499,7 @@ export function FeaturedPropertyCard({ listing }: { listing: Listing }) {
             "absolute right-4 top-4 flex size-12 items-center justify-center rounded-full backdrop-blur-md transition-all md:right-6 md:top-6",
             isLiked
               ? "bg-red-500 text-white shadow-lg shadow-red-500/30"
-              : "bg-white/20 text-white hover:bg-white/40"
+              : "bg-white/20 text-white hover:bg-white/30"
           )}
         >
           <Heart className={cn("size-6", isLiked && "fill-current")} />

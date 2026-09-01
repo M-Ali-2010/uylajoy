@@ -766,3 +766,456 @@
 .dark .dot-pattern {
   background-image: radial-gradient(circle, oklch(1 0 0 / 0.1) 1px, transparent 1px);
 }
+
+/* ============================================
+   PREMIUM SECTION BACKGROUNDS
+   ============================================ */
+
+/* Section with subtle tint */
+.section-tinted {
+  background: linear-gradient(180deg,
+    oklch(0.97 0.01 195 / 0.3) 0%,
+    oklch(0.985 0.002 240) 100%
+  );
+}
+
+.dark .section-tinted {
+  background: linear-gradient(180deg,
+    oklch(0.14 0.02 195 / 0.3) 0%,
+    oklch(0.12 0.02 260) 100%
+  );
+}
+
+/* Section with warm tint */
+.section-warm {
+  background: linear-gradient(180deg,
+    oklch(0.98 0.01 50 / 0.4) 0%,
+    oklch(0.985 0.002 240) 100%
+  );
+}
+
+.dark .section-warm {
+  background: linear-gradient(180deg,
+    oklch(0.14 0.02 50 / 0.2) 0%,
+    oklch(0.12 0.02 260) 100%
+  );
+}
+
+/* Dark accent section */
+.section-dark {
+  background: linear-gradient(135deg,
+    oklch(0.22 0.04 195) 0%,
+    oklch(0.18 0.03 220) 100%
+  );
+  color: oklch(0.95 0.01 240);
+}
+
+/* Premium image card overlay */
+.image-card-overlay {
+  background: linear-gradient(180deg,
+    oklch(0 0 0 / 0) 0%,
+    oklch(0 0 0 / 0.1) 40%,
+    oklch(0 0 0 / 0.7) 100%
+  );
+}
+
+/* City card overlay gradient */
+.city-card-overlay {
+  background: linear-gradient(180deg,
+    oklch(0 0 0 / 0.1) 0%,
+    oklch(0 0 0 / 0.5) 60%,
+    oklch(0 0 0 / 0.85) 100%
+  );
+}
+
+/* Category card gradient */
+.category-gradient {
+  background: linear-gradient(135deg,
+    oklch(0.45 0.12 195 / 0.9) 0%,
+    oklch(0.35 0.10 195) 100%
+  );
+}
+
+.category-gradient-warm {
+  background: linear-gradient(135deg,
+    oklch(0.65 0.16 35 / 0.9) 0%,
+    oklch(0.55 0.14 35) 100%
+  );
+}
+
+.category-gradient-gold {
+  background: linear-gradient(135deg,
+    oklch(0.72 0.14 75 / 0.9) 0%,
+    oklch(0.62 0.12 75) 100%
+  );
+}
+
+.category-gradient-green {
+  background: linear-gradient(135deg,
+    oklch(0.55 0.16 145 / 0.9) 0%,
+    oklch(0.45 0.14 145) 100%
+  );
+}
+
+/* ============================================
+   PREMIUM CARD VARIATIONS
+   ============================================ */
+
+/* Elevated card with glow */
+.card-elevated {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-card);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-elevated:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-float), 0 0 30px oklch(0.45 0.12 195 / 0.1);
+}
+
+/* Glass card premium */
+.glass-card {
+  background: linear-gradient(135deg,
+    oklch(1 0 0 / 0.95) 0%,
+    oklch(1 0 0 / 0.85) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 1px solid oklch(1 0 0 / 0.4);
+  box-shadow:
+    0 4px 24px oklch(0 0 0 / 0.06),
+    inset 0 1px 0 oklch(1 0 0 / 0.8);
+}
+
+.dark .glass-card {
+  background: linear-gradient(135deg,
+    oklch(1 0 0 / 0.08) 0%,
+    oklch(1 0 0 / 0.04) 100%
+  );
+  border-color: oklch(1 0 0 / 0.12);
+}
+
+/* Trust strip styling */
+.trust-strip {
+  background: linear-gradient(135deg,
+    oklch(1 0 0) 0%,
+    oklch(0.99 0.005 195 / 0.5) 100%
+  );
+  border: 1px solid oklch(0.45 0.12 195 / 0.15);
+  box-shadow:
+    0 2px 40px oklch(0.45 0.12 195 / 0.08),
+    0 0 0 1px oklch(1 0 0 / 0.5);
+}
+
+.dark .trust-strip {
+  background: linear-gradient(135deg,
+    oklch(0.18 0.02 260) 0%,
+    oklch(0.16 0.02 195 / 0.5) 100%
+  );
+  border-color: oklch(0.65 0.15 195 / 0.2);
+}
+
+/* ============================================
+   TYPOGRAPHY ENHANCEMENTS
+   ============================================ */
+
+/* Display text with gradient */
+.display-gradient {
+  background: linear-gradient(135deg,
+    oklch(0.18 0.02 260) 0%,
+    oklch(0.35 0.04 260) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dark .display-gradient {
+  background: linear-gradient(135deg,
+    oklch(0.98 0.01 240) 0%,
+    oklch(0.85 0.02 240) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Section badge */
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section-badge-primary {
+  background: oklch(0.45 0.12 195 / 0.1);
+  color: oklch(0.45 0.12 195);
+  border: 1px solid oklch(0.45 0.12 195 / 0.2);
+}
+
+.section-badge-accent {
+  background: oklch(0.68 0.18 35 / 0.1);
+  color: oklch(0.55 0.15 35);
+  border: 1px solid oklch(0.68 0.18 35 / 0.2);
+}
+
+.section-badge-gold {
+  background: oklch(0.75 0.15 75 / 0.15);
+  color: oklch(0.55 0.12 75);
+  border: 1px solid oklch(0.75 0.15 75 / 0.25);
+}
+
+/* ============================================
+   INTERACTIVE ELEMENTS
+   ============================================ */
+
+/* Premium button with shine */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(1 0 0 / 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-shine:hover::before {
+  left: 100%;
+}
+
+/* Feature icon container */
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg,
+    oklch(0.45 0.12 195 / 0.12) 0%,
+    oklch(0.45 0.12 195 / 0.06) 100%
+  );
+  border: 1px solid oklch(0.45 0.12 195 / 0.15);
+  transition: all 0.3s ease;
+}
+
+.feature-icon:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 24px oklch(0.45 0.12 195 / 0.2);
+}
+
+/* Stat number styling */
+.stat-number {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg,
+    oklch(0.18 0.02 260) 0%,
+    oklch(0.45 0.12 195) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dark .stat-number {
+  background: linear-gradient(135deg,
+    oklch(0.98 0.01 240) 0%,
+    oklch(0.65 0.15 195) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ============================================
+   LAYOUT HELPERS
+   ============================================ */
+
+/* Bento grid for features */
+.bento-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .bento-grid .bento-large {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .bento-grid .bento-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .bento-grid .bento-wide {
+    grid-column: span 2;
+  }
+}
+
+/* Editorial grid */
+.editorial-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .editorial-grid {
+    grid-template-columns: 1.5fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .editorial-grid .editorial-hero {
+    grid-row: span 2;
+  }
+}
+
+/* Trust strip grid */
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .trust-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+}
+
+/* City cards grid */
+.city-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .city-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .city-grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  .city-grid .city-hero {
+    grid-row: span 2;
+  }
+}
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================ */
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-up.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ============================================
+   SEARCH CARD PREMIUM STYLES
+   ============================================ */
+
+.search-card-premium {
+  background: linear-gradient(135deg,
+    oklch(1 0 0 / 0.15) 0%,
+    oklch(1 0 0 / 0.08) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid oklch(1 0 0 / 0.25);
+  box-shadow:
+    0 8px 32px oklch(0 0 0 / 0.12),
+    0 0 0 1px oklch(1 0 0 / 0.1) inset,
+    0 32px 64px oklch(0.45 0.12 195 / 0.1);
+}
+
+.search-card-premium:focus-within {
+  border-color: oklch(1 0 0 / 0.4);
+  box-shadow:
+    0 8px 40px oklch(0 0 0 / 0.15),
+    0 0 0 1px oklch(1 0 0 / 0.15) inset,
+    0 32px 64px oklch(0.45 0.12 195 / 0.15);
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 768px) {
+  .mobile-full-bleed {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .mobile-scroll-x {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1rem;
+    margin-bottom: -1rem;
+  }
+
+  .mobile-scroll-x > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  .mobile-scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+}

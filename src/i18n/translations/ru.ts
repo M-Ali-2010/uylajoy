@@ -44,12 +44,14 @@ export const ru: TranslationKeys = {
     messages: "Сообщения",
     notifications: "Уведомления",
     logout: "Выйти",
+    mortgageShort: "Ипотека",
   },
 
   // Homepage
   home: {
     heroTitle: "Найдите свой дом в Узбекистане",
-    heroSubtitle: "Проверенные объявления, реальные цены и профессиональные агенты — всё на одной платформе.",
+    heroSubtitle:
+      "Проверенные объявления, реальные цены и профессиональные агенты — всё на одной платформе.",
     searchPlaceholder: "Город, район или улица",
     propertyTypes: "Типы недвижимости",
     featuredListings: "Избранные объявления",
@@ -62,6 +64,44 @@ export const ru: TranslationKeys = {
     mortgageHelper: "Ипотечный помощник",
     mortgageHelperDesc: "Рассчитайте ежемесячный платёж за несколько секунд и выберите банк.",
     listingsCount: "объявлений",
+    heroBadge: "активных объявлений",
+    heroBadgeRegion: "по всему Узбекистану",
+    heroTitleHighlight: "дом",
+    heroScrollHint: "Листайте вниз",
+    searchTitle: "Поиск недвижимости",
+    searchSubtitle: "Найдите подходящий вариант за пару секунд",
+    searchAdvanced: "Расширенные фильтры",
+    statVerified: "Проверенных объявлений",
+    statAgents: "Профессиональных агентов",
+    statAgencies: "Надёжных агентств",
+    statSatisfaction: "Довольных клиентов",
+    categoriesEyebrow: "Категории",
+    categoriesSubtitle: "Выберите тип недвижимости и смотрите подходящие объявления",
+    featuredEyebrow: "Подборка",
+    featuredSubtitle: "Лучшие предложения, проверенные модераторами",
+    benefitsEyebrow: "Преимущества",
+    benefitsTitle: "Почему UyJoy.uz?",
+    benefitsSubtitle: "Мы сделали поиск недвижимости простым и надёжным",
+    fastResponse: "Быстрый ответ",
+    fastResponseDesc: "Ответ на объявление в среднем в течение 24 часов.",
+    citiesEyebrow: "Регионы",
+    citiesSubtitle: "Ищите по крупнейшим городам Узбекистана",
+    newListingsTitle: "Новые объявления",
+    newListingsSubtitle: "Самые свежие предложения на платформе",
+    ctaTitle: "Разместите объявление бесплатно",
+    ctaSubtitle:
+      "Тысячи покупателей уже ищут. Разместите объявление за 3 минуты и продайте быстрее.",
+    ctaNote: "Регистрация бесплатна — без комиссии",
+    newsletterTitle: "Узнавайте о новых объявлениях первыми",
+    newsletterSubtitle: "Раз в неделю — лучшие предложения. Без спама.",
+    newsletterPlaceholder: "Ваш email",
+    newsletterCta: "Подписаться",
+    exploreCity: "Смотреть",
+    viewDetails: "Подробнее",
+    learnMore: "Подробнее",
+    listingsCountOne: "объявление",
+    listingsCountFew: "объявления",
+    listingsCountMany: "объявлений",
   },
 
   // Deal types
@@ -178,7 +218,8 @@ export const ru: TranslationKeys = {
   // Mortgage calculator
   mortgage: {
     title: "Ипотечный калькулятор",
-    subtitle: "Введите цену, первоначальный взнос, срок и процент — ежемесячный платёж рассчитается мгновенно.",
+    subtitle:
+      "Введите цену, первоначальный взнос, срок и процент — ежемесячный платёж рассчитается мгновенно.",
     propertyPrice: "Цена недвижимости",
     downPayment: "Первоначальный взнос",
     loanTerm: "Срок",
@@ -193,7 +234,8 @@ export const ru: TranslationKeys = {
   // Market prices
   market: {
     title: "Средние цены по городам",
-    subtitle: "Данные обновляются ежемесячно на основе объявлений и сделок на платформе. Цены за 1 м² в долларах США.",
+    subtitle:
+      "Данные обновляются ежемесячно на основе объявлений и сделок на платформе. Цены за 1 м² в долларах США.",
     analysis: "Анализ рынка",
     pricePerSqm: "/м²",
     yearlyChange: "Изменение за год",
@@ -323,7 +365,8 @@ export const ru: TranslationKeys = {
 
   // Footer
   footer: {
-    description: "Самая надёжная платформа недвижимости в Узбекистане. Проверенные объявления, реальные цены и профессиональные консультации.",
+    description:
+      "Самая надёжная платформа недвижимости в Узбекистане. Проверенные объявления, реальные цены и профессиональные консультации.",
     forBuyers: "Покупателям",
     forSellers: "Продавцам",
     saleHouses: "Дома на продажу",
@@ -331,6 +374,15 @@ export const ru: TranslationKeys = {
     freeListing: "Бесплатное объявление",
     contact: "Контакты",
     allRightsReserved: "Все права защищены.",
+    company: "UyJoy",
+    about: "О нас",
+    blog: "Блог",
+    help: "Центр поддержки",
+    priceAnalysis: "Анализ цен",
+    privacy: "Политика конфиденциальности",
+    terms: "Условия использования",
+    followUs: "Мы в соцсетях",
+    madeIn: "Сделано в Узбекистане",
   },
 
   // Errors

@@ -1,57 +1,55 @@
 "use client";
 
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion, type HTMLMotionProps } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold cursor-pointer select-none transition-[transform,box-shadow,background-color,border-color,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:translate-y-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover hover:shadow-md hover:-translate-y-px",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90 hover:shadow-lg hover:-translate-y-0.5",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md hover:-translate-y-px",
         outline:
-          "border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent",
-        secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "border border-border-strong bg-transparent text-foreground hover:border-primary/45 hover:bg-primary-soft hover:text-primary",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
+        ghost: "text-foreground/80 hover:bg-secondary hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02]",
+        hero: "bg-primary text-primary-foreground shadow-md hover:bg-primary-hover hover:shadow-lg hover:-translate-y-px",
         accent:
-          "bg-accent text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5",
-        soft: "bg-secondary/70 text-secondary-foreground hover:bg-secondary",
-        glow: "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(var(--primary),0.4)] hover:shadow-[0_0_30px_rgba(var(--primary),0.6)] hover:-translate-y-0.5",
+          "bg-accent text-accent-foreground shadow-sm hover:bg-accent-hover hover:shadow-md hover:-translate-y-px",
+        soft: "bg-secondary text-secondary-foreground hover:bg-primary-soft hover:text-primary",
+        glow: "bg-primary text-primary-foreground shadow-md hover:bg-primary-hover hover:shadow-lg hover:-translate-y-px",
         glass:
-          "bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20",
-        gradient:
-          "bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] text-primary-foreground hover:bg-right transition-all duration-500",
+          "border border-white/30 bg-white/12 text-white backdrop-blur-md hover:border-white/45 hover:bg-white/20",
+        onDark:
+          "bg-white text-ink shadow-sm hover:bg-white/92 hover:-translate-y-px hover:shadow-md",
+        gradient: "bg-primary text-primary-foreground hover:bg-primary-hover",
       },
       size: {
-        default: "h-10 px-5 py-2",
-        sm: "h-8 rounded-lg px-3 text-xs",
-        lg: "h-11 rounded-xl px-8 text-base",
-        xl: "h-14 rounded-2xl px-10 text-lg",
-        icon: "h-10 w-10 rounded-xl",
-        "icon-sm": "h-8 w-8 rounded-lg",
-        "icon-lg": "h-12 w-12 rounded-xl",
+        default: "h-10 px-4",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-11 px-6 text-[0.9375rem]",
+        xl: "h-13 rounded-xl px-7 text-base",
+        icon: "size-10 rounded-lg",
+        "icon-sm": "size-8 rounded-md",
+        "icon-lg": "size-11 rounded-lg",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
   leftIcon?: React.ReactNode;
@@ -72,13 +70,31 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
-    const Comp = asChild ? Slot : "button";
     const isDisabled = disabled || loading;
 
+    // asChild renders the caller's own element (usually a router Link).
+    // `Slottable` has to be a *direct* child of Slot — wrapping the children in
+    // a fragment makes Slot merge its props onto the fragment instead, which
+    // silently drops every class and handler the button just computed.
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...(isDisabled ? { "aria-disabled": true } : {})}
+          {...props}
+        >
+          {leftIcon ? <span className="mr-1">{leftIcon}</span> : null}
+          <Slottable>{children}</Slottable>
+          {rightIcon ? <span className="ml-1">{rightIcon}</span> : null}
+        </Slot>
+      );
+    }
+
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={isDisabled}
@@ -96,9 +112,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             {rightIcon && <span className="ml-1">{rightIcon}</span>}
           </>
         )}
-      </Comp>
+      </button>
     );
-  }
+  },
 );
 Button.displayName = "Button";
 
@@ -111,14 +127,7 @@ function LoadingSpinner() {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -127,37 +136,6 @@ function LoadingSpinner() {
     </svg>
   );
 }
-
-// Animated button with Framer Motion
-interface AnimatedButtonProps
-  extends Omit<HTMLMotionProps<"button">, "children">,
-    VariantProps<typeof buttonVariants> {
-  children: React.ReactNode;
-  loading?: boolean;
-}
-
-const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
-  ({ className, variant, size, loading, children, disabled, ...props }, ref) => {
-    return (
-      <motion.button
-        ref={ref}
-        className={cn(buttonVariants({ variant, size, className }))}
-        disabled={disabled || loading}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        {...props}
-      >
-        {loading ? (
-          <LoadingSpinner />
-        ) : (
-          children
-        )}
-      </motion.button>
-    );
-  }
-);
-AnimatedButton.displayName = "AnimatedButton";
 
 // Icon button with ripple effect
 interface IconButtonProps extends ButtonProps {
@@ -177,7 +155,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         {children}
       </Button>
     );
-  }
+  },
 );
 IconButton.displayName = "IconButton";
 
@@ -189,7 +167,7 @@ const FloatingButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(
           "fixed bottom-6 right-6 z-50 size-14 rounded-full shadow-2xl hover:shadow-3xl",
-          className
+          className,
         )}
         size="icon-lg"
         variant="hero"
@@ -198,8 +176,8 @@ const FloatingButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </Button>
     );
-  }
+  },
 );
 FloatingButton.displayName = "FloatingButton";
 
-export { Button, AnimatedButton, IconButton, FloatingButton, buttonVariants };
+export { Button, IconButton, FloatingButton, buttonVariants };

@@ -44,6 +44,7 @@ export const en: TranslationKeys = {
     messages: "Messages",
     notifications: "Notifications",
     logout: "Logout",
+    mortgageShort: "Mortgage",
   },
 
   // Homepage
@@ -62,6 +63,44 @@ export const en: TranslationKeys = {
     mortgageHelper: "Mortgage Helper",
     mortgageHelperDesc: "Calculate your monthly payment in seconds and choose a bank.",
     listingsCount: "listings",
+    heroBadge: "active listings",
+    heroBadgeRegion: "across Uzbekistan",
+    heroTitleHighlight: "home",
+    heroScrollHint: "Scroll down",
+    searchTitle: "Property search",
+    searchSubtitle: "Find the right match in seconds",
+    searchAdvanced: "Advanced filters",
+    statVerified: "Verified listings",
+    statAgents: "Active agents",
+    statAgencies: "Partner agencies",
+    statSatisfaction: "Client satisfaction",
+    categoriesEyebrow: "Categories",
+    categoriesSubtitle: "Pick a property type and browse matching listings",
+    featuredEyebrow: "Selected",
+    featuredSubtitle: "The best offers, checked by our moderators",
+    benefitsEyebrow: "Why us",
+    benefitsTitle: "Why UyJoy.uz?",
+    benefitsSubtitle: "We made finding property simple and dependable",
+    fastResponse: "Fast response",
+    fastResponseDesc: "Hear back on a listing within 24 hours on average.",
+    citiesEyebrow: "Regions",
+    citiesSubtitle: "Search across the largest cities of Uzbekistan",
+    newListingsTitle: "Recently added",
+    newListingsSubtitle: "The latest listings on the platform",
+    ctaTitle: "List your property for free",
+    ctaSubtitle:
+      "Thousands of buyers are already looking. Publish in three minutes and sell faster.",
+    ctaNote: "Free to join — no commission",
+    newsletterTitle: "Be first to see new listings",
+    newsletterSubtitle: "One email a week with the best offers. No spam.",
+    newsletterPlaceholder: "Your email address",
+    newsletterCta: "Subscribe",
+    exploreCity: "Explore",
+    viewDetails: "View details",
+    learnMore: "Learn more",
+    listingsCountOne: "listing",
+    listingsCountFew: "listings",
+    listingsCountMany: "listings",
   },
 
   // Deal types
@@ -178,7 +217,8 @@ export const en: TranslationKeys = {
   // Mortgage calculator
   mortgage: {
     title: "Mortgage Calculator",
-    subtitle: "Enter the price, down payment, term and interest rate — monthly payment is calculated instantly.",
+    subtitle:
+      "Enter the price, down payment, term and interest rate — monthly payment is calculated instantly.",
     propertyPrice: "Property Price",
     downPayment: "Down Payment",
     loanTerm: "Loan Term",
@@ -193,7 +233,8 @@ export const en: TranslationKeys = {
   // Market prices
   market: {
     title: "Average Prices by City",
-    subtitle: "Data is updated monthly based on listings and transactions on the platform. Prices per 1 m² in US dollars.",
+    subtitle:
+      "Data is updated monthly based on listings and transactions on the platform. Prices per 1 m² in US dollars.",
     analysis: "Market Analysis",
     pricePerSqm: "/m²",
     yearlyChange: "Yearly Change",
@@ -323,7 +364,8 @@ export const en: TranslationKeys = {
 
   // Footer
   footer: {
-    description: "The most trusted real estate platform in Uzbekistan. Verified listings, real prices and professional advice.",
+    description:
+      "The most trusted real estate platform in Uzbekistan. Verified listings, real prices and professional advice.",
     forBuyers: "For Buyers",
     forSellers: "For Sellers",
     saleHouses: "Houses for Sale",
@@ -331,6 +373,15 @@ export const en: TranslationKeys = {
     freeListing: "Free Listing",
     contact: "Contact",
     allRightsReserved: "All rights reserved.",
+    company: "UyJoy",
+    about: "About us",
+    blog: "Blog",
+    help: "Help centre",
+    priceAnalysis: "Price analysis",
+    privacy: "Privacy policy",
+    terms: "Terms of use",
+    followUs: "Follow us",
+    madeIn: "Made in Uzbekistan",
   },
 
   // Errors

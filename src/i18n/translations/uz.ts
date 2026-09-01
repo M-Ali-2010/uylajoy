@@ -42,12 +42,14 @@ export const uz = {
     messages: "Xabarlar",
     notifications: "Bildirishnomalar",
     logout: "Chiqish",
+    mortgageShort: "Ipoteka",
   },
 
   // Homepage
   home: {
-    heroTitle: "O'zbekistonda o'z uyingizni toping",
-    heroSubtitle: "Tekshirilgan e'lonlar, haqiqiy narxlar va professional agentlar — barchasi bitta platformada.",
+    heroTitle: "O'zingizga mos uyingizni toping",
+    heroSubtitle:
+      "Tekshirilgan e'lonlar, haqiqiy narxlar va professional agentlar — barchasi bitta platformada.",
     searchPlaceholder: "Shahar, tuman yoki ko'cha nomi",
     propertyTypes: "Mulk turlari",
     featuredListings: "Tanlangan e'lonlar",
@@ -60,6 +62,44 @@ export const uz = {
     mortgageHelper: "Ipoteka yordamchisi",
     mortgageHelperDesc: "Oylik to'lovni bir necha soniyada hisoblang va bankni tanlang.",
     listingsCount: "ta e'lon",
+    heroBadge: "ta aktiv e'lon",
+    heroBadgeRegion: "O'zbekiston bo'ylab",
+    heroTitleHighlight: "uyingizni",
+    heroScrollHint: "Pastga suring",
+    searchTitle: "Mulk qidirish",
+    searchSubtitle: "Bir necha soniyada mos variantni toping",
+    searchAdvanced: "Kengaytirilgan filtrlar",
+    statVerified: "Tekshirilgan e'lonlar",
+    statAgents: "Professional agentlar",
+    statAgencies: "Ishonchli agentliklar",
+    statSatisfaction: "Mijozlar mamnuniyati",
+    categoriesEyebrow: "Kategoriyalar",
+    categoriesSubtitle: "Mulk turini tanlang va mos e'lonlarni ko'ring",
+    featuredEyebrow: "Tanlangan",
+    featuredSubtitle: "Moderatorlar tomonidan tekshirilgan eng yaxshi takliflar",
+    benefitsEyebrow: "Afzalliklar",
+    benefitsTitle: "Nima uchun UyJoy.uz?",
+    benefitsSubtitle: "Ko'chmas mulk qidirishni sodda va ishonchli qildik",
+    fastResponse: "Tezkor javob",
+    fastResponseDesc: "E'lonlarga o'rtacha 24 soat ichida javob oling.",
+    citiesEyebrow: "Hududlar",
+    citiesSubtitle: "O'zbekistonning yirik shaharlari bo'yicha qidiring",
+    newListingsTitle: "Yangi qo'shilgan e'lonlar",
+    newListingsSubtitle: "Platformaga eng so'nggi qo'shilgan takliflar",
+    ctaTitle: "Mulkingizni bepul e'lon qiling",
+    ctaSubtitle:
+      "Minglab xaridorlar sizni kutmoqda. E'loningizni 3 daqiqada joylashtiring va tezroq soting.",
+    ctaNote: "Ro'yxatdan o'tish bepul — komissiya yo'q",
+    newsletterTitle: "Yangi e'lonlardan xabardor bo'ling",
+    newsletterSubtitle: "Haftada bir marta eng yaxshi takliflar — spam yo'q.",
+    newsletterPlaceholder: "Email manzilingiz",
+    newsletterCta: "Obuna bo'lish",
+    exploreCity: "Ko'rish",
+    viewDetails: "Batafsil ko'rish",
+    learnMore: "Batafsil",
+    listingsCountOne: "ta e'lon",
+    listingsCountFew: "ta e'lon",
+    listingsCountMany: "ta e'lon",
   },
 
   // Deal types
@@ -176,7 +216,8 @@ export const uz = {
   // Mortgage calculator
   mortgage: {
     title: "Ipoteka kalkulyatori",
-    subtitle: "Uy narxi, boshlang'ich to'lov, muddat va bank foizini kiriting — oylik to'lov darhol hisoblanadi.",
+    subtitle:
+      "Uy narxi, boshlang'ich to'lov, muddat va bank foizini kiriting — oylik to'lov darhol hisoblanadi.",
     propertyPrice: "Uy narxi",
     downPayment: "Boshlang'ich to'lov",
     loanTerm: "Muddat",
@@ -191,7 +232,8 @@ export const uz = {
   // Market prices
   market: {
     title: "Shaharlar bo'yicha o'rtacha narxlar",
-    subtitle: "Ma'lumotlar platformadagi e'lonlar va bitimlar asosida har oy yangilanadi. Narxlar 1 m² uchun AQSh dollarida.",
+    subtitle:
+      "Ma'lumotlar platformadagi e'lonlar va bitimlar asosida har oy yangilanadi. Narxlar 1 m² uchun AQSh dollarida.",
     analysis: "Bozor tahlili",
     pricePerSqm: "/m²",
     yearlyChange: "Yillik o'zgarish",
@@ -321,7 +363,8 @@ export const uz = {
 
   // Footer
   footer: {
-    description: "O'zbekistondagi eng ishonchli ko'chmas mulk platformasi. Tekshirilgan e'lonlar, haqiqiy narxlar va professional maslahat.",
+    description:
+      "O'zbekistondagi eng ishonchli ko'chmas mulk platformasi. Tekshirilgan e'lonlar, haqiqiy narxlar va professional maslahat.",
     forBuyers: "Xaridorlar uchun",
     forSellers: "Sotuvchilar uchun",
     saleHouses: "Sotuvdagi uylar",
@@ -329,6 +372,15 @@ export const uz = {
     freeListing: "Bepul e'lon joylash",
     contact: "Aloqa",
     allRightsReserved: "Barcha huquqlar himoyalangan.",
+    company: "UyJoy",
+    about: "Biz haqimizda",
+    blog: "Blog",
+    help: "Yordam markazi",
+    priceAnalysis: "Narxlar tahlili",
+    privacy: "Maxfiylik siyosati",
+    terms: "Foydalanish shartlari",
+    followUs: "Bizni kuzating",
+    madeIn: "O'zbekistonda ishlab chiqilgan",
   },
 
   // Errors

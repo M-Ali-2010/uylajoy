@@ -22,7 +22,13 @@ interface AuthState {
 
   // Actions
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { email: string; password: string; name: string; phone?: string; role?: string }) => Promise<void>;
+  register: (data: {
+    email: string;
+    password: string;
+    name: string;
+    phone?: string | undefined;
+    role?: string | undefined;
+  }) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
@@ -116,6 +122,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       partialize: (state) => ({ token: state.token }),
-    }
-  )
+    },
+  ),
 );

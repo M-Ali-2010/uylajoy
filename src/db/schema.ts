@@ -168,7 +168,14 @@ export type Review = {
 export type Notification = {
   id: string;
   userId: string;
-  type: "message" | "lead" | "listing_approved" | "listing_rejected" | "price_drop" | "review" | "system";
+  type:
+    | "message"
+    | "lead"
+    | "listing_approved"
+    | "listing_rejected"
+    | "price_drop"
+    | "review"
+    | "system";
   title: string;
   content: string;
   data: Record<string, unknown> | null;

@@ -1,46 +1,33 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { loginUser } from "@/lib/server/auth";
 import { z } from "zod";
+import { loginUser } from "@/lib/server/auth";
+import { clientIp, errorResponse, readJson } from "@/lib/server/http";
+import { RULES, rateLimit } from "@/lib/server/rate-limit";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
+  password: z.string().min(1, "Password is required").max(200),
 });
 
-export const APIRoute = createAPIFileRoute("/api/auth/login")({
-  POST: async ({ request }) => {
-    try {
-      const body = await request.json();
-      const validated = loginSchema.parse(body);
+export const Route = createFileRoute("/api/auth/login")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        try {
+          const ip = clientIp(request);
+          rateLimit("login-ip", ip, RULES.login);
 
-      const { user, token } = await loginUser(validated);
+          const validated = loginSchema.parse(await readJson(request));
+          // Second bucket per account, so one address cannot brute-force one login
+          rateLimit("login-account", validated.email, RULES.login);
 
-      return json({
-        success: true,
-        user,
-        token,
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return json(
-          {
-            success: false,
-            error: "Validation failed",
-            details: error.errors,
-          },
-          { status: 400 }
-        );
-      }
-
-      const message = error instanceof Error ? error.message : "Login failed";
-      return json(
-        {
-          success: false,
-          error: message,
-        },
-        { status: 401 }
-      );
-    }
+          const { user, token } = await loginUser(validated);
+          return json({ success: true, user, token });
+        } catch (error) {
+          return errorResponse(error, "Login failed");
+        }
+      },
+    },
   },
 });

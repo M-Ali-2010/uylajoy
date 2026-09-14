@@ -20,12 +20,13 @@ export async function getUserFavorites(userId: string, folderId?: string) {
     .orderBy(desc(favorites.createdAt));
 
   const propertyIds = result.map((r) => r.property.id);
-  const images = propertyIds.length > 0
-    ? await db
-        .select()
-        .from(propertyImages)
-        .where(inArray(propertyImages.propertyId, propertyIds))
-    : [];
+  const images =
+    propertyIds.length > 0
+      ? await db
+          .select()
+          .from(propertyImages)
+          .where(inArray(propertyImages.propertyId, propertyIds))
+      : [];
 
   return result.map((r) => ({
     id: r.favorite.id,
@@ -50,10 +51,7 @@ export async function addToFavorites(userId: string, propertyId: string, folderI
   if (existing) {
     // Update folder if provided
     if (folderId !== undefined) {
-      await db
-        .update(favorites)
-        .set({ folderId })
-        .where(eq(favorites.id, existing.id));
+      await db.update(favorites).set({ folderId }).where(eq(favorites.id, existing.id));
     }
     return existing;
   }
@@ -131,7 +129,7 @@ export async function getUserFolders(userId: string) {
         ...folder,
         count: Number(countResult?.count || 0),
       };
-    })
+    }),
   );
 
   return foldersWithCount;
@@ -184,10 +182,7 @@ export async function deleteFolder(userId: string, folderId: string) {
   }
 
   // Set favorites in this folder to null
-  await db
-    .update(favorites)
-    .set({ folderId: null })
-    .where(eq(favorites.folderId, folderId));
+  await db.update(favorites).set({ folderId: null }).where(eq(favorites.folderId, folderId));
 
   await db.delete(favoriteFolders).where(eq(favoriteFolders.id, folderId));
 }

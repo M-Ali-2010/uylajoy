@@ -1,159 +1,134 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { getProperties, approveProperty, rejectProperty } from "@/lib/server/properties";
-import { notifyListingApproved, notifyListingRejected } from "@/lib/server/notifications";
-import { getCurrentUser } from "@/lib/server/auth";
-import { db, properties } from "@/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { adminActions, db, properties } from "@/db";
+import { getCurrentUser } from "@/lib/server/auth";
+import { clampInt, clientIp, errorResponse, readJson } from "@/lib/server/http";
+import { notifyListingApproved, notifyListingRejected } from "@/lib/server/notifications";
+import {
+  MAX_PAGE_SIZE,
+  approveProperty,
+  archivePropertyAsAdmin,
+  getProperties,
+  rejectProperty,
+} from "@/lib/server/properties";
 
-const rejectSchema = z.object({
-  reason: z.string().min(10, "Rejection reason must be at least 10 characters"),
-});
+const statusSchema = z.enum([
+  "draft",
+  "pending",
+  "active",
+  "sold",
+  "rented",
+  "paused",
+  "rejected",
+  "archived",
+]);
 
-export const APIRoute = createAPIFileRoute("/api/admin/properties")({
-  // Get pending properties for moderation
-  GET: async ({ request }) => {
-    try {
-      const user = await getCurrentUser(request);
+const actionSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("approve"), propertyId: z.string().uuid() }),
+  z.object({
+    action: z.literal("reject"),
+    propertyId: z.string().uuid(),
+    reason: z.string().trim().min(10, "Rejection reason must be at least 10 characters").max(1000),
+  }),
+  z.object({
+    action: z.literal("archive"),
+    propertyId: z.string().uuid(),
+    reason: z.string().trim().max(1000).optional(),
+  }),
+]);
 
-      if (!user || user.role !== "admin") {
-        return json(
-          {
-            success: false,
-            error: "Unauthorized",
-          },
-          { status: 403 }
-        );
-      }
+export const Route = createFileRoute("/api/admin/properties")({
+  server: {
+    handlers: {
+      // Moderation queue (default) or any status the admin asks for
+      GET: async ({ request }) => {
+        try {
+          const user = await getCurrentUser(request);
+          if (!user || user.role !== "admin") {
+            return json({ success: false, error: "Forbidden" }, { status: 403 });
+          }
 
-      const url = new URL(request.url);
-      const status = url.searchParams.get("status") || "pending";
-      const page = parseInt(url.searchParams.get("page") || "1", 10);
-      const limit = parseInt(url.searchParams.get("limit") || "20", 10);
+          const url = new URL(request.url);
+          const status = statusSchema
+            .catch("pending")
+            .parse(url.searchParams.get("status") ?? "pending");
 
-      const result = await getProperties({
-        status: status as "pending" | "active" | "rejected",
-        page,
-        limit,
-        sortBy: "newest",
-      });
+          const result = await getProperties({
+            status,
+            page: clampInt(url.searchParams.get("page"), { min: 1, max: 100_000, fallback: 1 }),
+            limit: clampInt(url.searchParams.get("limit"), {
+              min: 1,
+              max: MAX_PAGE_SIZE,
+              fallback: 20,
+            }),
+            sortBy: "oldest", // moderate in the order they arrived
+          });
 
-      return json({
-        success: true,
-        ...result,
-      });
-    } catch (error) {
-      return json(
-        {
-          success: false,
-          error: "Failed to fetch properties",
-        },
-        { status: 500 }
-      );
-    }
-  },
+          return json({ success: true, ...result });
+        } catch (error) {
+          return errorResponse(error, "Failed to fetch properties");
+        }
+      },
 
-  // Approve property
-  POST: async ({ request }) => {
-    try {
-      const user = await getCurrentUser(request);
+      // approve / reject / archive — every call is written to the admin action log
+      POST: async ({ request }) => {
+        try {
+          const user = await getCurrentUser(request);
+          if (!user || user.role !== "admin") {
+            return json({ success: false, error: "Forbidden" }, { status: 403 });
+          }
 
-      if (!user || user.role !== "admin") {
-        return json(
-          {
-            success: false,
-            error: "Unauthorized",
-          },
-          { status: 403 }
-        );
-      }
+          // Accept the JSON body; fall back to the legacy ?id=&action= form.
+          const url = new URL(request.url);
+          const raw = request.headers.get("content-type")?.includes("application/json")
+            ? await readJson(request)
+            : {
+                propertyId: url.searchParams.get("id"),
+                action: url.searchParams.get("action"),
+                reason: url.searchParams.get("reason") ?? undefined,
+              };
+          const input = actionSchema.parse(raw);
 
-      const url = new URL(request.url);
-      const propertyId = url.searchParams.get("id");
-      const action = url.searchParams.get("action");
+          const [property] = await db
+            .select({ id: properties.id, title: properties.title, ownerId: properties.ownerId })
+            .from(properties)
+            .where(eq(properties.id, input.propertyId))
+            .limit(1);
 
-      if (!propertyId) {
-        return json(
-          {
-            success: false,
-            error: "Property ID is required",
-          },
-          { status: 400 }
-        );
-      }
+          if (!property) {
+            return json({ success: false, error: "Property not found" }, { status: 404 });
+          }
 
-      // Get property info
-      const [property] = await db
-        .select({ id: properties.id, title: properties.title, ownerId: properties.ownerId })
-        .from(properties)
-        .where(eq(properties.id, propertyId))
-        .limit(1);
+          let message: string;
+          if (input.action === "approve") {
+            await approveProperty(property.id);
+            await notifyListingApproved(property.ownerId, property.title, property.id);
+            message = "Property approved";
+          } else if (input.action === "reject") {
+            await rejectProperty(property.id, input.reason);
+            await notifyListingRejected(property.ownerId, property.title, input.reason);
+            message = "Property rejected";
+          } else {
+            await archivePropertyAsAdmin(property.id);
+            message = "Property archived";
+          }
 
-      if (!property) {
-        return json(
-          {
-            success: false,
-            error: "Property not found",
-          },
-          { status: 404 }
-        );
-      }
+          await db.insert(adminActions).values({
+            adminId: user.id,
+            action: `property.${input.action}`,
+            targetType: "property",
+            targetId: property.id,
+            reason: "reason" in input ? (input.reason ?? null) : null,
+            ip: clientIp(request),
+          });
 
-      if (action === "approve") {
-        await approveProperty(propertyId);
-
-        // Notify owner
-        await notifyListingApproved(property.ownerId, property.title, property.id);
-
-        return json({
-          success: true,
-          message: "Property approved successfully",
-        });
-      }
-
-      if (action === "reject") {
-        const body = await request.json();
-        const validated = rejectSchema.parse(body);
-
-        await rejectProperty(propertyId, validated.reason);
-
-        // Notify owner
-        await notifyListingRejected(property.ownerId, property.title, validated.reason);
-
-        return json({
-          success: true,
-          message: "Property rejected",
-        });
-      }
-
-      return json(
-        {
-          success: false,
-          error: "Invalid action. Use 'approve' or 'reject'",
-        },
-        { status: 400 }
-      );
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return json(
-          {
-            success: false,
-            error: "Validation failed",
-            details: error.errors,
-          },
-          { status: 400 }
-        );
-      }
-
-      const message = error instanceof Error ? error.message : "Failed to process request";
-      return json(
-        {
-          success: false,
-          error: message,
-        },
-        { status: 500 }
-      );
-    }
+          return json({ success: true, message });
+        } catch (error) {
+          return errorResponse(error, "Failed to process request");
+        }
+      },
+    },
   },
 });

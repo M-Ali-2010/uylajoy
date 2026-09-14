@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthBootstrap } from "@/components/uyjoy/auth-bootstrap";
 import { LanguageProvider } from "@/i18n";
 import { CurrencyProvider } from "@/lib/currency";
 
@@ -137,6 +138,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <CurrencyProvider>
+          <AuthBootstrap />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <Toaster />

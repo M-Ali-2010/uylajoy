@@ -1,6 +1,6 @@
 // Telegram Bot API integration for notifications
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_BOT_TOKEN = process.env["TELEGRAM_BOT_TOKEN"];
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 interface TelegramMessage {
@@ -50,7 +50,7 @@ export async function sendTelegramMessage(chatId: string | number, text: string)
 export async function sendTelegramPhoto(
   chatId: string | number,
   photoUrl: string,
-  caption?: string
+  caption?: string,
 ): Promise<boolean> {
   if (!TELEGRAM_BOT_TOKEN) {
     console.warn("Telegram bot token not configured");
@@ -126,12 +126,7 @@ Iltimos, e'lonni qayta tahrirlang va yuborin.
 `,
 
   // New lead notification
-  newLead: (lead: {
-    propertyTitle: string;
-    name: string;
-    phone: string;
-    message?: string;
-  }) => `
+  newLead: (lead: { propertyTitle: string; name: string; phone: string; message?: string }) => `
 <b>📞 Yangi so'rov!</b>
 
 <b>E'lon:</b> ${lead.propertyTitle}
@@ -157,7 +152,7 @@ ${lead.message ? `💬 ${lead.message}` : ""}
 Eski narx: <s>${property.oldPrice.toLocaleString()} ${property.currency}</s>
 Yangi narx: <b>${property.newPrice.toLocaleString()} ${property.currency}</b>
 
-Tejamkorlik: ${((property.oldPrice - property.newPrice) / property.oldPrice * 100).toFixed(1)}%
+Tejamkorlik: ${(((property.oldPrice - property.newPrice) / property.oldPrice) * 100).toFixed(1)}%
 
 <a href="${property.url}">Ko'rish →</a>
 `,
@@ -196,7 +191,7 @@ ${review.text ? `<b>Sharh:</b> ${review.text}` : ""}
 // Notification sender functions
 export async function notifyNewListing(
   adminChatIds: string[],
-  property: Parameters<typeof notificationTemplates.newListing>[0]
+  property: Parameters<typeof notificationTemplates.newListing>[0],
 ): Promise<void> {
   const message = notificationTemplates.newListing(property);
   await Promise.all(adminChatIds.map((chatId) => sendTelegramMessage(chatId, message)));
@@ -204,7 +199,7 @@ export async function notifyNewListing(
 
 export async function notifyPropertyApproved(
   userChatId: string,
-  property: Parameters<typeof notificationTemplates.propertyApproved>[0]
+  property: Parameters<typeof notificationTemplates.propertyApproved>[0],
 ): Promise<void> {
   const message = notificationTemplates.propertyApproved(property);
   await sendTelegramMessage(userChatId, message);
@@ -212,7 +207,7 @@ export async function notifyPropertyApproved(
 
 export async function notifyPropertyRejected(
   userChatId: string,
-  property: Parameters<typeof notificationTemplates.propertyRejected>[0]
+  property: Parameters<typeof notificationTemplates.propertyRejected>[0],
 ): Promise<void> {
   const message = notificationTemplates.propertyRejected(property);
   await sendTelegramMessage(userChatId, message);
@@ -220,7 +215,7 @@ export async function notifyPropertyRejected(
 
 export async function notifyNewLead(
   agentChatId: string,
-  lead: Parameters<typeof notificationTemplates.newLead>[0]
+  lead: Parameters<typeof notificationTemplates.newLead>[0],
 ): Promise<void> {
   const message = notificationTemplates.newLead(lead);
   await sendTelegramMessage(agentChatId, message);
@@ -228,7 +223,7 @@ export async function notifyNewLead(
 
 export async function notifyPriceDrop(
   subscriberChatIds: string[],
-  property: Parameters<typeof notificationTemplates.priceDrop>[0]
+  property: Parameters<typeof notificationTemplates.priceDrop>[0],
 ): Promise<void> {
   const message = notificationTemplates.priceDrop(property);
   await Promise.all(subscriberChatIds.map((chatId) => sendTelegramMessage(chatId, message)));

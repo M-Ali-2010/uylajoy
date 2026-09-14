@@ -3,13 +3,7 @@ import { db, notifications, users } from "@/db";
 
 // Types
 export type NotificationType =
-  | "message"
-  | "lead"
-  | "listing_approved"
-  | "listing_rejected"
-  | "price_drop"
-  | "review"
-  | "system";
+  "message" | "lead" | "listing_approved" | "listing_rejected" | "price_drop" | "review" | "system";
 
 export interface CreateNotificationInput {
   userId: string;
@@ -21,10 +15,7 @@ export interface CreateNotificationInput {
 
 // Create notification
 export async function createNotification(input: CreateNotificationInput) {
-  const [notification] = await db
-    .insert(notifications)
-    .values(input)
-    .returning();
+  const [notification] = await db.insert(notifications).values(input).returning();
 
   return notification;
 }
@@ -32,7 +23,7 @@ export async function createNotification(input: CreateNotificationInput) {
 // Create notifications for multiple users
 export async function createBulkNotifications(
   userIds: string[],
-  notification: Omit<CreateNotificationInput, "userId">
+  notification: Omit<CreateNotificationInput, "userId">,
 ) {
   if (userIds.length === 0) return [];
 
@@ -41,10 +32,7 @@ export async function createBulkNotifications(
     ...notification,
   }));
 
-  const created = await db
-    .insert(notifications)
-    .values(notificationValues)
-    .returning();
+  const created = await db.insert(notifications).values(notificationValues).returning();
 
   return created;
 }
@@ -52,7 +40,7 @@ export async function createBulkNotifications(
 // Get user notifications
 export async function getUserNotifications(
   userId: string,
-  options: { page?: number; limit?: number; unreadOnly?: boolean } = {}
+  options: { page?: number; limit?: number; unreadOnly?: boolean } = {},
 ) {
   const { page = 1, limit = 20, unreadOnly = false } = options;
 
@@ -127,7 +115,11 @@ export async function deleteAllNotifications(userId: string) {
 }
 
 // Notification helper functions for specific events
-export async function notifyListingApproved(userId: string, propertyTitle: string, propertyId: string) {
+export async function notifyListingApproved(
+  userId: string,
+  propertyTitle: string,
+  propertyId: string,
+) {
   return createNotification({
     userId,
     type: "listing_approved",
@@ -151,7 +143,7 @@ export async function notifyNewLead(
   agentUserId: string,
   propertyTitle: string,
   leadName: string,
-  leadPhone: string
+  leadPhone: string,
 ) {
   return createNotification({
     userId: agentUserId,
@@ -166,7 +158,7 @@ export async function notifyNewReview(
   userId: string,
   reviewerName: string,
   rating: number,
-  targetName: string
+  targetName: string,
 ) {
   return createNotification({
     userId,
@@ -183,7 +175,7 @@ export async function notifyPriceDrop(
   propertyId: string,
   oldPrice: number,
   newPrice: number,
-  currency: string
+  currency: string,
 ) {
   return createBulkNotifications(userIds, {
     type: "price_drop",

@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "@/i18n";
+import { RequireAuth } from "@/components/uyjoy/require-auth";
 
 export const Route = createFileRoute("/dashboard/")({
   head: () => ({
@@ -21,8 +22,16 @@ export const Route = createFileRoute("/dashboard/")({
       { name: "description", content: "Agent boshqaruv paneli" },
     ],
   }),
-  component: DashboardLayout,
+  component: DashboardGuarded,
 });
+
+function DashboardGuarded() {
+  return (
+    <RequireAuth>
+      <DashboardLayout />
+    </RequireAuth>
+  );
+}
 
 function DashboardLayout() {
   const { t } = useTranslation();
@@ -55,9 +64,27 @@ function DashboardLayout() {
 
   // Mock recent leads
   const recentLeads = [
-    { id: 1, name: "Sardor Yusupov", property: "Yunusobodda 3 xonali", time: "2 soat oldin", status: "new" },
-    { id: 2, name: "Nilufar Abdullayeva", property: "Chilonzorda 2 xonali", time: "5 soat oldin", status: "contacted" },
-    { id: 3, name: "Bobur Toshmatov", property: "Sergeli 1 xonali", time: "1 kun oldin", status: "qualified" },
+    {
+      id: 1,
+      name: "Sardor Yusupov",
+      property: "Yunusobodda 3 xonali",
+      time: "2 soat oldin",
+      status: "new",
+    },
+    {
+      id: 2,
+      name: "Nilufar Abdullayeva",
+      property: "Chilonzorda 2 xonali",
+      time: "5 soat oldin",
+      status: "contacted",
+    },
+    {
+      id: 3,
+      name: "Bobur Toshmatov",
+      property: "Sergeli 1 xonali",
+      time: "1 kun oldin",
+      status: "qualified",
+    },
   ];
 
   const isExactMatch = (path: string) => location.pathname === path;
@@ -133,11 +160,16 @@ function DashboardLayout() {
           {/* Stats */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-border bg-card p-5 shadow-card"
+              >
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
                 <div className="mt-2 flex items-baseline gap-2">
                   <p className="font-display text-3xl font-bold">{stat.value}</p>
-                  <span className={`text-xs ${stat.change.startsWith("+") ? "text-primary" : "text-muted-foreground"}`}>
+                  <span
+                    className={`text-xs ${stat.change.startsWith("+") ? "text-primary" : "text-muted-foreground"}`}
+                  >
                     {stat.change}
                   </span>
                 </div>
@@ -178,7 +210,11 @@ function DashboardLayout() {
                               : "bg-secondary text-secondary-foreground"
                         }`}
                       >
-                        {lead.status === "new" ? "Yangi" : lead.status === "contacted" ? "Bog'lanildi" : "Tasdiqlandi"}
+                        {lead.status === "new"
+                          ? "Yangi"
+                          : lead.status === "contacted"
+                            ? "Bog'lanildi"
+                            : "Tasdiqlandi"}
                       </span>
                       <p className="mt-1 text-xs text-muted-foreground">{lead.time}</p>
                     </div>

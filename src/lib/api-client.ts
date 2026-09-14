@@ -23,10 +23,7 @@ export function getAuthToken(): string | null {
 }
 
 // Base fetch with auth
-async function apiFetch<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
+async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
 
   const headers: HeadersInit = {
@@ -54,7 +51,13 @@ async function apiFetch<T>(
 
 // Auth API
 export const authApi = {
-  register: (data: { email: string; password: string; name: string; phone?: string; role?: string }) =>
+  register: (data: {
+    email: string;
+    password: string;
+    name: string;
+    phone?: string | undefined;
+    role?: string | undefined;
+  }) =>
     apiFetch<{ success: boolean; user: unknown; token: string }>("/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
@@ -71,10 +74,15 @@ export const authApi = {
       method: "POST",
     }),
 
-  getMe: () =>
-    apiFetch<{ success: boolean; user: unknown }>("/auth/me"),
+  getMe: () => apiFetch<{ success: boolean; user: unknown }>("/auth/me"),
 
-  updateProfile: (data: { name?: string; phone?: string; avatar?: string; language?: string; currency?: string }) =>
+  updateProfile: (data: {
+    name?: string;
+    phone?: string;
+    avatar?: string;
+    language?: string;
+    currency?: string;
+  }) =>
     apiFetch<{ success: boolean; user: unknown }>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -115,7 +123,7 @@ export const propertiesApi = {
       }
     });
     return apiFetch<{ success: boolean; properties: unknown[]; pagination: unknown }>(
-      `/properties?${params.toString()}`
+      `/properties?${params.toString()}`,
     );
   },
 
@@ -161,8 +169,7 @@ export const favoritesApi = {
       method: "DELETE",
     }),
 
-  getFolders: () =>
-    apiFetch<{ success: boolean; folders: unknown[] }>("/favorites/folders"),
+  getFolders: () => apiFetch<{ success: boolean; folders: unknown[] }>("/favorites/folders"),
 
   createFolder: (name: string) =>
     apiFetch<{ success: boolean; folder: unknown }>("/favorites/folders", {
@@ -184,7 +191,13 @@ export const favoritesApi = {
 
 // Leads API
 export const leadsApi = {
-  create: (data: { propertyId: string; name: string; phone: string; email?: string; message?: string }) =>
+  create: (data: {
+    propertyId: string;
+    name: string;
+    phone: string;
+    email?: string;
+    message?: string;
+  }) =>
     apiFetch<{ success: boolean; lead: unknown; message: string }>("/leads", {
       method: "POST",
       body: JSON.stringify(data),
@@ -195,11 +208,12 @@ export const leadsApi = {
     Object.entries(options).forEach(([key, value]) => {
       if (value !== undefined) params.append(key, String(value));
     });
-    return apiFetch<{ success: boolean; leads: unknown[]; pagination: unknown }>(`/leads?${params.toString()}`);
+    return apiFetch<{ success: boolean; leads: unknown[]; pagination: unknown }>(
+      `/leads?${params.toString()}`,
+    );
   },
 
-  getStats: () =>
-    apiFetch<{ success: boolean; stats: unknown }>("/leads?stats=true"),
+  getStats: () => apiFetch<{ success: boolean; stats: unknown }>("/leads?stats=true"),
 
   updateStatus: (id: string, status: string) =>
     apiFetch<{ success: boolean; lead: unknown }>(`/leads?id=${id}`, {
@@ -215,9 +229,12 @@ export const notificationsApi = {
     Object.entries(options).forEach(([key, value]) => {
       if (value !== undefined) params.append(key, String(value));
     });
-    return apiFetch<{ success: boolean; notifications: unknown[]; pagination: unknown; unreadCount: number }>(
-      `/notifications?${params.toString()}`
-    );
+    return apiFetch<{
+      success: boolean;
+      notifications: unknown[];
+      pagination: unknown;
+      unreadCount: number;
+    }>(`/notifications?${params.toString()}`);
   },
 
   markAsRead: (id: string) =>
@@ -246,17 +263,20 @@ export const paymentsApi = {
   getPricing: () =>
     apiFetch<{ success: boolean; pricing: unknown; benefits: unknown }>("/payments/pricing"),
 
-  create: (data: { propertyId: string; provider: "payme" | "click"; paymentType: string; duration?: string }) =>
+  create: (data: {
+    propertyId: string;
+    provider: "payme" | "click";
+    paymentType: string;
+    duration?: string;
+  }) =>
     apiFetch<{ success: boolean; payment: unknown; paymentUrl: string }>("/payments", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  getAll: () =>
-    apiFetch<{ success: boolean; payments: unknown[] }>("/payments"),
+  getAll: () => apiFetch<{ success: boolean; payments: unknown[] }>("/payments"),
 
-  getById: (id: string) =>
-    apiFetch<{ success: boolean; payment: unknown }>(`/payments?id=${id}`),
+  getById: (id: string) => apiFetch<{ success: boolean; payment: unknown }>(`/payments?id=${id}`),
 };
 
 // Upload API

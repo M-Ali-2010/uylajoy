@@ -3,9 +3,15 @@ import jwt from "jsonwebtoken";
 import { eq, and } from "drizzle-orm";
 import { db, users, sessions, agents } from "@/db";
 import { randomUUID } from "crypto";
+import { AppError } from "./errors";
 
-// JWT secret from environment
-const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
+// Refuse to start without a real secret. A fallback string here would mean
+// every deployment that forgot the variable signs tokens with a public key.
+const jwtSecretFromEnv = process.env["JWT_SECRET"];
+if (!jwtSecretFromEnv || jwtSecretFromEnv.length < 32) {
+  throw new Error("JWT_SECRET is missing or shorter than 32 characters — refusing to start");
+}
+const JWT_SECRET: string = jwtSecretFromEnv;
 const JWT_EXPIRES_IN = "7d";
 const SESSION_EXPIRES_DAYS = 7;
 
@@ -44,7 +50,11 @@ export function generateToken(payload: JWTPayload): string {
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (typeof decoded !== "object" || decoded === null) return null;
+    const { userId, sessionId, role } = decoded as Partial<JWTPayload>;
+    if (typeof userId !== "string" || typeof sessionId !== "string") return null;
+    return { userId, sessionId, role: typeof role === "string" ? role : "" };
   } catch {
     return null;
   }
@@ -94,6 +104,7 @@ export async function validateSession(token: string): Promise<AuthUser | null> {
       avatar: users.avatar,
       phone: users.phone,
       isVerified: users.isVerified,
+      isActive: users.isActive,
       language: users.language,
       currency: users.currency,
     })
@@ -101,9 +112,14 @@ export async function validateSession(token: string): Promise<AuthUser | null> {
     .where(eq(users.id, session.userId))
     .limit(1);
 
-  if (!user || !user.isVerified) return null;
+  // A blocked account must lose access at once, not when its session expires.
+  if (!user || !user.isVerified || !user.isActive) {
+    if (user && !user.isActive) await deleteAllUserSessions(user.id);
+    return null;
+  }
 
-  return user as AuthUser;
+  const { isActive: _ignored, ...authUser } = user;
+  return authUser as AuthUser;
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
@@ -119,11 +135,13 @@ export interface RegisterInput {
   email: string;
   password: string;
   name: string;
-  phone?: string;
-  role?: "buyer" | "seller" | "agent";
+  phone?: string | undefined;
+  role?: "buyer" | "seller" | "agent" | undefined;
 }
 
-export async function registerUser(input: RegisterInput): Promise<{ user: AuthUser; token: string }> {
+export async function registerUser(
+  input: RegisterInput,
+): Promise<{ user: AuthUser; token: string }> {
   // Check if user already exists
   const [existingUser] = await db
     .select({ id: users.id })
@@ -132,7 +150,7 @@ export async function registerUser(input: RegisterInput): Promise<{ user: AuthUs
     .limit(1);
 
   if (existingUser) {
-    throw new Error("User with this email already exists");
+    throw new AppError(409, "User with this email already exists");
   }
 
   // Hash password
@@ -150,6 +168,8 @@ export async function registerUser(input: RegisterInput): Promise<{ user: AuthUs
       isVerified: true, // For now, auto-verify. In production, send verification email
     })
     .returning();
+
+  if (!newUser) throw new AppError(500, "Failed to create user");
 
   // If registering as agent, create agent profile
   if (input.role === "agent") {
@@ -191,16 +211,16 @@ export async function loginUser(input: LoginInput): Promise<{ user: AuthUser; to
     .limit(1);
 
   if (!user) {
-    throw new Error("Invalid email or password");
+    throw new AppError(401, "Invalid email or password");
   }
 
   const isValidPassword = await verifyPassword(input.password, user.passwordHash);
   if (!isValidPassword) {
-    throw new Error("Invalid email or password");
+    throw new AppError(401, "Invalid email or password");
   }
 
   if (!user.isActive) {
-    throw new Error("Account is deactivated");
+    throw new AppError(403, "Account is deactivated");
   }
 
   // Create session
@@ -243,14 +263,17 @@ export async function getCurrentUser(request: Request): Promise<AuthUser | null>
 
 // Update user profile
 export interface UpdateProfileInput {
-  name?: string;
-  phone?: string;
-  avatar?: string;
-  language?: "uz" | "ru" | "en";
-  currency?: "USD" | "UZS" | "EUR";
+  name?: string | undefined;
+  phone?: string | undefined;
+  avatar?: string | undefined;
+  language?: "uz" | "ru" | "en" | undefined;
+  currency?: "USD" | "UZS" | "EUR" | undefined;
 }
 
-export async function updateUserProfile(userId: string, input: UpdateProfileInput): Promise<AuthUser> {
+export async function updateUserProfile(
+  userId: string,
+  input: UpdateProfileInput,
+): Promise<AuthUser> {
   const [updatedUser] = await db
     .update(users)
     .set({
@@ -259,6 +282,8 @@ export async function updateUserProfile(userId: string, input: UpdateProfileInpu
     })
     .where(eq(users.id, userId))
     .returning();
+
+  if (!updatedUser) throw new AppError(404, "User not found");
 
   return {
     id: updatedUser.id,
@@ -277,7 +302,7 @@ export async function updateUserProfile(userId: string, input: UpdateProfileInpu
 export async function changePassword(
   userId: string,
   currentPassword: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<void> {
   const [user] = await db
     .select({ passwordHash: users.passwordHash })
@@ -286,12 +311,12 @@ export async function changePassword(
     .limit(1);
 
   if (!user) {
-    throw new Error("User not found");
+    throw new AppError(404, "User not found");
   }
 
   const isValidPassword = await verifyPassword(currentPassword, user.passwordHash);
   if (!isValidPassword) {
-    throw new Error("Current password is incorrect");
+    throw new AppError(400, "Current password is incorrect");
   }
 
   const newPasswordHash = await hashPassword(newPassword);

@@ -10,6 +10,15 @@ import { useTranslation } from "@/i18n";
 import { useAuthStore } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/kirish")({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string | undefined } => ({
+    // Only same-origin paths — never an absolute URL someone could point elsewhere
+    redirect:
+      typeof search["redirect"] === "string" &&
+      search["redirect"].startsWith("/") &&
+      !search["redirect"].startsWith("//")
+        ? search["redirect"]
+        : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Kirish — UyJoy.uz" },
@@ -22,6 +31,7 @@ export const Route = createFileRoute("/kirish")({
 function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const login = useAuthStore((state) => state.login);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +46,7 @@ function LoginPage() {
     try {
       await login(email, password);
       toast.success("Muvaffaqiyatli kirdingiz!");
-      navigate({ to: "/" });
+      navigate({ to: redirect ?? "/" });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Xatolik yuz berdi");
     } finally {

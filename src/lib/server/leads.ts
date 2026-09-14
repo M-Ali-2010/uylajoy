@@ -1,4 +1,5 @@
 import { eq, and, desc, sql } from "drizzle-orm";
+import { AppError, forbidden, notFound } from "./errors";
 import { db, leads, properties, agents, users } from "@/db";
 import { notifyNewLead } from "./notifications";
 import { notifyNewLead as notifyTelegramLead } from "./telegram";
@@ -8,11 +9,11 @@ export type LeadStatus = "new" | "contacted" | "qualified" | "closed";
 
 export interface CreateLeadInput {
   propertyId: string;
-  buyerId?: string;
+  buyerId?: string | undefined;
   name: string;
   phone: string;
-  email?: string;
-  message?: string;
+  email?: string | undefined;
+  message?: string | undefined;
 }
 
 // Create lead
@@ -30,7 +31,7 @@ export async function createLead(input: CreateLeadInput) {
     .limit(1);
 
   if (!property) {
-    throw new Error("Property not found");
+    throw notFound("Property");
   }
 
   // Create lead
@@ -50,7 +51,13 @@ export async function createLead(input: CreateLeadInput) {
 
   // Notify agent or owner
   const notifyUserId = property.agentId
-    ? (await db.select({ userId: agents.userId }).from(agents).where(eq(agents.id, property.agentId)).limit(1))[0]?.userId
+    ? (
+        await db
+          .select({ userId: agents.userId })
+          .from(agents)
+          .where(eq(agents.id, property.agentId))
+          .limit(1)
+      )[0]?.userId
     : property.ownerId;
 
   if (notifyUserId) {
@@ -67,7 +74,11 @@ export async function createLead(input: CreateLeadInput) {
 // Get leads for agent
 export async function getAgentLeads(
   agentId: string,
-  options: { status?: LeadStatus; page?: number; limit?: number } = {}
+  options: {
+    status?: LeadStatus | undefined;
+    page?: number | undefined;
+    limit?: number | undefined;
+  } = {},
 ) {
   const { status, page = 1, limit = 20 } = options;
 
@@ -119,7 +130,11 @@ export async function getAgentLeads(
 // Get leads for property owner
 export async function getOwnerLeads(
   ownerId: string,
-  options: { status?: LeadStatus; page?: number; limit?: number } = {}
+  options: {
+    status?: LeadStatus | undefined;
+    page?: number | undefined;
+    limit?: number | undefined;
+  } = {},
 ) {
   const { status, page = 1, limit = 20 } = options;
 
@@ -138,7 +153,12 @@ export async function getOwnerLeads(
 
   const propertyIds = ownerProperties.map((p) => p.id);
 
-  const conditions = [sql`${leads.propertyId} IN (${sql.join(propertyIds.map(id => sql`${id}`), sql`, `)})`];
+  const conditions = [
+    sql`${leads.propertyId} IN (${sql.join(
+      propertyIds.map((id) => sql`${id}`),
+      sql`, `,
+    )})`,
+  ];
   if (status) {
     conditions.push(eq(leads.status, status));
   }
@@ -198,7 +218,7 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus, userI
     .limit(1);
 
   if (!lead) {
-    throw new Error("Lead not found");
+    throw notFound("Lead");
   }
 
   // Check if user is the agent or property owner
@@ -213,7 +233,7 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus, userI
   }
 
   if (!isAuthorized) {
-    throw new Error("Not authorized to update this lead");
+    throw forbidden("Not authorized to update this lead");
   }
 
   const [updated] = await db
@@ -269,7 +289,12 @@ export async function getLeadStats(userId: string) {
         count: sql<number>`count(*)`,
       })
       .from(leads)
-      .where(sql`${leads.propertyId} IN (${sql.join(propertyIds.map(id => sql`${id}`), sql`, `)})`)
+      .where(
+        sql`${leads.propertyId} IN (${sql.join(
+          propertyIds.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      )
       .groupBy(leads.status);
   }
 

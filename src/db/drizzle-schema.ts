@@ -1,18 +1,63 @@
 // Drizzle ORM Schema for PostgreSQL/Supabase
-import { pgTable, text, timestamp, boolean, integer, real, jsonb, uuid, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  integer,
+  real,
+  jsonb,
+  uuid,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Enums
-export const userRoleEnum = pgEnum("user_role", ["buyer", "seller", "agent", "agency_admin", "admin"]);
+export const userRoleEnum = pgEnum("user_role", [
+  "buyer",
+  "seller",
+  "agent",
+  "agency_admin",
+  "admin",
+]);
 export const languageEnum = pgEnum("language", ["uz", "ru", "en"]);
 export const currencyEnum = pgEnum("currency", ["USD", "UZS", "EUR"]);
-export const propertyTypeEnum = pgEnum("property_type", ["apartment", "house", "office", "land", "commercial"]);
+export const propertyTypeEnum = pgEnum("property_type", [
+  "apartment",
+  "house",
+  "office",
+  "land",
+  "commercial",
+]);
 export const dealTypeEnum = pgEnum("deal_type", ["sale", "rent"]);
-export const propertyStatusEnum = pgEnum("property_status", ["draft", "pending", "active", "sold", "rented", "paused", "rejected", "archived"]);
+export const propertyStatusEnum = pgEnum("property_status", [
+  "draft",
+  "pending",
+  "active",
+  "sold",
+  "rented",
+  "paused",
+  "rejected",
+  "archived",
+]);
 export const conditionEnum = pgEnum("condition", ["new", "renovated", "good", "needs_repair"]);
 export const leadStatusEnum = pgEnum("lead_status", ["new", "contacted", "qualified", "closed"]);
-export const notificationTypeEnum = pgEnum("notification_type", ["message", "lead", "listing_approved", "listing_rejected", "price_drop", "review", "system"]);
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "message",
+  "lead",
+  "listing_approved",
+  "listing_rejected",
+  "price_drop",
+  "review",
+  "system",
+]);
 export const reviewTargetEnum = pgEnum("review_target", ["agent", "agency", "property"]);
+export const verificationStatusEnum = pgEnum("verification_status", [
+  "unverified",
+  "pending",
+  "verified",
+  "rejected",
+]);
 
 // Users table
 export const users = pgTable("users", {
@@ -34,7 +79,9 @@ export const users = pgTable("users", {
 // Sessions table
 export const sessions = pgTable("sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   token: text("token").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -64,7 +111,9 @@ export const agencies = pgTable("agencies", {
 // Agents table
 export const agents = pgTable("agents", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   agencyId: uuid("agency_id").references(() => agencies.id, { onDelete: "set null" }),
   bio: text("bio"),
   specializations: jsonb("specializations").$type<string[]>().notNull().default([]),
@@ -101,7 +150,13 @@ export const properties = pgTable("properties", {
   amenities: jsonb("amenities").$type<string[]>().notNull().default([]),
   status: propertyStatusEnum("status").notNull().default("draft"),
   rejectionReason: text("rejection_reason"),
-  ownerId: uuid("owner_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  // Verification is a separate, auditable fact — never just a badge (§10)
+  verificationStatus: verificationStatusEnum("verification_status").notNull().default("unverified"),
+  verifiedBy: uuid("verified_by").references(() => users.id, { onDelete: "set null" }),
+  verifiedAt: timestamp("verified_at"),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   agentId: uuid("agent_id").references(() => agents.id, { onDelete: "set null" }),
   agencyId: uuid("agency_id").references(() => agencies.id, { onDelete: "set null" }),
   viewCount: integer("view_count").notNull().default(0),
@@ -118,7 +173,9 @@ export const properties = pgTable("properties", {
 // Property images table
 export const propertyImages = pgTable("property_images", {
   id: uuid("id").primaryKey().defaultRandom(),
-  propertyId: uuid("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  propertyId: uuid("property_id")
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
   url: text("url").notNull(),
   order: integer("order").notNull().default(0),
   isCover: boolean("is_cover").notNull().default(false),
@@ -128,8 +185,12 @@ export const propertyImages = pgTable("property_images", {
 // Favorites table
 export const favorites = pgTable("favorites", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  propertyId: uuid("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  propertyId: uuid("property_id")
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
   folderId: uuid("folder_id").references(() => favoriteFolders.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -137,7 +198,9 @@ export const favorites = pgTable("favorites", {
 // Favorite folders table
 export const favoriteFolders = pgTable("favorite_folders", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -145,7 +208,9 @@ export const favoriteFolders = pgTable("favorite_folders", {
 // Leads table
 export const leads = pgTable("leads", {
   id: uuid("id").primaryKey().defaultRandom(),
-  propertyId: uuid("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  propertyId: uuid("property_id")
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
   buyerId: uuid("buyer_id").references(() => users.id, { onDelete: "set null" }),
   agentId: uuid("agent_id").references(() => agents.id, { onDelete: "set null" }),
   name: text("name").notNull(),
@@ -160,7 +225,9 @@ export const leads = pgTable("leads", {
 // Reviews table
 export const reviews = pgTable("reviews", {
   id: uuid("id").primaryKey().defaultRandom(),
-  reviewerId: uuid("reviewer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reviewerId: uuid("reviewer_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   targetType: reviewTargetEnum("target_type").notNull(),
   targetId: uuid("target_id").notNull(),
   rating: integer("rating").notNull(),
@@ -175,7 +242,9 @@ export const reviews = pgTable("reviews", {
 // Notifications table
 export const notifications = pgTable("notifications", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   type: notificationTypeEnum("type").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
@@ -187,7 +256,9 @@ export const notifications = pgTable("notifications", {
 // Price history table
 export const priceHistory = pgTable("price_history", {
   id: uuid("id").primaryKey().defaultRandom(),
-  propertyId: uuid("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  propertyId: uuid("property_id")
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
   previousPrice: integer("previous_price").notNull(),
   newPrice: integer("new_price").notNull(),
   currency: text("currency").notNull(),
@@ -195,14 +266,23 @@ export const priceHistory = pgTable("price_history", {
 });
 
 // Payment status enum
-export const paymentStatusEnum = pgEnum("payment_status", ["pending", "processing", "completed", "failed", "cancelled", "refunded"]);
+export const paymentStatusEnum = pgEnum("payment_status", [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+  "cancelled",
+  "refunded",
+]);
 export const paymentProviderEnum = pgEnum("payment_provider", ["payme", "click"]);
 export const paymentTypeEnum = pgEnum("payment_type", ["featured", "premium", "boost"]);
 
 // Payments table
 export const payments = pgTable("payments", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   propertyId: uuid("property_id").references(() => properties.id, { onDelete: "set null" }),
   provider: paymentProviderEnum("provider").notNull(),
   paymentType: paymentTypeEnum("payment_type").notNull(),
@@ -218,6 +298,18 @@ export const payments = pgTable("payments", {
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Admin action log — who did what to which record (§9)
+export const adminActions = pgTable("admin_actions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  adminId: uuid("admin_id").references(() => users.id, { onDelete: "set null" }),
+  action: text("action").notNull(),
+  targetType: text("target_type").notNull(),
+  targetId: uuid("target_id").notNull(),
+  reason: text("reason"),
+  ip: text("ip"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 // Market statistics table

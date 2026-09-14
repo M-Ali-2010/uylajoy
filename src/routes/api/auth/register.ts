@@ -1,52 +1,35 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { registerUser } from "@/lib/server/auth";
 import { z } from "zod";
+import { registerUser } from "@/lib/server/auth";
+import { clientIp, errorResponse, readJson } from "@/lib/server/http";
+import { RULES, rateLimit } from "@/lib/server/rate-limit";
+import { phoneSchema } from "@/lib/server/validation";
 
 const registerSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().optional(),
+  email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
+  password: z.string().min(8, "Password must be at least 8 characters").max(200),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
+  phone: phoneSchema.optional(),
+  // `admin` and `agency_admin` are intentionally not accepted here.
   role: z.enum(["buyer", "seller", "agent"]).optional(),
 });
 
-export const APIRoute = createAPIFileRoute("/api/auth/register")({
-  POST: async ({ request }) => {
-    try {
-      const body = await request.json();
-      const validated = registerSchema.parse(body);
+export const Route = createFileRoute("/api/auth/register")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        try {
+          rateLimit("register-ip", clientIp(request), RULES.register);
 
-      const { user, token } = await registerUser(validated);
+          const validated = registerSchema.parse(await readJson(request));
+          const { user, token } = await registerUser(validated);
 
-      return json(
-        {
-          success: true,
-          user,
-          token,
-        },
-        { status: 201 }
-      );
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return json(
-          {
-            success: false,
-            error: "Validation failed",
-            details: error.errors,
-          },
-          { status: 400 }
-        );
-      }
-
-      const message = error instanceof Error ? error.message : "Registration failed";
-      return json(
-        {
-          success: false,
-          error: message,
-        },
-        { status: 400 }
-      );
-    }
+          return json({ success: true, user, token }, { status: 201 });
+        } catch (error) {
+          return errorResponse(error, "Registration failed");
+        }
+      },
+    },
   },
 });

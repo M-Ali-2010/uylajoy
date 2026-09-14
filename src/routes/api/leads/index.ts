@@ -1,184 +1,178 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { createLead, getAgentLeads, getOwnerLeads, updateLeadStatus, getLeadStats } from "@/lib/server/leads";
+import {
+  createLead,
+  getAgentLeads,
+  getOwnerLeads,
+  updateLeadStatus,
+  getLeadStats,
+} from "@/lib/server/leads";
 import { getCurrentUser } from "@/lib/server/auth";
+import { clientIp, errorResponse, readJson } from "@/lib/server/http";
+import { RULES, rateLimit } from "@/lib/server/rate-limit";
+import { phoneSchema } from "@/lib/server/validation";
 import { db, agents } from "@/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 const createLeadSchema = z.object({
   propertyId: z.string().uuid(),
-  name: z.string().min(2, "Name is required"),
-  phone: z.string().min(9, "Valid phone number is required"),
-  email: z.string().email().optional(),
-  message: z.string().optional(),
+  name: z.string().trim().min(2, "Name is required").max(80),
+  phone: phoneSchema,
+  email: z.string().trim().toLowerCase().email().max(254).optional(),
+  message: z.string().trim().max(2000).optional(),
 });
 
 const updateStatusSchema = z.object({
   status: z.enum(["new", "contacted", "qualified", "closed"]),
 });
 
-export const APIRoute = createAPIFileRoute("/api/leads")({
-  GET: async ({ request }) => {
-    try {
-      const user = await getCurrentUser(request);
+export const Route = createFileRoute("/api/leads/")({
+  server: {
+    handlers: {
+      GET: async ({ request }) => {
+        try {
+          const user = await getCurrentUser(request);
 
-      if (!user) {
-        return json(
-          {
-            success: false,
-            error: "Unauthorized",
-          },
-          { status: 401 }
-        );
-      }
+          if (!user) {
+            return json(
+              {
+                success: false,
+                error: "Unauthorized",
+              },
+              { status: 401 },
+            );
+          }
 
-      const url = new URL(request.url);
-      const page = parseInt(url.searchParams.get("page") || "1", 10);
-      const limit = parseInt(url.searchParams.get("limit") || "20", 10);
-      const status = url.searchParams.get("status") as "new" | "contacted" | "qualified" | "closed" | null;
-      const statsOnly = url.searchParams.get("stats") === "true";
+          const url = new URL(request.url);
+          const page = parseInt(url.searchParams.get("page") || "1", 10);
+          const limit = parseInt(url.searchParams.get("limit") || "20", 10);
+          const status = url.searchParams.get("status") as
+            "new" | "contacted" | "qualified" | "closed" | null;
+          const statsOnly = url.searchParams.get("stats") === "true";
 
-      // Return stats only if requested
-      if (statsOnly) {
-        const stats = await getLeadStats(user.id);
-        return json({
-          success: true,
-          stats,
-        });
-      }
+          // Return stats only if requested
+          if (statsOnly) {
+            const stats = await getLeadStats(user.id);
+            return json({
+              success: true,
+              stats,
+            });
+          }
 
-      // Check if user is an agent
-      const [agent] = await db
-        .select({ id: agents.id })
-        .from(agents)
-        .where(eq(agents.userId, user.id))
-        .limit(1);
+          // Check if user is an agent
+          const [agent] = await db
+            .select({ id: agents.id })
+            .from(agents)
+            .where(eq(agents.userId, user.id))
+            .limit(1);
 
-      let result;
-      if (agent) {
-        result = await getAgentLeads(agent.id, { status: status || undefined, page, limit });
-      } else {
-        result = await getOwnerLeads(user.id, { status: status || undefined, page, limit });
-      }
+          let result;
+          if (agent) {
+            result = await getAgentLeads(agent.id, { status: status || undefined, page, limit });
+          } else {
+            result = await getOwnerLeads(user.id, { status: status || undefined, page, limit });
+          }
 
-      return json({
-        success: true,
-        ...result,
-      });
-    } catch (error) {
-      return json(
-        {
-          success: false,
-          error: "Failed to fetch leads",
-        },
-        { status: 500 }
-      );
-    }
-  },
+          return json({
+            success: true,
+            ...result,
+          });
+        } catch (error) {
+          return errorResponse(error, "Failed to fetch leads");
+        }
+      },
 
-  POST: async ({ request }) => {
-    try {
-      const body = await request.json();
-      const validated = createLeadSchema.parse(body);
+      POST: async ({ request }) => {
+        try {
+          // Optional: get current user if logged in
+          const user = await getCurrentUser(request);
+          rateLimit("lead", user?.id ?? clientIp(request), RULES.lead);
 
-      // Optional: get current user if logged in
-      const user = await getCurrentUser(request);
+          const validated = createLeadSchema.parse(await readJson(request));
 
-      const lead = await createLead({
-        ...validated,
-        buyerId: user?.id,
-      });
+          const lead = await createLead({
+            ...validated,
+            buyerId: user?.id,
+          });
 
-      return json(
-        {
-          success: true,
-          lead,
-          message: "So'rovingiz yuborildi. Tez orada siz bilan bog'lanishadi.",
-        },
-        { status: 201 }
-      );
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return json(
-          {
-            success: false,
-            error: "Validation failed",
-            details: error.errors,
-          },
-          { status: 400 }
-        );
-      }
+          return json(
+            {
+              success: true,
+              lead,
+              message: "So'rovingiz yuborildi. Tez orada siz bilan bog'lanishadi.",
+            },
+            { status: 201 },
+          );
+        } catch (error) {
+          return errorResponse(error, "Failed to create lead");
+        }
+      },
 
-      const message = error instanceof Error ? error.message : "Failed to create lead";
-      return json(
-        {
-          success: false,
-          error: message,
-        },
-        { status: 400 }
-      );
-    }
-  },
+      PATCH: async ({ request }) => {
+        try {
+          const user = await getCurrentUser(request);
 
-  PATCH: async ({ request }) => {
-    try {
-      const user = await getCurrentUser(request);
+          if (!user) {
+            return json(
+              {
+                success: false,
+                error: "Unauthorized",
+              },
+              { status: 401 },
+            );
+          }
 
-      if (!user) {
-        return json(
-          {
-            success: false,
-            error: "Unauthorized",
-          },
-          { status: 401 }
-        );
-      }
+          const url = new URL(request.url);
+          const leadId = url.searchParams.get("id");
 
-      const url = new URL(request.url);
-      const leadId = url.searchParams.get("id");
+          if (!leadId) {
+            return json(
+              {
+                success: false,
+                error: "Lead ID is required",
+              },
+              { status: 400 },
+            );
+          }
 
-      if (!leadId) {
-        return json(
-          {
-            success: false,
-            error: "Lead ID is required",
-          },
-          { status: 400 }
-        );
-      }
+          const body = await readJson(request);
+          const validated = updateStatusSchema.parse(body);
 
-      const body = await request.json();
-      const validated = updateStatusSchema.parse(body);
+          const lead = await updateLeadStatus(leadId, validated.status, user.id);
 
-      const lead = await updateLeadStatus(leadId, validated.status, user.id);
+          return json({
+            success: true,
+            lead,
+          });
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            return json(
+              {
+                success: false,
+                error: "Validation failed",
+                details: error.errors,
+              },
+              { status: 400 },
+            );
+          }
 
-      return json({
-        success: true,
-        lead,
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return json(
-          {
-            success: false,
-            error: "Validation failed",
-            details: error.errors,
-          },
-          { status: 400 }
-        );
-      }
+          const message = error instanceof Error ? error.message : "Failed to update lead";
+          const status = message.includes("Not authorized")
+            ? 403
+            : message.includes("not found")
+              ? 404
+              : 400;
 
-      const message = error instanceof Error ? error.message : "Failed to update lead";
-      const status = message.includes("Not authorized") ? 403 : message.includes("not found") ? 404 : 400;
-
-      return json(
-        {
-          success: false,
-          error: message,
-        },
-        { status }
-      );
-    }
+          return json(
+            {
+              success: false,
+              error: message,
+            },
+            { status },
+          );
+        }
+      },
+    },
   },
 });

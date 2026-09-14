@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "@/i18n";
+import { RequireAuth } from "@/components/uyjoy/require-auth";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
@@ -27,8 +28,16 @@ export const Route = createFileRoute("/admin/")({
       { name: "description", content: "Administrator boshqaruv paneli" },
     ],
   }),
-  component: AdminPage,
+  component: AdminPageGuarded,
 });
+
+function AdminPageGuarded() {
+  return (
+    <RequireAuth role="admin">
+      <AdminPage />
+    </RequireAuth>
+  );
+}
 
 function AdminPage() {
   const { t } = useTranslation();
@@ -161,13 +170,13 @@ function AdminPage() {
               >
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <stat.icon className={`size-5 ${stat.highlight ? "text-primary" : "text-muted-foreground"}`} />
+                  <stat.icon
+                    className={`size-5 ${stat.highlight ? "text-primary" : "text-muted-foreground"}`}
+                  />
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
                   <p className="font-display text-3xl font-bold">{stat.value}</p>
-                  {stat.change && (
-                    <span className="text-xs text-primary">{stat.change}</span>
-                  )}
+                  {stat.change && <span className="text-xs text-primary">{stat.change}</span>}
                 </div>
               </div>
             ))}
@@ -229,7 +238,10 @@ function AdminPage() {
                   { name: "Nilufar Abdullayeva", email: "nilufar@mail.uz", date: "Kecha" },
                   { name: "Bobur Toshmatov", email: "bobur@mail.uz", date: "2 kun oldin" },
                 ].map((user, i) => (
-                  <div key={i} className="flex items-center gap-3 rounded-lg border border-border p-3">
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 rounded-lg border border-border p-3"
+                  >
                     <Avatar>
                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
@@ -248,9 +260,24 @@ function AdminPage() {
               <h2 className="font-display text-lg font-bold">Yangi sharhlar</h2>
               <div className="mt-4 space-y-3">
                 {[
-                  { author: "Ali Karimov", rating: 5, text: "Ajoyib xizmat!", date: "1 soat oldin" },
-                  { author: "Malika Sharipova", rating: 4, text: "Yaxshi tajriba", date: "3 soat oldin" },
-                  { author: "Jasur Toshmatov", rating: 5, text: "Tavsiya qilaman!", date: "5 soat oldin" },
+                  {
+                    author: "Ali Karimov",
+                    rating: 5,
+                    text: "Ajoyib xizmat!",
+                    date: "1 soat oldin",
+                  },
+                  {
+                    author: "Malika Sharipova",
+                    rating: 4,
+                    text: "Yaxshi tajriba",
+                    date: "3 soat oldin",
+                  },
+                  {
+                    author: "Jasur Toshmatov",
+                    rating: 5,
+                    text: "Tavsiya qilaman!",
+                    date: "5 soat oldin",
+                  },
                 ].map((review, i) => (
                   <div key={i} className="rounded-lg border border-border p-3">
                     <div className="flex items-center justify-between">

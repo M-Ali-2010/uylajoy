@@ -1,31 +1,97 @@
-import { eq, and, or, gte, lte, like, desc, asc, sql, inArray } from "drizzle-orm";
-import { db, properties, propertyImages, users, agents, agencies, favorites, priceHistory } from "@/db";
+import { eq, and, or, gte, lte, ilike, desc, asc, sql, inArray } from "drizzle-orm";
+import { db, properties, propertyImages, users, agents, agencies, priceHistory } from "@/db";
+import { AppError, forbidden, notFound } from "./errors";
+
+export type PropertyStatus =
+  "draft" | "pending" | "active" | "sold" | "rented" | "paused" | "rejected" | "archived";
+
+/** Status transitions an owner may request on their own listing. */
+const OWNER_TRANSITIONS: Record<PropertyStatus, PropertyStatus[]> = {
+  draft: ["pending", "archived"],
+  pending: ["draft", "archived"],
+  active: ["paused", "archived", "sold", "rented"],
+  paused: ["pending", "archived"],
+  rejected: ["pending", "archived"],
+  sold: ["archived"],
+  rented: ["archived"],
+  archived: ["pending"],
+};
+
+/** Statuses visible to anyone. Everything else is only for owner + admin. */
+export const PUBLIC_STATUSES: PropertyStatus[] = ["active"];
+
+/** Fields whose change on a published listing sends it back to moderation. */
+const MODERATED_FIELDS = [
+  "title",
+  "description",
+  "type",
+  "dealType",
+  "price",
+  "currency",
+  "city",
+  "district",
+  "address",
+  "rooms",
+  "totalArea",
+  "livingArea",
+  "floor",
+  "totalFloors",
+  "yearBuilt",
+  "condition",
+  "amenities",
+] as const;
+
+/** Escape LIKE metacharacters so a search for "50%" means fifty percent. */
+const escapeLike = (value: string) => value.replace(/[\\%_]/g, (m) => `\\${m}`);
+
+/** Strip owner contact details for everyone but the owner and admins. */
+export function toPublicProperty<T extends { owner?: { phone?: string | null } | null }>(
+  property: T,
+  viewer?: { id: string; role: string } | null,
+  ownerId?: string,
+): T {
+  const privileged = viewer && (viewer.role === "admin" || viewer.id === ownerId);
+  if (privileged || !property.owner) return property;
+  const { phone: _phone, ...owner } = property.owner;
+  return { ...property, owner } as T;
+}
 
 // Types
 export interface PropertyFilters {
-  type?: "apartment" | "house" | "office" | "land" | "commercial";
-  dealType?: "sale" | "rent";
-  city?: string;
-  district?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minRooms?: number;
-  maxRooms?: number;
-  minArea?: number;
-  maxArea?: number;
-  condition?: "new" | "renovated" | "good" | "needs_repair";
-  amenities?: string[];
-  status?: "draft" | "pending" | "active" | "sold" | "rented" | "paused" | "rejected" | "archived";
-  isFeatured?: boolean;
-  isPremium?: boolean;
-  ownerId?: string;
-  agentId?: string;
-  agencyId?: string;
-  search?: string;
-  sortBy?: "price_asc" | "price_desc" | "newest" | "oldest" | "popular";
-  page?: number;
-  limit?: number;
+  type?: "apartment" | "house" | "office" | "land" | "commercial" | undefined;
+  dealType?: "sale" | "rent" | undefined;
+  city?: string | undefined;
+  district?: string | undefined;
+  minPrice?: number | undefined;
+  maxPrice?: number | undefined;
+  minRooms?: number | undefined;
+  maxRooms?: number | undefined;
+  minArea?: number | undefined;
+  maxArea?: number | undefined;
+  condition?: "new" | "renovated" | "good" | "needs_repair" | undefined;
+  amenities?: string[] | undefined;
+  status?:
+    | "draft"
+    | "pending"
+    | "active"
+    | "sold"
+    | "rented"
+    | "paused"
+    | "rejected"
+    | "archived"
+    | undefined;
+  isFeatured?: boolean | undefined;
+  isPremium?: boolean | undefined;
+  ownerId?: string | undefined;
+  agentId?: string | undefined;
+  agencyId?: string | undefined;
+  search?: string | undefined;
+  sortBy?: "price_asc" | "price_desc" | "newest" | "oldest" | "popular" | undefined;
+  page?: number | undefined;
+  limit?: number | undefined;
 }
+
+export const MAX_PAGE_SIZE = 50;
 
 export interface CreatePropertyInput {
   title: string;
@@ -33,52 +99,52 @@ export interface CreatePropertyInput {
   type: "apartment" | "house" | "office" | "land" | "commercial";
   dealType: "sale" | "rent";
   price: number;
-  currency?: "USD" | "UZS" | "EUR";
+  currency?: "USD" | "UZS" | "EUR" | undefined;
   city: string;
   district: string;
   address: string;
-  latitude?: number;
-  longitude?: number;
-  rooms?: number;
+  latitude?: number | undefined;
+  longitude?: number | undefined;
+  rooms?: number | undefined;
   totalArea: number;
-  livingArea?: number;
-  floor?: number;
-  totalFloors?: number;
-  yearBuilt?: number;
-  condition?: "new" | "renovated" | "good" | "needs_repair";
-  amenities?: string[];
-  images?: { url: string; order: number; isCover: boolean }[];
+  livingArea?: number | undefined;
+  floor?: number | undefined;
+  totalFloors?: number | undefined;
+  yearBuilt?: number | undefined;
+  condition?: "new" | "renovated" | "good" | "needs_repair" | undefined;
+  amenities?: string[] | undefined;
+  images?: { url: string; order: number; isCover: boolean }[] | undefined;
   ownerId: string;
-  agentId?: string;
-  agencyId?: string;
+  agentId?: string | undefined;
+  agencyId?: string | undefined;
 }
 
 export interface UpdatePropertyInput {
-  title?: string;
-  description?: string;
-  type?: "apartment" | "house" | "office" | "land" | "commercial";
-  dealType?: "sale" | "rent";
-  price?: number;
-  currency?: "USD" | "UZS" | "EUR";
-  city?: string;
-  district?: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-  rooms?: number;
-  totalArea?: number;
-  livingArea?: number;
-  floor?: number;
-  totalFloors?: number;
-  yearBuilt?: number;
-  condition?: "new" | "renovated" | "good" | "needs_repair";
-  amenities?: string[];
-  status?: "draft" | "pending" | "active" | "paused" | "archived";
-  rejectionReason?: string;
-  isFeatured?: boolean;
-  isPremium?: boolean;
-  featuredUntil?: Date;
-  premiumUntil?: Date;
+  title?: string | undefined;
+  description?: string | undefined;
+  type?: "apartment" | "house" | "office" | "land" | "commercial" | undefined;
+  dealType?: "sale" | "rent" | undefined;
+  price?: number | undefined;
+  currency?: "USD" | "UZS" | "EUR" | undefined;
+  city?: string | undefined;
+  district?: string | undefined;
+  address?: string | undefined;
+  latitude?: number | undefined;
+  longitude?: number | undefined;
+  rooms?: number | undefined;
+  totalArea?: number | undefined;
+  livingArea?: number | undefined;
+  floor?: number | undefined;
+  totalFloors?: number | undefined;
+  yearBuilt?: number | undefined;
+  condition?: "new" | "renovated" | "good" | "needs_repair" | undefined;
+  amenities?: string[] | undefined;
+  status?: "draft" | "pending" | "active" | "paused" | "archived" | undefined;
+  rejectionReason?: string | undefined;
+  isFeatured?: boolean | undefined;
+  isPremium?: boolean | undefined;
+  featuredUntil?: Date | undefined;
+  premiumUntil?: Date | undefined;
 }
 
 // Get properties with filters
@@ -179,14 +245,16 @@ export async function getProperties(filters: PropertyFilters = {}) {
     conditions.push(eq(properties.agencyId, agencyId));
   }
 
-  // Search filter
+  // Search filter — case-insensitive, metacharacters escaped
   if (search) {
+    const pattern = `%${escapeLike(search.trim())}%`;
     conditions.push(
       or(
-        like(properties.title, `%${search}%`),
-        like(properties.description, `%${search}%`),
-        like(properties.address, `%${search}%`)
-      )
+        ilike(properties.title, pattern),
+        ilike(properties.description, pattern),
+        ilike(properties.address, pattern),
+        ilike(properties.district, pattern),
+      ),
     );
   }
 
@@ -217,7 +285,9 @@ export async function getProperties(filters: PropertyFilters = {}) {
     .where(conditions.length > 0 ? and(...conditions) : undefined);
 
   const total = Number(countResult?.count || 0);
-  const offset = (page - 1) * limit;
+  const safeLimit = Math.min(Math.max(1, limit), MAX_PAGE_SIZE);
+  const safePage = Math.max(1, page);
+  const offset = (safePage - 1) * safeLimit;
 
   // Get properties with related data
   const result = await db
@@ -233,18 +303,19 @@ export async function getProperties(filters: PropertyFilters = {}) {
     .leftJoin(users, eq(properties.ownerId, users.id))
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(orderBy)
-    .limit(limit)
+    .limit(safeLimit)
     .offset(offset);
 
   // Get images for all properties
   const propertyIds = result.map((r) => r.property.id);
-  const images = propertyIds.length > 0
-    ? await db
-        .select()
-        .from(propertyImages)
-        .where(inArray(propertyImages.propertyId, propertyIds))
-        .orderBy(propertyImages.order)
-    : [];
+  const images =
+    propertyIds.length > 0
+      ? await db
+          .select()
+          .from(propertyImages)
+          .where(inArray(propertyImages.propertyId, propertyIds))
+          .orderBy(propertyImages.order)
+      : [];
 
   // Map images to properties
   const propertiesWithImages = result.map((r) => ({
@@ -257,15 +328,21 @@ export async function getProperties(filters: PropertyFilters = {}) {
     properties: propertiesWithImages,
     pagination: {
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: safePage,
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit),
     },
   };
 }
 
-// Get single property by ID
-export async function getPropertyById(id: string, incrementView = false) {
+// Get single property by ID.
+// Unpublished listings resolve to "not found" for anyone but the owner or an
+// admin, so a guessed UUID reveals nothing.
+export async function getPropertyById(
+  id: string,
+  incrementView = false,
+  viewer?: { id: string; role: string } | null,
+) {
   const [result] = await db
     .select({
       property: properties,
@@ -285,8 +362,13 @@ export async function getPropertyById(id: string, incrementView = false) {
     return null;
   }
 
-  // Increment view count if requested
-  if (incrementView) {
+  const isPrivileged = viewer && (viewer.role === "admin" || viewer.id === result.property.ownerId);
+  if (!PUBLIC_STATUSES.includes(result.property.status) && !isPrivileged) {
+    return null;
+  }
+
+  // Increment view count if requested (never for the owner looking at their own)
+  if (incrementView && !isPrivileged) {
     await db
       .update(properties)
       .set({ viewCount: sql`${properties.viewCount} + 1` })
@@ -344,14 +426,18 @@ export async function getPropertyById(id: string, incrementView = false) {
     .where(eq(priceHistory.propertyId, id))
     .orderBy(desc(priceHistory.changedAt));
 
-  return {
-    ...result.property,
-    owner: result.owner,
-    images,
-    agent,
-    agency,
-    priceHistory: priceHistoryData,
-  };
+  return toPublicProperty(
+    {
+      ...result.property,
+      owner: result.owner,
+      images,
+      agent,
+      agency,
+      priceHistory: priceHistoryData,
+    },
+    viewer,
+    result.property.ownerId,
+  );
 }
 
 // Create property
@@ -369,6 +455,8 @@ export async function createProperty(input: CreatePropertyInput) {
     })
     .returning();
 
+  if (!newProperty) throw new AppError(500, "Failed to create property");
+
   // Create images if provided
   if (images && images.length > 0) {
     await db.insert(propertyImages).values(
@@ -377,51 +465,80 @@ export async function createProperty(input: CreatePropertyInput) {
         url: img.url,
         order: img.order,
         isCover: img.isCover,
-      }))
+      })),
     );
   }
 
-  return getPropertyById(newProperty.id);
+  return getPropertyById(newProperty.id, false, { id: input.ownerId, role: "owner" });
 }
 
-// Update property
-export async function updateProperty(id: string, input: UpdatePropertyInput, userId: string) {
-  // Check ownership
-  const [existing] = await db
-    .select({ ownerId: properties.ownerId, price: properties.price, currency: properties.currency })
-    .from(properties)
-    .where(eq(properties.id, id))
-    .limit(1);
+// Update property (owner path).
+// Paid flags, moderation fields and arbitrary statuses are not accepted here —
+// admins have their own functions. Editing the content of a published listing
+// puts it back into the moderation queue.
+export type OwnerUpdateInput = Partial<
+  Pick<UpdatePropertyInput, (typeof MODERATED_FIELDS)[number] | "latitude" | "longitude">
+> & { status?: PropertyStatus | undefined };
 
-  if (!existing) {
-    throw new Error("Property not found");
+export async function updateProperty(id: string, input: OwnerUpdateInput, userId: string) {
+  const [existing] = await db.select().from(properties).where(eq(properties.id, id)).limit(1);
+
+  if (!existing) throw notFound("Property");
+  if (existing.ownerId !== userId) throw forbidden("Not authorized to update this property");
+
+  const { status: requestedStatus, ...fields } = input;
+
+  // Only whitelisted content fields, and only the ones actually present
+  const changes: Record<string, unknown> = {};
+  for (const key of [...MODERATED_FIELDS, "latitude", "longitude"] as const) {
+    const value = (fields as Record<string, unknown>)[key];
+    if (value !== undefined && value !== (existing as Record<string, unknown>)[key]) {
+      changes[key] = value;
+    }
   }
 
-  if (existing.ownerId !== userId) {
-    throw new Error("Not authorized to update this property");
+  let nextStatus: PropertyStatus = existing.status;
+
+  if (requestedStatus && requestedStatus !== existing.status) {
+    const allowed = OWNER_TRANSITIONS[existing.status] ?? [];
+    if (!allowed.includes(requestedStatus)) {
+      throw new AppError(
+        400,
+        `Cannot change status from "${existing.status}" to "${requestedStatus}"`,
+      );
+    }
+    nextStatus = requestedStatus;
   }
 
-  // Track price change if price is being updated
-  if (input.price !== undefined && input.price !== existing.price) {
+  const touchedModerated = MODERATED_FIELDS.some((key) => key in changes);
+  if (touchedModerated && (existing.status === "active" || existing.status === "paused")) {
+    nextStatus = "pending";
+  }
+  if (touchedModerated && existing.status === "rejected") {
+    nextStatus = "pending";
+    changes["rejectionReason"] = null;
+  }
+
+  if (Object.keys(changes).length === 0 && nextStatus === existing.status) {
+    return getPropertyById(id, false, { id: userId, role: "owner" });
+  }
+
+  // Track price change
+  if (typeof changes["price"] === "number" && changes["price"] !== existing.price) {
     await db.insert(priceHistory).values({
       propertyId: id,
       previousPrice: existing.price,
-      newPrice: input.price,
-      currency: input.currency || existing.currency,
+      newPrice: changes["price"],
+      currency: (changes["currency"] as string | undefined) ?? existing.currency,
     });
   }
 
-  // Update property
-  const [updated] = await db
+  await db
     .update(properties)
-    .set({
-      ...input,
-      updatedAt: new Date(),
-    })
-    .where(eq(properties.id, id))
-    .returning();
+    .set({ ...changes, status: nextStatus, updatedAt: new Date() })
+    .where(eq(properties.id, id));
 
-  return getPropertyById(updated.id);
+  return getPropertyById(id, false, { id: userId, role: "owner" });
 }
 
 // Delete property
@@ -432,13 +549,8 @@ export async function deleteProperty(id: string, userId: string) {
     .where(eq(properties.id, id))
     .limit(1);
 
-  if (!existing) {
-    throw new Error("Property not found");
-  }
-
-  if (existing.ownerId !== userId) {
-    throw new Error("Not authorized to delete this property");
-  }
+  if (!existing) throw notFound("Property");
+  if (existing.ownerId !== userId) throw forbidden("Not authorized to delete this property");
 
   await db.delete(properties).where(eq(properties.id, id));
 }
@@ -447,7 +559,7 @@ export async function deleteProperty(id: string, userId: string) {
 export async function updatePropertyImages(
   propertyId: string,
   images: { url: string; order: number; isCover: boolean }[],
-  userId: string
+  userId: string,
 ) {
   // Check ownership
   const [existing] = await db
@@ -456,13 +568,8 @@ export async function updatePropertyImages(
     .where(eq(properties.id, propertyId))
     .limit(1);
 
-  if (!existing) {
-    throw new Error("Property not found");
-  }
-
-  if (existing.ownerId !== userId) {
-    throw new Error("Not authorized to update this property");
-  }
+  if (!existing) throw notFound("Property");
+  if (existing.ownerId !== userId) throw forbidden("Not authorized to update this property");
 
   // Delete existing images
   await db.delete(propertyImages).where(eq(propertyImages.propertyId, propertyId));
@@ -475,25 +582,27 @@ export async function updatePropertyImages(
         url: img.url,
         order: img.order,
         isCover: img.isCover,
-      }))
+      })),
     );
   }
 
-  return getPropertyById(propertyId);
+  return getPropertyById(propertyId, false, { id: userId, role: "owner" });
 }
 
-// Admin: Approve property
+// Admin: Approve property — only something waiting for moderation can be approved
 export async function approveProperty(id: string) {
   const [updated] = await db
     .update(properties)
     .set({
       status: "active",
+      rejectionReason: null,
       publishedAt: new Date(),
       updatedAt: new Date(),
     })
-    .where(eq(properties.id, id))
+    .where(and(eq(properties.id, id), eq(properties.status, "pending")))
     .returning();
 
+  if (!updated) throw new AppError(409, "Only listings pending moderation can be approved");
   return updated;
 }
 
@@ -506,15 +615,29 @@ export async function rejectProperty(id: string, reason: string) {
       rejectionReason: reason,
       updatedAt: new Date(),
     })
+    .where(and(eq(properties.id, id), eq(properties.status, "pending")))
+    .returning();
+
+  if (!updated) throw new AppError(409, "Only listings pending moderation can be rejected");
+  return updated;
+}
+
+// Admin: Archive property (takes it off the site regardless of state)
+export async function archivePropertyAsAdmin(id: string) {
+  const [updated] = await db
+    .update(properties)
+    .set({ status: "archived", updatedAt: new Date() })
     .where(eq(properties.id, id))
     .returning();
 
+  if (!updated) throw notFound("Property");
   return updated;
 }
 
 // Get featured/premium properties
 export async function getFeaturedProperties(limit = 6) {
   const now = new Date();
+  const safeLimit = Math.min(Math.max(1, limit), 24);
 
   const result = await db
     .select()
@@ -523,22 +646,20 @@ export async function getFeaturedProperties(limit = 6) {
       and(
         eq(properties.status, "active"),
         eq(properties.isFeatured, true),
-        or(
-          sql`${properties.featuredUntil} IS NULL`,
-          gte(properties.featuredUntil, now)
-        )
-      )
+        or(sql`${properties.featuredUntil} IS NULL`, gte(properties.featuredUntil, now)),
+      ),
     )
     .orderBy(desc(properties.createdAt))
-    .limit(limit);
+    .limit(safeLimit);
 
   const propertyIds = result.map((r) => r.id);
-  const images = propertyIds.length > 0
-    ? await db
-        .select()
-        .from(propertyImages)
-        .where(inArray(propertyImages.propertyId, propertyIds))
-    : [];
+  const images =
+    propertyIds.length > 0
+      ? await db
+          .select()
+          .from(propertyImages)
+          .where(inArray(propertyImages.propertyId, propertyIds))
+      : [];
 
   return result.map((p) => ({
     ...p,
@@ -567,21 +688,20 @@ export async function getSimilarProperties(propertyId: string, limit = 4) {
         eq(properties.type, property.type),
         eq(properties.dealType, property.dealType),
         eq(properties.city, property.city),
-        sql`${properties.id} != ${propertyId}`
-      )
+        sql`${properties.id} != ${propertyId}`,
+      ),
     )
-    .orderBy(
-      sql`ABS(${properties.price} - ${property.price})`
-    )
+    .orderBy(sql`ABS(${properties.price} - ${property.price})`)
     .limit(limit);
 
   const propertyIds = result.map((r) => r.id);
-  const images = propertyIds.length > 0
-    ? await db
-        .select()
-        .from(propertyImages)
-        .where(inArray(propertyImages.propertyId, propertyIds))
-    : [];
+  const images =
+    propertyIds.length > 0
+      ? await db
+          .select()
+          .from(propertyImages)
+          .where(inArray(propertyImages.propertyId, propertyIds))
+      : [];
 
   return result.map((p) => ({
     ...p,

@@ -17,9 +17,26 @@ import { Route as NarxlarRouteImport } from './routes/narxlar'
 import { Route as RoyxatdanOtishRouteImport } from './routes/royxatdan-otish'
 import { Route as SevimlilarRouteImport } from './routes/sevimlilar'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as ElonlarIndexRouteImport } from './routes/elonlar/index'
 import { Route as ElonlarIdRouteImport } from './routes/elonlar/$id'
+import { Route as ApiAdminPropertiesRouteImport } from './routes/api/admin/properties'
+import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
+import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
+import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
+import { Route as ApiFavoritesIndexRouteImport } from './routes/api/favorites/index'
+import { Route as ApiFavoritesFoldersRouteImport } from './routes/api/favorites/folders'
+import { Route as ApiLeadsIndexRouteImport } from './routes/api/leads/index'
+import { Route as ApiNotificationsIndexRouteImport } from './routes/api/notifications/index'
+import { Route as ApiPaymentsIndexRouteImport } from './routes/api/payments/index'
+import { Route as ApiPaymentsClickRouteImport } from './routes/api/payments/click'
+import { Route as ApiPaymentsPaymeRouteImport } from './routes/api/payments/payme'
+import { Route as ApiPaymentsPricingRouteImport } from './routes/api/payments/pricing'
+import { Route as ApiPropertiesIndexRouteImport } from './routes/api/properties/index'
+import { Route as ApiPropertiesIdRouteImport } from './routes/api/properties/$id'
+import { Route as ApiPropertiesFeaturedRouteImport } from './routes/api/properties/featured'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -61,6 +78,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
@@ -76,6 +98,86 @@ const ElonlarIdRoute = ElonlarIdRouteImport.update({
   path: '/elonlar/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminPropertiesRoute = ApiAdminPropertiesRouteImport.update({
+  id: '/api/admin/properties',
+  path: '/api/admin/properties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
+  id: '/api/auth/login',
+  path: '/api/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
+  id: '/api/auth/logout',
+  path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
+  id: '/api/auth/me',
+  path: '/api/auth/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
+  id: '/api/auth/register',
+  path: '/api/auth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFavoritesIndexRoute = ApiFavoritesIndexRouteImport.update({
+  id: '/api/favorites/',
+  path: '/api/favorites/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFavoritesFoldersRoute = ApiFavoritesFoldersRouteImport.update({
+  id: '/api/favorites/folders',
+  path: '/api/favorites/folders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLeadsIndexRoute = ApiLeadsIndexRouteImport.update({
+  id: '/api/leads/',
+  path: '/api/leads/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotificationsIndexRoute = ApiNotificationsIndexRouteImport.update({
+  id: '/api/notifications/',
+  path: '/api/notifications/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPaymentsIndexRoute = ApiPaymentsIndexRouteImport.update({
+  id: '/api/payments/',
+  path: '/api/payments/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPaymentsClickRoute = ApiPaymentsClickRouteImport.update({
+  id: '/api/payments/click',
+  path: '/api/payments/click',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPaymentsPaymeRoute = ApiPaymentsPaymeRouteImport.update({
+  id: '/api/payments/payme',
+  path: '/api/payments/payme',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPaymentsPricingRoute = ApiPaymentsPricingRouteImport.update({
+  id: '/api/payments/pricing',
+  path: '/api/payments/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPropertiesIndexRoute = ApiPropertiesIndexRouteImport.update({
+  id: '/api/properties/',
+  path: '/api/properties/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPropertiesIdRoute = ApiPropertiesIdRouteImport.update({
+  id: '/api/properties/$id',
+  path: '/api/properties/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPropertiesFeaturedRoute = ApiPropertiesFeaturedRouteImport.update({
+  id: '/api/properties/featured',
+  path: '/api/properties/featured',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -85,10 +187,27 @@ export interface FileRoutesByFullPath {
   '/narxlar': typeof NarxlarRoute
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
+  '/api/upload': typeof ApiUploadRoute
   '/elonlar/$id': typeof ElonlarIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/elonlar/': typeof ElonlarIndexRoute
+  '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/favorites/folders': typeof ApiFavoritesFoldersRoute
+  '/api/payments/click': typeof ApiPaymentsClickRoute
+  '/api/payments/payme': typeof ApiPaymentsPaymeRoute
+  '/api/payments/pricing': typeof ApiPaymentsPricingRoute
+  '/api/properties/$id': typeof ApiPropertiesIdRoute
+  '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/favorites/': typeof ApiFavoritesIndexRoute
+  '/api/leads/': typeof ApiLeadsIndexRoute
+  '/api/notifications/': typeof ApiNotificationsIndexRoute
+  '/api/payments/': typeof ApiPaymentsIndexRoute
+  '/api/properties/': typeof ApiPropertiesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -98,10 +217,27 @@ export interface FileRoutesByTo {
   '/narxlar': typeof NarxlarRoute
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
+  '/api/upload': typeof ApiUploadRoute
   '/elonlar/$id': typeof ElonlarIdRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/elonlar': typeof ElonlarIndexRoute
+  '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/favorites/folders': typeof ApiFavoritesFoldersRoute
+  '/api/payments/click': typeof ApiPaymentsClickRoute
+  '/api/payments/payme': typeof ApiPaymentsPaymeRoute
+  '/api/payments/pricing': typeof ApiPaymentsPricingRoute
+  '/api/properties/$id': typeof ApiPropertiesIdRoute
+  '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/favorites': typeof ApiFavoritesIndexRoute
+  '/api/leads': typeof ApiLeadsIndexRoute
+  '/api/notifications': typeof ApiNotificationsIndexRoute
+  '/api/payments': typeof ApiPaymentsIndexRoute
+  '/api/properties': typeof ApiPropertiesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,10 +248,27 @@ export interface FileRoutesById {
   '/narxlar': typeof NarxlarRoute
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
+  '/api/upload': typeof ApiUploadRoute
   '/elonlar/$id': typeof ElonlarIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/elonlar/': typeof ElonlarIndexRoute
+  '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/register': typeof ApiAuthRegisterRoute
+  '/api/favorites/folders': typeof ApiFavoritesFoldersRoute
+  '/api/payments/click': typeof ApiPaymentsClickRoute
+  '/api/payments/payme': typeof ApiPaymentsPaymeRoute
+  '/api/payments/pricing': typeof ApiPaymentsPricingRoute
+  '/api/properties/$id': typeof ApiPropertiesIdRoute
+  '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/favorites/': typeof ApiFavoritesIndexRoute
+  '/api/leads/': typeof ApiLeadsIndexRoute
+  '/api/notifications/': typeof ApiNotificationsIndexRoute
+  '/api/payments/': typeof ApiPaymentsIndexRoute
+  '/api/properties/': typeof ApiPropertiesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,10 +280,27 @@ export interface FileRouteTypes {
     | '/narxlar'
     | '/royxatdan-otish'
     | '/sevimlilar'
+    | '/api/upload'
     | '/elonlar/$id'
     | '/admin/'
     | '/dashboard/'
     | '/elonlar/'
+    | '/api/admin/properties'
+    | '/api/auth/login'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/register'
+    | '/api/favorites/folders'
+    | '/api/payments/click'
+    | '/api/payments/payme'
+    | '/api/payments/pricing'
+    | '/api/properties/$id'
+    | '/api/properties/featured'
+    | '/api/favorites/'
+    | '/api/leads/'
+    | '/api/notifications/'
+    | '/api/payments/'
+    | '/api/properties/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,10 +310,27 @@ export interface FileRouteTypes {
     | '/narxlar'
     | '/royxatdan-otish'
     | '/sevimlilar'
+    | '/api/upload'
     | '/elonlar/$id'
     | '/admin'
     | '/dashboard'
     | '/elonlar'
+    | '/api/admin/properties'
+    | '/api/auth/login'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/register'
+    | '/api/favorites/folders'
+    | '/api/payments/click'
+    | '/api/payments/payme'
+    | '/api/payments/pricing'
+    | '/api/properties/$id'
+    | '/api/properties/featured'
+    | '/api/favorites'
+    | '/api/leads'
+    | '/api/notifications'
+    | '/api/payments'
+    | '/api/properties'
   id:
     | '__root__'
     | '/'
@@ -153,10 +340,27 @@ export interface FileRouteTypes {
     | '/narxlar'
     | '/royxatdan-otish'
     | '/sevimlilar'
+    | '/api/upload'
     | '/elonlar/$id'
     | '/admin/'
     | '/dashboard/'
     | '/elonlar/'
+    | '/api/admin/properties'
+    | '/api/auth/login'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/register'
+    | '/api/favorites/folders'
+    | '/api/payments/click'
+    | '/api/payments/payme'
+    | '/api/payments/pricing'
+    | '/api/properties/$id'
+    | '/api/properties/featured'
+    | '/api/favorites/'
+    | '/api/leads/'
+    | '/api/notifications/'
+    | '/api/payments/'
+    | '/api/properties/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -167,10 +371,27 @@ export interface RootRouteChildren {
   NarxlarRoute: typeof NarxlarRoute
   RoyxatdanOtishRoute: typeof RoyxatdanOtishRoute
   SevimlilarRoute: typeof SevimlilarRoute
+  ApiUploadRoute: typeof ApiUploadRoute
   ElonlarIdRoute: typeof ElonlarIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   ElonlarIndexRoute: typeof ElonlarIndexRoute
+  ApiAdminPropertiesRoute: typeof ApiAdminPropertiesRoute
+  ApiAuthLoginRoute: typeof ApiAuthLoginRoute
+  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiAuthMeRoute: typeof ApiAuthMeRoute
+  ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
+  ApiFavoritesFoldersRoute: typeof ApiFavoritesFoldersRoute
+  ApiPaymentsClickRoute: typeof ApiPaymentsClickRoute
+  ApiPaymentsPaymeRoute: typeof ApiPaymentsPaymeRoute
+  ApiPaymentsPricingRoute: typeof ApiPaymentsPricingRoute
+  ApiPropertiesIdRoute: typeof ApiPropertiesIdRoute
+  ApiPropertiesFeaturedRoute: typeof ApiPropertiesFeaturedRoute
+  ApiFavoritesIndexRoute: typeof ApiFavoritesIndexRoute
+  ApiLeadsIndexRoute: typeof ApiLeadsIndexRoute
+  ApiNotificationsIndexRoute: typeof ApiNotificationsIndexRoute
+  ApiPaymentsIndexRoute: typeof ApiPaymentsIndexRoute
+  ApiPropertiesIndexRoute: typeof ApiPropertiesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -231,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/upload': {
+      id: '/api/upload'
+      path: '/api/upload'
+      fullPath: '/api/upload'
+      preLoaderRoute: typeof ApiUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/': {
       id: '/dashboard/'
       path: '/dashboard'
@@ -252,6 +480,118 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ElonlarIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/properties': {
+      id: '/api/admin/properties'
+      path: '/api/admin/properties'
+      fullPath: '/api/admin/properties'
+      preLoaderRoute: typeof ApiAdminPropertiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/login': {
+      id: '/api/auth/login'
+      path: '/api/auth/login'
+      fullPath: '/api/auth/login'
+      preLoaderRoute: typeof ApiAuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/logout': {
+      id: '/api/auth/logout'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/me': {
+      id: '/api/auth/me'
+      path: '/api/auth/me'
+      fullPath: '/api/auth/me'
+      preLoaderRoute: typeof ApiAuthMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/register': {
+      id: '/api/auth/register'
+      path: '/api/auth/register'
+      fullPath: '/api/auth/register'
+      preLoaderRoute: typeof ApiAuthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/favorites/': {
+      id: '/api/favorites/'
+      path: '/api/favorites'
+      fullPath: '/api/favorites/'
+      preLoaderRoute: typeof ApiFavoritesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/favorites/folders': {
+      id: '/api/favorites/folders'
+      path: '/api/favorites/folders'
+      fullPath: '/api/favorites/folders'
+      preLoaderRoute: typeof ApiFavoritesFoldersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/leads/': {
+      id: '/api/leads/'
+      path: '/api/leads'
+      fullPath: '/api/leads/'
+      preLoaderRoute: typeof ApiLeadsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notifications/': {
+      id: '/api/notifications/'
+      path: '/api/notifications'
+      fullPath: '/api/notifications/'
+      preLoaderRoute: typeof ApiNotificationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/payments/': {
+      id: '/api/payments/'
+      path: '/api/payments'
+      fullPath: '/api/payments/'
+      preLoaderRoute: typeof ApiPaymentsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/payments/click': {
+      id: '/api/payments/click'
+      path: '/api/payments/click'
+      fullPath: '/api/payments/click'
+      preLoaderRoute: typeof ApiPaymentsClickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/payments/payme': {
+      id: '/api/payments/payme'
+      path: '/api/payments/payme'
+      fullPath: '/api/payments/payme'
+      preLoaderRoute: typeof ApiPaymentsPaymeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/payments/pricing': {
+      id: '/api/payments/pricing'
+      path: '/api/payments/pricing'
+      fullPath: '/api/payments/pricing'
+      preLoaderRoute: typeof ApiPaymentsPricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/properties/': {
+      id: '/api/properties/'
+      path: '/api/properties'
+      fullPath: '/api/properties/'
+      preLoaderRoute: typeof ApiPropertiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/properties/$id': {
+      id: '/api/properties/$id'
+      path: '/api/properties/$id'
+      fullPath: '/api/properties/$id'
+      preLoaderRoute: typeof ApiPropertiesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/properties/featured': {
+      id: '/api/properties/featured'
+      path: '/api/properties/featured'
+      fullPath: '/api/properties/featured'
+      preLoaderRoute: typeof ApiPropertiesFeaturedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -263,10 +603,27 @@ const rootRouteChildren: RootRouteChildren = {
   NarxlarRoute: NarxlarRoute,
   RoyxatdanOtishRoute: RoyxatdanOtishRoute,
   SevimlilarRoute: SevimlilarRoute,
+  ApiUploadRoute: ApiUploadRoute,
   ElonlarIdRoute: ElonlarIdRoute,
   AdminIndexRoute: AdminIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   ElonlarIndexRoute: ElonlarIndexRoute,
+  ApiAdminPropertiesRoute: ApiAdminPropertiesRoute,
+  ApiAuthLoginRoute: ApiAuthLoginRoute,
+  ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiAuthMeRoute: ApiAuthMeRoute,
+  ApiAuthRegisterRoute: ApiAuthRegisterRoute,
+  ApiFavoritesFoldersRoute: ApiFavoritesFoldersRoute,
+  ApiPaymentsClickRoute: ApiPaymentsClickRoute,
+  ApiPaymentsPaymeRoute: ApiPaymentsPaymeRoute,
+  ApiPaymentsPricingRoute: ApiPaymentsPricingRoute,
+  ApiPropertiesIdRoute: ApiPropertiesIdRoute,
+  ApiPropertiesFeaturedRoute: ApiPropertiesFeaturedRoute,
+  ApiFavoritesIndexRoute: ApiFavoritesIndexRoute,
+  ApiLeadsIndexRoute: ApiLeadsIndexRoute,
+  ApiNotificationsIndexRoute: ApiNotificationsIndexRoute,
+  ApiPaymentsIndexRoute: ApiPaymentsIndexRoute,
+  ApiPropertiesIndexRoute: ApiPropertiesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

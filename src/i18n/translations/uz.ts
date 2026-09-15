@@ -375,19 +375,6 @@ export const uz = {
     send: "Yuborish",
   },
 
-  // Notifications
-  notifications: {
-    title: "Bildirishnomalar",
-    empty: "Bildirishnomalar yo'q",
-    markAllRead: "Barchasini o'qilgan deb belgilash",
-    newMessage: "Yangi xabar",
-    newLead: "Yangi so'rov",
-    listingApproved: "E'lon tasdiqlandi",
-    listingRejected: "E'lon rad etildi",
-    priceDropped: "Narx tushdi",
-    newReview: "Yangi sharh",
-  },
-
   // Agent dashboard
   dashboard: {
     title: "Boshqaruv paneli",
@@ -441,6 +428,35 @@ export const uz = {
     name: "Ism",
     phone: "Telefon",
     save: "Saqlash",
+    notifications: "Bildirishnomalar",
+  },
+
+  // Notifications
+  notifications: {
+    title: "Bildirishnomalar",
+    subtitle: "E'lonlaringiz va so'rovlaringiz bo'yicha yangiliklar",
+    all: "Barchasi",
+    unreadOnly: "O'qilmagan",
+    unread: "yangi",
+    markAllRead: "Barchasini o'qilgan deb belgilash",
+    markRead: "O'qilgan deb belgilash",
+    remove: "O'chirish",
+    empty: "Bildirishnomalar yo'q",
+    emptyDesc: "E'loningiz tasdiqlanganda yoki yangi so'rov kelganda shu yerda ko'rinadi.",
+    emptyUnread: "O'qilmagan bildirishnomalar yo'q",
+    open: "Ochish",
+    approvedTitle: "E'loningiz tasdiqlandi",
+    approvedBody: "«{title}» e'loni tasdiqlandi va endi hammaga ko'rinadi.",
+    rejectedTitle: "E'loningiz rad etildi",
+    rejectedBody: "«{title}» e'loni rad etildi. Sabab: {reason}",
+    leadTitle: "Yangi so'rov",
+    leadBody: "{name} ({phone}) «{title}» e'loniga qiziqish bildirdi.",
+    viewingTitle: "Yangi ko'rish so'rovi",
+    viewingBody: "{name} {time} ga ko'rishni so'radi.",
+    priceDropTitle: "Narx tushdi",
+    priceDropBody: "«{title}» narxi {oldPrice} dan {newPrice} ga tushdi.",
+    reviewTitle: "Yangi sharh",
+    reviewBody: "{name} {rating} yulduzli sharh qoldirdi.",
   },
 
   // Listing status

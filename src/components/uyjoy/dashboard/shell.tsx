@@ -1,14 +1,25 @@
 "use client";
 
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { CalendarClock, Home, LayoutDashboard, LogOut, Plus, Settings, Users } from "lucide-react";
+import {
+  Bell,
+  CalendarClock,
+  Home,
+  LayoutDashboard,
+  LogOut,
+  Plus,
+  Settings,
+  Users,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { BrandLockup } from "@/components/uyjoy/brand-mark";
 import { RequireAuth } from "@/components/uyjoy/require-auth";
+import { UnreadBadge } from "@/components/uyjoy/unread-badge";
 import { useTranslation, type TranslationKeys } from "@/i18n";
 import { useAuthStore } from "@/lib/auth-store";
+import { useUnreadNotificationCount } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
 type DashboardTitle = keyof TranslationKeys["dashboard"];
@@ -34,12 +45,20 @@ function Frame({ titleKey, children }: { titleKey: DashboardTitle; children: Rea
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, logout } = useAuthStore();
+  const unread = useUnreadNotificationCount();
 
   const nav = [
     { to: "/dashboard", label: t.dashboard.overview, icon: LayoutDashboard, exact: true },
     { to: "/dashboard/elonlarim", label: t.dashboard.myListings, icon: Home, exact: false },
     { to: "/dashboard/sorovlar", label: t.dashboard.leads, icon: Users, exact: false },
     { to: "/dashboard/korishlar", label: t.dashboard.viewings, icon: CalendarClock, exact: false },
+    {
+      to: "/dashboard/bildirishnomalar",
+      label: t.dashboard.notifications,
+      icon: Bell,
+      exact: false,
+      badge: unread,
+    },
     { to: "/dashboard/sozlamalar", label: t.dashboard.settings, icon: Settings, exact: false },
   ] as const;
 
@@ -69,6 +88,7 @@ function Frame({ titleKey, children }: { titleKey: DashboardTitle; children: Rea
             >
               <item.icon className="size-[1.15rem]" />
               {item.label}
+              <UnreadBadge count={"badge" in item ? item.badge : 0} className="ml-auto" />
             </Link>
           ))}
         </nav>
@@ -127,11 +147,12 @@ function Frame({ titleKey, children }: { titleKey: DashboardTitle; children: Rea
               key={item.to}
               to={item.to}
               className={cn(
-                "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium",
+                "flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium",
                 isActive(item.to, item.exact) ? "bg-secondary" : "text-muted-foreground",
               )}
             >
               {item.label}
+              <UnreadBadge count={"badge" in item ? item.badge : 0} />
             </Link>
           ))}
         </nav>

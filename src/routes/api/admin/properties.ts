@@ -108,7 +108,12 @@ export const Route = createFileRoute("/api/admin/properties")({
             message = "Property approved";
           } else if (input.action === "reject") {
             await rejectProperty(property.id, input.reason);
-            await notifyListingRejected(property.ownerId, property.title, input.reason);
+            await notifyListingRejected(
+              property.ownerId,
+              property.title,
+              input.reason,
+              property.id,
+            );
             message = "Property rejected";
           } else {
             await archivePropertyAsAdmin(property.id);

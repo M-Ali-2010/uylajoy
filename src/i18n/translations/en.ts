@@ -376,19 +376,6 @@ export const en: TranslationKeys = {
     send: "Send",
   },
 
-  // Notifications
-  notifications: {
-    title: "Notifications",
-    empty: "No notifications",
-    markAllRead: "Mark all as read",
-    newMessage: "New message",
-    newLead: "New inquiry",
-    listingApproved: "Listing approved",
-    listingRejected: "Listing rejected",
-    priceDropped: "Price dropped",
-    newReview: "New review",
-  },
-
   // Agent dashboard
   dashboard: {
     title: "Dashboard",
@@ -442,6 +429,35 @@ export const en: TranslationKeys = {
     name: "Name",
     phone: "Phone",
     save: "Save",
+    notifications: "Notifications",
+  },
+
+  // Notifications
+  notifications: {
+    title: "Notifications",
+    subtitle: "What is happening with your listings and requests",
+    all: "All",
+    unreadOnly: "Unread",
+    unread: "new",
+    markAllRead: "Mark all as read",
+    markRead: "Mark as read",
+    remove: "Delete",
+    empty: "No notifications",
+    emptyDesc: "Approvals, new leads and viewing requests will show up here.",
+    emptyUnread: "No unread notifications",
+    open: "Open",
+    approvedTitle: "Listing approved",
+    approvedBody: "“{title}” passed moderation and is now visible to everyone.",
+    rejectedTitle: "Listing rejected",
+    rejectedBody: "“{title}” was rejected. Reason: {reason}",
+    leadTitle: "New lead",
+    leadBody: "{name} ({phone}) is interested in “{title}”.",
+    viewingTitle: "Viewing request",
+    viewingBody: "{name} asked to view the property on {time}.",
+    priceDropTitle: "Price dropped",
+    priceDropBody: "“{title}” went down from {oldPrice} to {newPrice}.",
+    reviewTitle: "New review",
+    reviewBody: "{name} left a {rating}-star review.",
   },
 
   // Listing status

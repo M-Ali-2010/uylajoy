@@ -64,7 +64,12 @@ export const Route = createFileRoute("/api/viewing-requests/")({
             type: "lead",
             title: "Yangi ko'rish so'rovi",
             content: `${validated.name} ${validated.preferredAt.toLocaleString("uz-UZ")} ko'rishni so'radi`,
-            data: { viewingRequestId: created.id, propertyId: validated.propertyId },
+            data: {
+              viewingRequestId: created.id,
+              propertyId: validated.propertyId,
+              leadName: validated.name,
+              preferredAt: validated.preferredAt.toISOString(),
+            },
           });
           await track("viewing_requested", {
             propertyId: validated.propertyId,

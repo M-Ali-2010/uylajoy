@@ -377,19 +377,6 @@ export const ru: TranslationKeys = {
     send: "Отправить",
   },
 
-  // Notifications
-  notifications: {
-    title: "Уведомления",
-    empty: "Нет уведомлений",
-    markAllRead: "Отметить все как прочитанные",
-    newMessage: "Новое сообщение",
-    newLead: "Новый запрос",
-    listingApproved: "Объявление одобрено",
-    listingRejected: "Объявление отклонено",
-    priceDropped: "Цена снижена",
-    newReview: "Новый отзыв",
-  },
-
   // Agent dashboard
   dashboard: {
     title: "Панель управления",
@@ -443,6 +430,35 @@ export const ru: TranslationKeys = {
     name: "Имя",
     phone: "Телефон",
     save: "Сохранить",
+    notifications: "Уведомления",
+  },
+
+  // Notifications
+  notifications: {
+    title: "Уведомления",
+    subtitle: "События по вашим объявлениям и заявкам",
+    all: "Все",
+    unreadOnly: "Непрочитанные",
+    unread: "новых",
+    markAllRead: "Отметить все прочитанными",
+    markRead: "Отметить прочитанным",
+    remove: "Удалить",
+    empty: "Уведомлений нет",
+    emptyDesc: "Здесь появятся события: одобрение объявления, новая заявка, запрос на просмотр.",
+    emptyUnread: "Непрочитанных уведомлений нет",
+    open: "Открыть",
+    approvedTitle: "Объявление одобрено",
+    approvedBody: "Объявление «{title}» прошло модерацию и теперь видно всем.",
+    rejectedTitle: "Объявление отклонено",
+    rejectedBody: "Объявление «{title}» отклонено. Причина: {reason}",
+    leadTitle: "Новая заявка",
+    leadBody: "{name} ({phone}) заинтересовался объявлением «{title}».",
+    viewingTitle: "Запрос на просмотр",
+    viewingBody: "{name} просит показать объект {time}.",
+    priceDropTitle: "Цена снизилась",
+    priceDropBody: "Цена «{title}» снизилась с {oldPrice} до {newPrice}.",
+    reviewTitle: "Новый отзыв",
+    reviewBody: "{name} оставил отзыв с оценкой {rating}.",
   },
 
   // Listing status

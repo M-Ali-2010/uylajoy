@@ -300,6 +300,104 @@ try {
     await sql`select count(*)::int as n from analytics_events where property_id = ${propertyId}::uuid`;
   check("analytics events recorded for the listing", r[0].n >= 3, `events ${r[0].n}`);
 
+  // --- notifications ------------------------------------------------------
+  // By now the owner has been notified about the approval, the lead and the
+  // viewing request.
+  r = await api("GET", "/api/notifications", { token: ownerToken });
+  const inbox = r.json?.notifications ?? [];
+  check(
+    "owner has notifications for approval, lead and viewing",
+    r.status === 200 && inbox.length >= 3 && r.json?.unreadCount >= 3,
+    `count ${inbox.length}, unread ${r.json?.unreadCount}`,
+  );
+
+  check(
+    "notification payload drops the internal userId",
+    inbox.every((n) => n.userId === undefined),
+    `keys: ${Object.keys(inbox[0] ?? {}).join(",")}`,
+  );
+
+  // The client rebuilds notification text in the reader's language from
+  // `data`, so the event helpers must write the parts it needs.
+  const approved = inbox.find((n) => n.type === "listing_approved");
+  check(
+    "approval notification carries propertyTitle for localisation",
+    Boolean(approved?.data?.propertyTitle) && Boolean(approved?.data?.propertyId),
+    `data: ${Object.keys(approved?.data ?? {}).join(",")}`,
+  );
+
+  const viewingNote = inbox.find((n) => n.data?.viewingRequestId);
+  check(
+    "viewing notification carries leadName and preferredAt",
+    Boolean(viewingNote?.data?.leadName) && Boolean(viewingNote?.data?.preferredAt),
+    `data: ${Object.keys(viewingNote?.data ?? {}).join(",")}`,
+  );
+
+  const leadNote = inbox.find((n) => n.type === "lead" && !n.data?.viewingRequestId);
+  check(
+    "lead notification carries name, phone and propertyTitle",
+    Boolean(leadNote?.data?.leadName) &&
+      Boolean(leadNote?.data?.leadPhone) &&
+      Boolean(leadNote?.data?.propertyTitle),
+    `data: ${Object.keys(leadNote?.data ?? {}).join(",")}`,
+  );
+
+  r = await api("GET", "/api/notifications?limit=500", { token: ownerToken });
+  check(
+    "notification limit is capped",
+    r.json?.pagination?.limit === 50,
+    `limit ${r.json?.pagination?.limit}`,
+  );
+
+  r = await api("GET", "/api/notifications?unreadOnly=true", { token: ownerToken });
+  check(
+    "unreadOnly returns only unread rows",
+    r.status === 200 && (r.json?.notifications ?? []).every((n) => n.isRead === false),
+  );
+
+  r = await api("PATCH", `/api/notifications?id=${approved.id}`, { token: adminToken });
+  check(
+    "another user cannot mark someone else's notification read",
+    r.status === 404,
+    `status ${r.status}`,
+  );
+
+  r = await api("PATCH", "/api/notifications?id=not-a-uuid", { token: ownerToken });
+  check("malformed notification id is rejected", r.status === 400, `status ${r.status}`);
+
+  r = await api("PATCH", `/api/notifications?id=${approved.id}`, { token: ownerToken });
+  check(
+    "owner marks one notification read",
+    r.status === 200 && r.json?.unreadCount === inbox.length - 1,
+    `unread ${r.json?.unreadCount}`,
+  );
+
+  r = await api("DELETE", `/api/notifications?id=${approved.id}`, { token: adminToken });
+  check(
+    "another user cannot delete someone else's notification",
+    r.status === 404,
+    `status ${r.status}`,
+  );
+
+  r = await api("PATCH", "/api/notifications?markAll=true", { token: ownerToken });
+  check(
+    "mark all read clears the badge",
+    r.json?.unreadCount === 0,
+    `unread ${r.json?.unreadCount}`,
+  );
+
+  r = await api("DELETE", `/api/notifications?id=${approved.id}`, { token: ownerToken });
+  check("owner deletes own notification", r.status === 200);
+
+  r = await api("GET", "/api/notifications", { token: ownerToken });
+  check(
+    "deleted notification is gone",
+    (r.json?.notifications ?? []).every((n) => n.id !== approved.id),
+  );
+
+  r = await api("GET", "/api/notifications", {});
+  check("notifications require auth", r.status === 401, `status ${r.status}`);
+
   // --- hardening extras ---------------------------------------------------
   r =
     await sql`select action, admin_id from admin_actions where target_id = ${propertyId}::uuid order by created_at`;

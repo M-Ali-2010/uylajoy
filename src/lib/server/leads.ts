@@ -62,7 +62,7 @@ export async function createLead(input: CreateLeadInput) {
 
   if (notifyUserId) {
     // Send in-app notification
-    await notifyNewLead(notifyUserId, property.title, input.name, input.phone);
+    await notifyNewLead(notifyUserId, property.title, input.name, input.phone, input.propertyId);
 
     // TODO: Send Telegram notification if user has Telegram connected
     // This would require storing Telegram chat IDs in the users table

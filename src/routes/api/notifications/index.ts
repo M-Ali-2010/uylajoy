@@ -1,159 +1,92 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import {
-  getUserNotifications,
-  getUnreadCount,
-  markNotificationAsRead,
-  markAllNotificationsAsRead,
-  deleteNotification,
-  deleteAllNotifications,
-} from "@/lib/server/notifications";
+import { z } from "zod";
 import { getCurrentUser } from "@/lib/server/auth";
+import { badRequest, unauthorized } from "@/lib/server/errors";
+import { clampInt, errorResponse } from "@/lib/server/http";
+import {
+  deleteAllNotifications,
+  deleteNotification,
+  getUnreadCount,
+  getUserNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from "@/lib/server/notifications";
+
+const idSchema = z.string().uuid("Notification id must be a UUID");
+
+async function requireUser(request: Request) {
+  const user = await getCurrentUser(request);
+  if (!user) throw unauthorized();
+  return user;
+}
 
 export const Route = createFileRoute("/api/notifications/")({
   server: {
     handlers: {
       GET: async ({ request }) => {
         try {
-          const user = await getCurrentUser(request);
-
-          if (!user) {
-            return json(
-              {
-                success: false,
-                error: "Unauthorized",
-              },
-              { status: 401 },
-            );
-          }
+          const user = await requireUser(request);
 
           const url = new URL(request.url);
-          const page = parseInt(url.searchParams.get("page") || "1", 10);
-          const limit = parseInt(url.searchParams.get("limit") || "20", 10);
+          const page = clampInt(url.searchParams.get("page"), {
+            min: 1,
+            max: 1000,
+            fallback: 1,
+          });
+          const limit = clampInt(url.searchParams.get("limit"), {
+            min: 1,
+            max: 50,
+            fallback: 20,
+          });
           const unreadOnly = url.searchParams.get("unreadOnly") === "true";
 
           const result = await getUserNotifications(user.id, { page, limit, unreadOnly });
           const unreadCount = await getUnreadCount(user.id);
 
-          return json({
-            success: true,
-            ...result,
-            unreadCount,
-          });
+          return json({ success: true, ...result, unreadCount });
         } catch (error) {
-          return json(
-            {
-              success: false,
-              error: "Failed to fetch notifications",
-            },
-            { status: 500 },
-          );
+          return errorResponse(error, "Failed to fetch notifications");
         }
       },
 
+      // ?markAll=true — the whole inbox; ?id=<uuid> — one row
       PATCH: async ({ request }) => {
         try {
-          const user = await getCurrentUser(request);
-
-          if (!user) {
-            return json(
-              {
-                success: false,
-                error: "Unauthorized",
-              },
-              { status: 401 },
-            );
-          }
-
+          const user = await requireUser(request);
           const url = new URL(request.url);
-          const notificationId = url.searchParams.get("id");
-          const markAll = url.searchParams.get("markAll") === "true";
 
-          if (markAll) {
+          if (url.searchParams.get("markAll") === "true") {
             await markAllNotificationsAsRead(user.id);
-            return json({
-              success: true,
-              message: "All notifications marked as read",
-            });
+          } else {
+            const id = url.searchParams.get("id");
+            if (!id) throw badRequest("Notification id is required");
+            await markNotificationAsRead(idSchema.parse(id), user.id);
           }
 
-          if (!notificationId) {
-            return json(
-              {
-                success: false,
-                error: "Notification ID is required",
-              },
-              { status: 400 },
-            );
-          }
-
-          await markNotificationAsRead(notificationId, user.id);
-
-          return json({
-            success: true,
-            message: "Notification marked as read",
-          });
+          return json({ success: true, unreadCount: await getUnreadCount(user.id) });
         } catch (error) {
-          return json(
-            {
-              success: false,
-              error: "Failed to update notification",
-            },
-            { status: 500 },
-          );
+          return errorResponse(error, "Failed to update notification");
         }
       },
 
+      // ?deleteAll=true — the whole inbox; ?id=<uuid> — one row
       DELETE: async ({ request }) => {
         try {
-          const user = await getCurrentUser(request);
-
-          if (!user) {
-            return json(
-              {
-                success: false,
-                error: "Unauthorized",
-              },
-              { status: 401 },
-            );
-          }
-
+          const user = await requireUser(request);
           const url = new URL(request.url);
-          const notificationId = url.searchParams.get("id");
-          const deleteAll = url.searchParams.get("deleteAll") === "true";
 
-          if (deleteAll) {
+          if (url.searchParams.get("deleteAll") === "true") {
             await deleteAllNotifications(user.id);
-            return json({
-              success: true,
-              message: "All notifications deleted",
-            });
+          } else {
+            const id = url.searchParams.get("id");
+            if (!id) throw badRequest("Notification id is required");
+            await deleteNotification(idSchema.parse(id), user.id);
           }
 
-          if (!notificationId) {
-            return json(
-              {
-                success: false,
-                error: "Notification ID is required",
-              },
-              { status: 400 },
-            );
-          }
-
-          await deleteNotification(notificationId, user.id);
-
-          return json({
-            success: true,
-            message: "Notification deleted",
-          });
+          return json({ success: true, unreadCount: await getUnreadCount(user.id) });
         } catch (error) {
-          return json(
-            {
-              success: false,
-              error: "Failed to delete notification",
-            },
-            { status: 500 },
-          );
+          return errorResponse(error, "Failed to delete notification");
         }
       },
     },

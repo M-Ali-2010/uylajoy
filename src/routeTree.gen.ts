@@ -19,6 +19,7 @@ import { Route as SevimlilarRouteImport } from './routes/sevimlilar'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardBildirishnomalarRouteImport } from './routes/dashboard/bildirishnomalar'
 import { Route as DashboardElonlarimRouteImport } from './routes/dashboard/elonlarim'
 import { Route as DashboardKorishlarRouteImport } from './routes/dashboard/korishlar'
 import { Route as DashboardSorovlarRouteImport } from './routes/dashboard/sorovlar'
@@ -97,6 +98,12 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardBildirishnomalarRoute =
+  DashboardBildirishnomalarRouteImport.update({
+    id: '/dashboard/bildirishnomalar',
+    path: '/dashboard/bildirishnomalar',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DashboardElonlarimRoute = DashboardElonlarimRouteImport.update({
   id: '/dashboard/elonlarim',
   path: '/dashboard/elonlarim',
@@ -242,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
   '/api/upload': typeof ApiUploadRoute
+  '/dashboard/bildirishnomalar': typeof DashboardBildirishnomalarRoute
   '/dashboard/elonlarim': typeof DashboardElonlarimRoute
   '/dashboard/korishlar': typeof DashboardKorishlarRoute
   '/dashboard/sorovlar': typeof DashboardSorovlarRoute
@@ -281,6 +289,7 @@ export interface FileRoutesByTo {
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
   '/api/upload': typeof ApiUploadRoute
+  '/dashboard/bildirishnomalar': typeof DashboardBildirishnomalarRoute
   '/dashboard/elonlarim': typeof DashboardElonlarimRoute
   '/dashboard/korishlar': typeof DashboardKorishlarRoute
   '/dashboard/sorovlar': typeof DashboardSorovlarRoute
@@ -321,6 +330,7 @@ export interface FileRoutesById {
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
   '/api/upload': typeof ApiUploadRoute
+  '/dashboard/bildirishnomalar': typeof DashboardBildirishnomalarRoute
   '/dashboard/elonlarim': typeof DashboardElonlarimRoute
   '/dashboard/korishlar': typeof DashboardKorishlarRoute
   '/dashboard/sorovlar': typeof DashboardSorovlarRoute
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/royxatdan-otish'
     | '/sevimlilar'
     | '/api/upload'
+    | '/dashboard/bildirishnomalar'
     | '/dashboard/elonlarim'
     | '/dashboard/korishlar'
     | '/dashboard/sorovlar'
@@ -401,6 +412,7 @@ export interface FileRouteTypes {
     | '/royxatdan-otish'
     | '/sevimlilar'
     | '/api/upload'
+    | '/dashboard/bildirishnomalar'
     | '/dashboard/elonlarim'
     | '/dashboard/korishlar'
     | '/dashboard/sorovlar'
@@ -440,6 +452,7 @@ export interface FileRouteTypes {
     | '/royxatdan-otish'
     | '/sevimlilar'
     | '/api/upload'
+    | '/dashboard/bildirishnomalar'
     | '/dashboard/elonlarim'
     | '/dashboard/korishlar'
     | '/dashboard/sorovlar'
@@ -480,6 +493,7 @@ export interface RootRouteChildren {
   RoyxatdanOtishRoute: typeof RoyxatdanOtishRoute
   SevimlilarRoute: typeof SevimlilarRoute
   ApiUploadRoute: typeof ApiUploadRoute
+  DashboardBildirishnomalarRoute: typeof DashboardBildirishnomalarRoute
   DashboardElonlarimRoute: typeof DashboardElonlarimRoute
   DashboardKorishlarRoute: typeof DashboardKorishlarRoute
   DashboardSorovlarRoute: typeof DashboardSorovlarRoute
@@ -580,6 +594,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/bildirishnomalar': {
+      id: '/dashboard/bildirishnomalar'
+      path: '/dashboard/bildirishnomalar'
+      fullPath: '/dashboard/bildirishnomalar'
+      preLoaderRoute: typeof DashboardBildirishnomalarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/elonlarim': {
@@ -795,6 +816,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoyxatdanOtishRoute: RoyxatdanOtishRoute,
   SevimlilarRoute: SevimlilarRoute,
   ApiUploadRoute: ApiUploadRoute,
+  DashboardBildirishnomalarRoute: DashboardBildirishnomalarRoute,
   DashboardElonlarimRoute: DashboardElonlarimRoute,
   DashboardKorishlarRoute: DashboardKorishlarRoute,
   DashboardSorovlarRoute: DashboardSorovlarRoute,

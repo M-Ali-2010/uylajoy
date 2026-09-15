@@ -1,24 +1,40 @@
 "use client";
 
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
+  Bell,
   Building2,
   Calculator,
   Heart,
   Home,
+  LayoutDashboard,
+  LogOut,
   Menu,
   Plus,
   Search,
+  Shield,
   TrendingUp,
   User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useTranslation } from "@/i18n";
+import { useAuthStore, type User as AuthUser } from "@/lib/auth-store";
+import { useUnreadNotificationCount } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { BrandLockup } from "./brand-mark";
 import { LanguageCurrencySelector } from "./language-currency-selector";
+import { UnreadBadge } from "./unread-badge";
 
 /**
  * Two states:
@@ -30,10 +46,21 @@ import { LanguageCurrencySelector } from "./language-currency-selector";
  * be marginally cheaper, but if it ever failed to deliver the header would stay
  * transparent over light content — white nav on a white page.
  */
+const mobileLink =
+  "flex w-full items-center gap-3 rounded-lg px-3 py-3 text-[0.9375rem] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground";
+
 export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const unread = useUnreadNotificationCount();
   const [pinned, setPinned] = useState(!overlay);
   const pinnedRef = useRef(!overlay);
+
+  const signOut = async () => {
+    await logout();
+    await navigate({ to: "/" });
+  };
 
   useEffect(() => {
     if (!overlay) {
@@ -137,16 +164,37 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               </Link>
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn("mr-1", light && "text-white/80 hover:bg-white/10 hover:text-white")}
-              asChild
-            >
-              <Link to="/kirish" aria-label={t.nav.login}>
-                <User className="size-[1.15rem]" />
-              </Link>
-            </Button>
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "relative",
+                  light && "text-white/80 hover:bg-white/10 hover:text-white",
+                )}
+                asChild
+              >
+                <Link to="/dashboard/bildirishnomalar" aria-label={t.notifications.title}>
+                  <Bell className="size-[1.15rem]" />
+                  <UnreadBadge count={unread} className="absolute -top-0.5 -right-0.5" />
+                </Link>
+              </Button>
+            )}
+
+            {isAuthenticated ? (
+              <AccountMenu light={light} user={user} onSignOut={signOut} />
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("mr-1", light && "text-white/80 hover:bg-white/10 hover:text-white")}
+                asChild
+              >
+                <Link to="/kirish" aria-label={t.nav.login}>
+                  <User className="size-[1.15rem]" />
+                </Link>
+              </Button>
+            )}
 
             <Button variant={light ? "onDark" : "default"} className="lift gap-1.5 pl-3.5" asChild>
               <Link to="/elon-joylash">
@@ -168,6 +216,20 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
                 <Heart className="size-[1.15rem]" />
               </Link>
             </Button>
+
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("relative", light && "text-white hover:bg-white/10")}
+                asChild
+              >
+                <Link to="/dashboard/bildirishnomalar" aria-label={t.notifications.title}>
+                  <Bell className="size-[1.15rem]" />
+                  <UnreadBadge count={unread} className="absolute -top-0.5 -right-0.5" />
+                </Link>
+              </Button>
+            )}
 
             <Sheet>
               <SheetTrigger asChild>
@@ -209,20 +271,53 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
                 <div className="mx-3 h-px bg-border" />
 
                 <div className="flex flex-col px-3 py-4">
-                  <Link
-                    to="/sevimlilar"
-                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-[0.9375rem] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                  >
+                  <Link to="/sevimlilar" className={mobileLink}>
                     <Heart className="size-[1.15rem]" />
                     {t.nav.favorites}
                   </Link>
-                  <Link
-                    to="/kirish"
-                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-[0.9375rem] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                  >
-                    <User className="size-[1.15rem]" />
-                    {t.nav.login}
-                  </Link>
+
+                  {isAuthenticated ? (
+                    <>
+                      <Link to="/dashboard" className={mobileLink}>
+                        <LayoutDashboard className="size-[1.15rem]" />
+                        {t.nav.dashboard}
+                      </Link>
+                      <Link to="/dashboard/elonlarim" className={mobileLink}>
+                        <Home className="size-[1.15rem]" />
+                        {t.nav.myListings}
+                      </Link>
+                      <Link to="/dashboard/bildirishnomalar" className={mobileLink}>
+                        <Bell className="size-[1.15rem]" />
+                        {t.notifications.title}
+                        <UnreadBadge count={unread} className="ml-auto" />
+                      </Link>
+                      {user?.role === "admin" && (
+                        <Link to="/admin" className={mobileLink}>
+                          <Shield className="size-[1.15rem]" />
+                          {t.admin.title}
+                        </Link>
+                      )}
+                      <button
+                        type="button"
+                        onClick={signOut}
+                        className={cn(mobileLink, "text-left")}
+                      >
+                        <LogOut className="size-[1.15rem]" />
+                        {t.nav.logout}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/kirish" className={mobileLink}>
+                        <User className="size-[1.15rem]" />
+                        {t.nav.login}
+                      </Link>
+                      <Link to="/royxatdan-otish" className={mobileLink}>
+                        <Plus className="size-[1.15rem]" />
+                        {t.nav.register}
+                      </Link>
+                    </>
+                  )}
                 </div>
 
                 <div className="mt-auto space-y-4 border-t border-border px-5 py-5">
@@ -240,5 +335,93 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
         </div>
       </header>
     </>
+  );
+}
+
+/**
+ * The signed-in account menu. On the hero the trigger has to read against a
+ * photograph, so the avatar keeps a translucent ring instead of the usual
+ * border.
+ */
+function AccountMenu({
+  light,
+  user,
+  onSignOut,
+}: {
+  light: boolean;
+  user: AuthUser | null;
+  onSignOut: () => void | Promise<void>;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn("mr-1", light && "hover:bg-white/10")}
+          aria-label={t.nav.profile}
+        >
+          <Avatar className={cn("size-7", light && "ring-1 ring-white/30")}>
+            <AvatarImage src={user?.avatar ?? undefined} alt="" />
+            <AvatarFallback className="text-xs font-semibold">
+              {user?.name?.charAt(0).toUpperCase() ?? "?"}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel className="font-normal">
+          <p className="truncate text-sm font-semibold">{user?.name}</p>
+          <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard">
+            <LayoutDashboard className="size-4" />
+            {t.nav.dashboard}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard/elonlarim">
+            <Home className="size-4" />
+            {t.nav.myListings}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/sevimlilar">
+            <Heart className="size-4" />
+            {t.nav.favorites}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard/sozlamalar">
+            <User className="size-4" />
+            {t.dashboard.settings}
+          </Link>
+        </DropdownMenuItem>
+
+        {user?.role === "admin" && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/admin">
+                <Shield className="size-4" />
+                {t.admin.title}
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
+
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={() => void onSignOut()}>
+          <LogOut className="size-4" />
+          {t.nav.logout}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

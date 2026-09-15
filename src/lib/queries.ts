@@ -5,6 +5,7 @@ import {
   adminApi,
   favoritesApi,
   leadsApi,
+  notificationsApi,
   propertiesApi,
   publicApi,
   viewingApi,
@@ -35,6 +36,7 @@ export const queryKeys = {
   viewings: (scope: "owner" | "sent") => ["viewings", scope] as const,
   moderation: (status: string, page: number) => ["moderation", status, page] as const,
   adminUsers: (search: string, page: number) => ["admin-users", search, page] as const,
+  notifications: (unreadOnly: boolean) => ["notifications", unreadOnly] as const,
 };
 
 interface Pagination {
@@ -242,6 +244,75 @@ export function useUpdateViewingStatus() {
     mutationFn: ({ id, status }: { id: string; status: ViewingRequest["status"] }) =>
       viewingApi.updateStatus(id, status),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["viewings"] }),
+  });
+}
+
+// --- notifications -----------------------------------------------------------
+
+export type NotificationType =
+  "message" | "lead" | "listing_approved" | "listing_rejected" | "price_drop" | "review" | "system";
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  content: string;
+  data: Record<string, unknown> | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+/**
+ * The inbox. The bell in the header and the notifications page share the
+ * `unreadOnly: false` cache entry, so opening the page costs no extra request
+ * and marking one read updates the badge in the same tick.
+ */
+export function useNotifications(unreadOnly = false) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  return useQuery({
+    queryKey: queryKeys.notifications(unreadOnly),
+    queryFn: async () => {
+      const res = await notificationsApi.getAll({ limit: 50, unreadOnly });
+      return {
+        notifications: res.notifications as AppNotification[],
+        unreadCount: res.unreadCount,
+      };
+    },
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+    // The badge would otherwise sit stale for as long as the tab stays open.
+    refetchInterval: 2 * 60_000,
+    refetchOnWindowFocus: true,
+  });
+}
+
+/** Just the badge number — zero when signed out or still loading. */
+export function useUnreadNotificationCount(): number {
+  const { data } = useNotifications(false);
+  return data?.unreadCount ?? 0;
+}
+
+export function useMarkNotificationRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => notificationsApi.markAsRead(id),
+    onSettled: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+}
+
+export function useMarkAllNotificationsRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => notificationsApi.markAllAsRead(),
+    onSettled: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
+  });
+}
+
+export function useDeleteNotification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => notificationsApi.delete(id),
+    onSettled: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
   });
 }
 

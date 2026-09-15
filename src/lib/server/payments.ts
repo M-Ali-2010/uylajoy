@@ -1,6 +1,7 @@
 import { eq, and, desc } from "drizzle-orm";
 import { db, payments, properties } from "@/db";
 import { createHash } from "crypto";
+import { AppError } from "./errors";
 
 // Payment pricing in UZS (tiyin for Payme, sum for Click)
 export const PRICING = {
@@ -71,6 +72,13 @@ export async function createPayment(input: CreatePaymentInput) {
       expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes expiry
     })
     .returning();
+
+  // `returning()` is typed as an array; an insert that produced no row means
+  // the write failed, and building a checkout URL for a payment that does not
+  // exist would send the user to a dead order.
+  if (!payment) {
+    throw new AppError(500, "Could not create the payment");
+  }
 
   // Generate payment URL based on provider
   let paymentUrl: string;
@@ -143,9 +151,9 @@ export async function processPaymeCallback(data: Record<string, unknown>) {
 }
 
 async function paymeCheckPerformTransaction(params: Record<string, unknown>) {
-  const account = params.account as { order_id: string };
+  const account = params["account"] as { order_id: string };
   const orderId = account?.order_id;
-  const amount = params.amount as number;
+  const amount = params["amount"] as number;
 
   if (!orderId) {
     return { error: { code: -31050, message: "Order ID not found" } };
@@ -173,10 +181,10 @@ async function paymeCheckPerformTransaction(params: Record<string, unknown>) {
 }
 
 async function paymeCreateTransaction(params: Record<string, unknown>) {
-  const account = params.account as { order_id: string };
+  const account = params["account"] as { order_id: string };
   const orderId = account?.order_id;
-  const transactionId = params.id as string;
-  const time = params.time as number;
+  const transactionId = params["id"] as string;
+  const time = params["time"] as number;
 
   const [payment] = await db.select().from(payments).where(eq(payments.id, orderId)).limit(1);
 
@@ -207,7 +215,7 @@ async function paymeCreateTransaction(params: Record<string, unknown>) {
 }
 
 async function paymePerformTransaction(params: Record<string, unknown>) {
-  const transactionId = params.id as string;
+  const transactionId = params["id"] as string;
 
   const [payment] = await db
     .select()
@@ -256,8 +264,8 @@ async function paymePerformTransaction(params: Record<string, unknown>) {
 }
 
 async function paymeCancelTransaction(params: Record<string, unknown>) {
-  const transactionId = params.id as string;
-  const reason = params.reason as number;
+  const transactionId = params["id"] as string;
+  const reason = params["reason"] as number;
 
   const [payment] = await db
     .select()
@@ -288,7 +296,7 @@ async function paymeCancelTransaction(params: Record<string, unknown>) {
 }
 
 async function paymeCheckTransaction(params: Record<string, unknown>) {
-  const transactionId = params.id as string;
+  const transactionId = params["id"] as string;
 
   const [payment] = await db
     .select()
@@ -329,7 +337,7 @@ export async function processClickPrepare(data: Record<string, unknown>) {
   // Verify signature
   const expectedSign = createHash("md5")
     .update(
-      `${data.click_trans_id}${data.service_id}${CLICK_SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`,
+      `${data["click_trans_id"]}${data["service_id"]}${CLICK_SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`,
     )
     .digest("hex");
 
@@ -357,7 +365,7 @@ export async function processClickPrepare(data: Record<string, unknown>) {
   }
 
   return {
-    click_trans_id: data.click_trans_id,
+    click_trans_id: data["click_trans_id"],
     merchant_trans_id,
     merchant_prepare_id: payment.id,
     error: 0,

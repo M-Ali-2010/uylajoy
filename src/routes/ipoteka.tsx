@@ -71,7 +71,9 @@ function IpotekaPage() {
               />
             </div>
             <div className="space-y-3">
-              <Label>Boshlang'ich to'lov: {downPct}% ({usd((price * downPct) / 100)})</Label>
+              <Label>
+                Boshlang'ich to'lov: {downPct}% ({usd((price * downPct) / 100)})
+              </Label>
               <Slider
                 value={[downPct]}
                 min={0}

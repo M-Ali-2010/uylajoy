@@ -81,7 +81,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       const inUsd = amount / exchangeRates[from];
       return inUsd * exchangeRates[targetCurrency];
     },
-    [currency]
+    [currency],
   );
 
   const format = useCallback(
@@ -97,7 +97,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
         maximumFractionDigits: 0,
       });
     },
-    [convert, currency]
+    [convert, currency],
   );
 
   const formatWithSymbol = useCallback(
@@ -111,7 +111,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
       return `${symbol}${formatted}`;
     },
-    [format, currency]
+    [format, currency],
   );
 
   const value: CurrencyContextType = {
@@ -131,11 +131,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  return (
-    <CurrencyContext.Provider value={value}>
-      {children}
-    </CurrencyContext.Provider>
-  );
+  return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
 }
 
 export function useCurrency() {
@@ -151,7 +147,7 @@ export function formatListingPrice(
   price: number,
   deal: "sotuv" | "ijara",
   currency: Currency,
-  formatFn: (amount: number) => string
+  formatFn: (amount: number) => string,
 ): string {
   const formatted = formatFn(price);
   const symbol = currencySymbols[currency];

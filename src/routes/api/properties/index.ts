@@ -3,6 +3,7 @@ import { json } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { agents, db } from "@/db";
+import { track } from "@/lib/server/analytics";
 import { getCurrentUser } from "@/lib/server/auth";
 import { clampInt, clientIp, errorResponse, readJson } from "@/lib/server/http";
 import { getProperties, createProperty, MAX_PAGE_SIZE } from "@/lib/server/properties";
@@ -87,9 +88,9 @@ export const Route = createFileRoute("/api/properties/")({
 
           // Anonymous and ordinary users only ever see published listings.
           // Owners get their own (any status) via `mine`; admins may filter freely.
-          let scope: { status?: typeof status; ownerId?: string } = { status: "active" };
+          let scope: { status?: typeof status | null; ownerId?: string } = { status: "active" };
           if (mine && viewer) {
-            scope = { ownerId: viewer.id, ...(status ? { status } : {}) };
+            scope = { ownerId: viewer.id, status: status ?? null };
           } else if (viewer?.role === "admin" && status) {
             scope = { status };
           }
@@ -143,6 +144,11 @@ export const Route = createFileRoute("/api/properties/")({
             agentId,
           });
 
+          void track("listing_created", {
+            propertyId: property?.id,
+            userId: user.id,
+            ip: clientIp(request),
+          });
           return json({ success: true, property }, { status: 201 });
         } catch (error) {
           return errorResponse(error, "Failed to create property");

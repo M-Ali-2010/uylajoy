@@ -245,11 +245,10 @@ function RegisterPage() {
           <div className="bg-brand mx-auto flex size-20 items-center justify-center rounded-3xl text-primary-foreground">
             <Home className="size-10" />
           </div>
-          <h2 className="mt-8 font-display text-3xl font-extrabold">
-            Bepul hisob yarating
-          </h2>
+          <h2 className="mt-8 font-display text-3xl font-extrabold">Bepul hisob yarating</h2>
           <p className="mt-4 text-muted-foreground">
-            E'lon joylash, sevimlilarni saqlash va agentlar bilan bog'lanish uchun ro'yxatdan o'ting.
+            E'lon joylash, sevimlilarni saqlash va agentlar bilan bog'lanish uchun ro'yxatdan
+            o'ting.
           </p>
           <ul className="mt-8 space-y-3 text-left">
             {[

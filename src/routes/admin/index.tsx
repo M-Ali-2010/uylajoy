@@ -1,305 +1,457 @@
-import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  Home,
-  Users,
-  Building2,
-  Shield,
-  MessageSquare,
-  Star,
-  BarChart3,
-  FileText,
-  Settings,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Eye,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useTranslation } from "@/i18n";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Archive, Check, Inbox, Search, ShieldBan, ShieldCheck, X } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { StatusBadge } from "@/components/uyjoy/dashboard/shell";
+import { BrandLockup } from "@/components/uyjoy/brand-mark";
 import { RequireAuth } from "@/components/uyjoy/require-auth";
+import { EmptyState, ErrorState } from "@/components/uyjoy/states";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "@/i18n";
+import { useAuthStore } from "@/lib/auth-store";
+import { formatListingPrice, useCurrency } from "@/lib/currency";
+import type { Listing } from "@/lib/listing";
+import { useAdminUsers, useModerate, useModerationQueue, useUserAction } from "@/lib/queries";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/")({
-  head: () => ({
-    meta: [
-      { title: "Admin Panel — UyJoy.uz" },
-      { name: "description", content: "Administrator boshqaruv paneli" },
-    ],
-  }),
-  component: AdminPageGuarded,
-});
-
-function AdminPageGuarded() {
-  return (
+  head: () => ({ meta: [{ title: "Admin — UyJoy.uz" }, { name: "robots", content: "noindex" }] }),
+  component: () => (
     <RequireAuth role="admin">
       <AdminPage />
     </RequireAuth>
-  );
-}
+  ),
+});
+
+type Tab = "queue" | "listings" | "users";
 
 function AdminPage() {
   const { t } = useTranslation();
-  const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+  const [tab, setTab] = useState<Tab>("queue");
 
-  const navItems = [
-    { to: "/admin", label: t.admin.dashboard, icon: LayoutDashboard, exact: true },
-    { to: "/admin/elonlar", label: t.admin.listings, icon: Home },
-    { to: "/admin/moderatsiya", label: t.admin.moderation, icon: Shield, badge: 5 },
-    { to: "/admin/foydalanuvchilar", label: t.admin.users, icon: Users },
-    { to: "/admin/agentlar", label: t.admin.agents, icon: Building2 },
-    { to: "/admin/agentliklar", label: t.admin.agencies, icon: Building2 },
-    { to: "/admin/sharhlar", label: t.admin.reviews, icon: Star },
-    { to: "/admin/tahlillar", label: t.admin.analytics, icon: BarChart3 },
-    { to: "/admin/kontent", label: t.admin.content, icon: FileText },
-    { to: "/admin/sozlamalar", label: t.admin.settings, icon: Settings },
+  const tabs: { id: Tab; label: string }[] = [
+    { id: "queue", label: t.admin.queue },
+    { id: "listings", label: t.admin.listings },
+    { id: "users", label: t.admin.users },
   ];
-
-  // Mock stats
-  const stats = [
-    { label: "Jami foydalanuvchilar", value: 2456, icon: Users, change: "+123" },
-    { label: "Jami e'lonlar", value: 892, icon: Home, change: "+45" },
-    { label: "Faol e'lonlar", value: 654, icon: CheckCircle },
-    { label: "Moderatsiyada", value: 12, icon: Clock, highlight: true },
-  ];
-
-  // Mock pending listings for moderation
-  const pendingListings = [
-    {
-      id: "1",
-      title: "Yunusobodda 3 xonali kvartira",
-      price: 85000,
-      agent: "Sardor Yusupov",
-      date: "2 soat oldin",
-      image: "/assets/prop-1.jpg",
-    },
-    {
-      id: "2",
-      title: "Chilonzorda 2 xonali yangi",
-      price: 65000,
-      agent: "Nilufar Abdullayeva",
-      date: "4 soat oldin",
-      image: "/assets/prop-2.jpg",
-    },
-    {
-      id: "3",
-      title: "Sergeli tumanida arzon kvartira",
-      price: 42000,
-      agent: "Bobur Toshmatov",
-      date: "6 soat oldin",
-      image: "/assets/prop-3.jpg",
-    },
-  ];
-
-  const isExactMatch = (path: string) => location.pathname === path;
-  const isActive = (to: string, exact?: boolean) => {
-    if (exact) return isExactMatch(to);
-    return location.pathname.startsWith(to);
-  };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-border bg-card lg:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="bg-brand flex size-9 items-center justify-center rounded-xl text-primary-foreground">
-              <Shield className="size-5" />
-            </span>
-            <span className="font-display text-lg font-extrabold tracking-tight">Admin</span>
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
+        <div className="shell flex h-16 items-center gap-6">
+          <Link to="/" className="group" aria-label="UyJoy.uz">
+            <BrandLockup />
           </Link>
-        </div>
-
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive(item.to, item.exact)
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <item.icon className="size-5" />
-                {item.label}
-              </div>
-              {item.badge && (
-                <Badge variant="destructive" className="size-5 justify-center p-0 text-xs">
-                  {item.badge}
-                </Badge>
-              )}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="border-t border-border p-4">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback>A</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 truncate">
-              <p className="truncate text-sm font-medium">Administrator</p>
-              <p className="truncate text-xs text-muted-foreground">admin@uyjoy.uz</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 lg:pl-64">
-        {/* Top bar */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur lg:px-8">
-          <h1 className="font-display text-xl font-bold">{t.admin.title}</h1>
-          <Button variant="outline" asChild>
-            <Link to="/">Saytga o'tish</Link>
-          </Button>
-        </header>
-
-        <div className="p-4 lg:p-8">
-          {/* Stats */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className={`rounded-2xl border bg-card p-5 shadow-card ${
-                  stat.highlight ? "border-primary" : "border-border"
-                }`}
+          <span className="rounded-md bg-ink px-2 py-0.5 text-xs font-bold tracking-wider text-white uppercase">
+            {t.admin.title}
+          </span>
+          <nav className="ml-auto flex gap-1" aria-label={t.admin.title}>
+            {tabs.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={tab === item.id}
+                onClick={() => setTab(item.id)}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors",
+                  tab === item.id
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <stat.icon
-                    className={`size-5 ${stat.highlight ? "text-primary" : "text-muted-foreground"}`}
-                  />
-                </div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <p className="font-display text-3xl font-bold">{stat.value}</p>
-                  {stat.change && <span className="text-xs text-primary">{stat.change}</span>}
-                </div>
-              </div>
+                {item.label}
+              </button>
             ))}
-          </div>
-
-          {/* Pending moderation */}
-          <div className="mt-8">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl font-bold">Moderatsiya kutayotgan e'lonlar</h2>
-              <Button variant="soft" asChild>
-                <a href="/admin/moderatsiya">{t.home.viewAll}</a>
-              </Button>
-            </div>
-
-            <div className="mt-4 space-y-4">
-              {pendingListings.map((listing) => (
-                <div
-                  key={listing.id}
-                  className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card"
-                >
-                  <div className="size-20 flex-shrink-0 overflow-hidden rounded-xl bg-secondary">
-                    <div className="flex size-full items-center justify-center text-muted-foreground">
-                      <Home className="size-8" />
-                    </div>
-                  </div>
-
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{listing.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      ${listing.price.toLocaleString()} • {listing.agent}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{listing.date}</p>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon">
-                      <Eye className="size-4" />
-                    </Button>
-                    <Button variant="default" size="icon" className="bg-primary">
-                      <CheckCircle className="size-4" />
-                    </Button>
-                    <Button variant="destructive" size="icon">
-                      <XCircle className="size-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent activity */}
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            {/* Recent users */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-              <h2 className="font-display text-lg font-bold">Yangi foydalanuvchilar</h2>
-              <div className="mt-4 space-y-3">
-                {[
-                  { name: "Sardor Yusupov", email: "sardor@mail.uz", date: "Bugun" },
-                  { name: "Nilufar Abdullayeva", email: "nilufar@mail.uz", date: "Kecha" },
-                  { name: "Bobur Toshmatov", email: "bobur@mail.uz", date: "2 kun oldin" },
-                ].map((user, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 rounded-lg border border-border p-3"
-                  >
-                    <Avatar>
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="font-medium">{user.name}</p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{user.date}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Recent reviews */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-              <h2 className="font-display text-lg font-bold">Yangi sharhlar</h2>
-              <div className="mt-4 space-y-3">
-                {[
-                  {
-                    author: "Ali Karimov",
-                    rating: 5,
-                    text: "Ajoyib xizmat!",
-                    date: "1 soat oldin",
-                  },
-                  {
-                    author: "Malika Sharipova",
-                    rating: 4,
-                    text: "Yaxshi tajriba",
-                    date: "3 soat oldin",
-                  },
-                  {
-                    author: "Jasur Toshmatov",
-                    rating: 5,
-                    text: "Tavsiya qilaman!",
-                    date: "5 soat oldin",
-                  },
-                ].map((review, i) => (
-                  <div key={i} className="rounded-lg border border-border p-3">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{review.author}</p>
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: 5 }).map((_, j) => (
-                          <Star
-                            key={j}
-                            className={`size-3 ${j < review.rating ? "fill-gold text-gold" : "text-muted-foreground"}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{review.text}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{review.date}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          </nav>
+          <span className="hidden text-sm text-muted-foreground md:block">{user?.email}</span>
         </div>
+      </header>
+
+      <main className="shell flex-1 py-8">
+        {tab === "queue" && <Queue status="pending" />}
+        {tab === "listings" && <Queue status="active" allowStatusSwitch />}
+        {tab === "users" && <UsersTab />}
       </main>
+    </div>
+  );
+}
+
+function Queue({
+  status: initial,
+  allowStatusSwitch = false,
+}: {
+  status: string;
+  allowStatusSwitch?: boolean;
+}) {
+  const { t } = useTranslation();
+  const [status, setStatus] = useState(initial);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useModerationQueue(status, page);
+  const moderate = useModerate();
+  const [rejecting, setRejecting] = useState<Listing | null>(null);
+
+  const onError = (e: unknown) => toast.error(e instanceof Error ? e.message : t.common.error);
+
+  const act = (listing: Listing, action: "approve" | "archive") =>
+    moderate.mutate(
+      { propertyId: listing.id, action },
+      {
+        onSuccess: () =>
+          toast.success(action === "approve" ? t.admin.approved : t.admin.archiveAction),
+        onError,
+      },
+    );
+
+  return (
+    <div className="space-y-5">
+      {allowStatusSwitch && (
+        <div className="flex flex-wrap gap-1">
+          {["active", "rejected", "archived", "paused", "draft"].map((s) => (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={status === s}
+              onClick={() => {
+                setStatus(s);
+                setPage(1);
+              }}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm font-medium",
+                status === s ? "bg-secondary" : "text-muted-foreground",
+              )}
+            >
+              <StatusBadge status={s} />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {isError ? (
+        <ErrorState
+          message={error instanceof Error ? error.message : undefined}
+          onRetry={() => refetch()}
+        />
+      ) : !isLoading && (data?.listings.length ?? 0) === 0 ? (
+        <EmptyState icon={Inbox} title={t.admin.queueEmpty} description={t.admin.queueEmptyDesc} />
+      ) : (
+        <ul className="space-y-3" aria-busy={isLoading}>
+          {(data?.listings ?? []).map((l) => (
+            <QueueRow
+              key={l.id}
+              listing={l}
+              busy={moderate.isPending}
+              onApprove={l.status === "pending" ? () => act(l, "approve") : undefined}
+              onReject={l.status === "pending" ? () => setRejecting(l) : undefined}
+              onArchive={l.status !== "archived" ? () => act(l, "archive") : undefined}
+            />
+          ))}
+        </ul>
+      )}
+
+      {data && data.pagination.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            {t.common.previous}
+          </Button>
+          <span className="tnum text-sm text-muted-foreground">
+            {page} {t.common.of} {data.pagination.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= data.pagination.totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            {t.common.next}
+          </Button>
+        </div>
+      )}
+
+      <RejectDialog
+        listing={rejecting}
+        onClose={() => setRejecting(null)}
+        onConfirm={(reason) =>
+          rejecting &&
+          moderate.mutate(
+            { propertyId: rejecting.id, action: "reject", reason },
+            {
+              onSuccess: () => {
+                toast.success(t.admin.rejected);
+                setRejecting(null);
+              },
+              onError,
+            },
+          )
+        }
+        pending={moderate.isPending}
+      />
+    </div>
+  );
+}
+
+function QueueRow({
+  listing: l,
+  busy,
+  onApprove,
+  onReject,
+  onArchive,
+}: {
+  listing: Listing;
+  busy: boolean;
+  onApprove?: (() => void) | undefined;
+  onReject?: (() => void) | undefined;
+  onArchive?: (() => void) | undefined;
+}) {
+  const { t } = useTranslation();
+  const { currency, format } = useCurrency();
+
+  return (
+    <li className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 md:flex-row">
+      <img src={l.image} alt="" className="h-28 w-full shrink-0 rounded-lg object-cover md:w-40" />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={l.status} />
+          <span className="text-xs text-muted-foreground">
+            {new Date(l.createdAt).toLocaleString()}
+          </span>
+          {l.owner && (
+            <span className="text-xs text-muted-foreground">
+              · {t.admin.submittedBy}: {l.owner.name}
+            </span>
+          )}
+        </div>
+        <Link
+          to="/elonlar/$id"
+          params={{ id: l.id }}
+          className="mt-1.5 block font-semibold hover:text-primary"
+        >
+          {l.title}
+        </Link>
+        <p className="text-sm text-muted-foreground">
+          {l.district}, {l.city} · {l.address} ·{" "}
+          <span className="tnum font-medium text-foreground">
+            {formatListingPrice(l.price, l.deal, currency, format)}
+          </span>{" "}
+          · <span className="tnum">{l.area}</span> m² · {l.rooms} {t.property.rooms.toLowerCase()} ·{" "}
+          {l.images.length} {t.postListing.photos.toLowerCase()}
+        </p>
+        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{l.description}</p>
+        {l.rejectionReason && <p className="mt-2 text-sm text-destructive">{l.rejectionReason}</p>}
+      </div>
+      <div className="flex shrink-0 flex-wrap gap-2 md:flex-col">
+        {onApprove && (
+          <Button size="sm" disabled={busy} onClick={onApprove}>
+            <Check className="size-3.5" /> {t.admin.approve}
+          </Button>
+        )}
+        {onReject && (
+          <Button size="sm" variant="outline" disabled={busy} onClick={onReject}>
+            <X className="size-3.5" /> {t.admin.reject}
+          </Button>
+        )}
+        {onArchive && (
+          <Button size="sm" variant="ghost" disabled={busy} onClick={onArchive}>
+            <Archive className="size-3.5" /> {t.admin.archiveAction}
+          </Button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function RejectDialog({
+  listing,
+  onClose,
+  onConfirm,
+  pending,
+}: {
+  listing: Listing | null;
+  onClose: () => void;
+  onConfirm: (reason: string) => void;
+  pending: boolean;
+}) {
+  const { t } = useTranslation();
+  const [reason, setReason] = useState("");
+
+  return (
+    <Dialog open={listing !== null} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t.admin.reject}</DialogTitle>
+          <DialogDescription>{listing?.title}</DialogDescription>
+        </DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onConfirm(reason.trim());
+          }}
+          className="space-y-4"
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="reject-reason">{t.admin.rejectReason}</Label>
+            <Textarea
+              id="reject-reason"
+              required
+              minLength={10}
+              maxLength={1000}
+              rows={4}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">{t.admin.rejectReasonHint}</p>
+          </div>
+          <Button
+            type="submit"
+            variant="destructive"
+            className="w-full"
+            loading={pending}
+            disabled={reason.trim().length < 10}
+          >
+            {t.admin.reject}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function UsersTab() {
+  const { t } = useTranslation();
+  const me = useAuthStore((s) => s.user);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, error, refetch } = useAdminUsers(search, page);
+  const action = useUserAction();
+
+  const onError = (e: unknown) => toast.error(e instanceof Error ? e.message : t.common.error);
+  const totalPages = data
+    ? Math.max(1, Math.ceil(data.pagination.total / data.pagination.limit))
+    : 1;
+
+  return (
+    <div className="space-y-5">
+      <div className="relative max-w-md">
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder={t.admin.searchUsers}
+          className="pl-9"
+          aria-label={t.admin.searchUsers}
+        />
+      </div>
+
+      {isError ? (
+        <ErrorState
+          message={error instanceof Error ? error.message : undefined}
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+          <table className="w-full text-sm" aria-busy={isLoading}>
+            <thead className="border-b border-border text-left text-xs text-muted-foreground uppercase">
+              <tr>
+                <th className="px-4 py-3 font-semibold">{t.auth.name}</th>
+                <th className="px-4 py-3 font-semibold">Email</th>
+                <th className="px-4 py-3 font-semibold">{t.auth.phone}</th>
+                <th className="px-4 py-3 font-semibold">{t.nav.profile}</th>
+                <th className="px-4 py-3 font-semibold">{t.admin.listingsCount}</th>
+                <th className="px-4 py-3 font-semibold">{t.common.status}</th>
+                <th className="px-4 py-3 text-right font-semibold">{t.common.actions}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {(data?.users ?? []).map((u) => (
+                <tr key={u.id}>
+                  <td className="px-4 py-3 font-medium">{u.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
+                  <td className="tnum px-4 py-3 text-muted-foreground">{u.phone ?? "—"}</td>
+                  <td className="px-4 py-3">{u.role}</td>
+                  <td className="tnum px-4 py-3">{u.listings}</td>
+                  <td className="px-4 py-3">
+                    {u.isActive ? (
+                      <span className="inline-flex items-center gap-1 text-success">
+                        <ShieldCheck className="size-3.5" /> OK
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-destructive">
+                        <ShieldBan className="size-3.5" /> {t.admin.blocked}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {u.role !== "admin" && u.id !== me?.id && (
+                      <Button
+                        size="sm"
+                        variant={u.isActive ? "outline" : "default"}
+                        disabled={action.isPending}
+                        onClick={() =>
+                          action.mutate(
+                            { userId: u.id, action: u.isActive ? "block" : "unblock" },
+                            { onError },
+                          )
+                        }
+                      >
+                        {u.isActive ? t.admin.block : t.admin.unblock}
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {!isLoading && (data?.users.length ?? 0) === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+                    —
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            {t.common.previous}
+          </Button>
+          <span className="tnum text-sm text-muted-foreground">
+            {page} {t.common.of} {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            {t.common.next}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

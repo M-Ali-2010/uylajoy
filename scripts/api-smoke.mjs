@@ -228,6 +228,78 @@ try {
     (r.json?.favorites ?? []).some((f) => (f.propertyId ?? f.property?.id) === propertyId),
   );
 
+  // --- marketplace flows ----------------------------------------------------
+  r = await api("GET", "/api/properties/stats");
+  check(
+    "public stats endpoint",
+    r.status === 200 && typeof r.json?.total === "number" && r.json.byType.apartment >= 1,
+  );
+
+  r = await api("POST", `/api/properties/${propertyId}/contact`);
+  check(
+    "contact reveal returns owner name and phone",
+    r.status === 200 && r.json?.contact?.name === owner.name,
+    `status ${r.status}`,
+  );
+
+  r = await api("POST", "/api/viewing-requests", {
+    body: {
+      propertyId,
+      name: "Buyer",
+      phone: "+998901234567",
+      preferredAt: new Date(Date.now() + 86400000).toISOString(),
+      message: "Ertaga",
+    },
+    token: buyerToken,
+  });
+  check("buyer requests a viewing", r.status === 201, `status ${r.status} ${r.json?.error ?? ""}`);
+  const viewingId = r.json?.request?.id;
+
+  r = await api("GET", "/api/viewing-requests", { token: ownerToken });
+  check(
+    "owner sees the viewing request",
+    (r.json?.requests ?? []).some((v) => v.id === viewingId),
+  );
+
+  r = await api("PATCH", `/api/viewing-requests/${viewingId}`, {
+    body: { status: "confirmed" },
+    token: buyerToken,
+  });
+  check("only the owner can confirm a viewing", r.status === 403, `status ${r.status}`);
+
+  r = await api("PATCH", `/api/viewing-requests/${viewingId}`, {
+    body: { status: "confirmed" },
+    token: ownerToken,
+  });
+  check("owner confirms the viewing", r.status === 200 && r.json?.request?.status === "confirmed");
+
+  r = await api("GET", "/api/viewing-requests?scope=sent", { token: buyerToken });
+  check(
+    "buyer sees their sent request as confirmed",
+    (r.json?.requests ?? []).some((v) => v.id === viewingId && v.status === "confirmed"),
+  );
+
+  r = await api("GET", "/api/properties?mine=1", { token: ownerToken });
+  check(
+    "owner lists own listings regardless of status",
+    (r.json?.properties ?? []).some((p) => p.id === propertyId),
+  );
+
+  r = await api("GET", "/api/admin/users", { token: adminToken });
+  check(
+    "admin lists users with listing counts",
+    r.status === 200 &&
+      (r.json?.users ?? []).some((u) => u.email === owner.email && u.listings >= 1),
+    `status ${r.status}`,
+  );
+
+  r = await api("GET", "/api/admin/users", { token: ownerToken });
+  check("non-admin cannot list users", r.status === 403);
+
+  r =
+    await sql`select count(*)::int as n from analytics_events where property_id = ${propertyId}::uuid`;
+  check("analytics events recorded for the listing", r[0].n >= 3, `events ${r[0].n}`);
+
   // --- hardening extras ---------------------------------------------------
   r =
     await sql`select action, admin_id from admin_actions where target_id = ${propertyId}::uuid order by created_at`;

@@ -49,6 +49,8 @@ export function clampInt(
   value: unknown,
   { min, max, fallback }: { min: number; max: number; fallback: number },
 ) {
+  // `null` (absent query param) and "" must mean "use the default", not zero
+  if (value === null || value === undefined || value === "") return fallback;
   const n = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(n)) return fallback;
   return Math.min(max, Math.max(min, Math.trunc(n)));

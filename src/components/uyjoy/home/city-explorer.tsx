@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, MapPin } from "lucide-react";
-import { cities, listings } from "@/data/listings";
+import { cities } from "@/lib/listing";
+import { useStats } from "@/lib/queries";
 import { useTranslation } from "@/i18n";
 import { Reveal } from "../reveal";
 import { useListingLabel } from "./use-listing-label";
@@ -15,8 +16,9 @@ import heroImage from "@/assets/hero-tashkent.jpg";
 export function CityExplorer() {
   const { t } = useTranslation();
   const listingLabel = useListingLabel();
+  const { data: stats } = useStats();
 
-  const countFor = (name: string) => listings.filter((l) => l.city === name).length;
+  const countFor = (name: string) => stats?.byCity[name] ?? 0;
 
   const [lead, ...others] = cities;
   const leadCount = countFor(lead);

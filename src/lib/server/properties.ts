@@ -1,5 +1,6 @@
 import { eq, and, or, gte, lte, ilike, desc, asc, sql, inArray } from "drizzle-orm";
 import { db, properties, propertyImages, users, agents, agencies, priceHistory } from "@/db";
+import { track } from "./analytics";
 import { AppError, forbidden, notFound } from "./errors";
 
 export type PropertyStatus =
@@ -70,6 +71,7 @@ export interface PropertyFilters {
   maxArea?: number | undefined;
   condition?: "new" | "renovated" | "good" | "needs_repair" | undefined;
   amenities?: string[] | undefined;
+  /** `null` = any status (owner's own list); undefined = published only. */
   status?:
     | "draft"
     | "pending"
@@ -79,6 +81,7 @@ export interface PropertyFilters {
     | "paused"
     | "rejected"
     | "archived"
+    | null
     | undefined;
   isFeatured?: boolean | undefined;
   isPremium?: boolean | undefined;
@@ -373,6 +376,7 @@ export async function getPropertyById(
       .update(properties)
       .set({ viewCount: sql`${properties.viewCount} + 1` })
       .where(eq(properties.id, id));
+    void track("property_view", { propertyId: id, userId: viewer?.id });
   }
 
   // Get images
@@ -603,6 +607,7 @@ export async function approveProperty(id: string) {
     .returning();
 
   if (!updated) throw new AppError(409, "Only listings pending moderation can be approved");
+  void track("listing_published", { propertyId: id, userId: updated.ownerId });
   return updated;
 }
 

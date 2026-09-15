@@ -1,4 +1,5 @@
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { AppError, notFound } from "./errors";
 import { db, favorites, favoriteFolders, properties, propertyImages } from "@/db";
 
 // Get user's favorites
@@ -157,7 +158,7 @@ export async function updateFolder(userId: string, folderId: string, name: strin
     .limit(1);
 
   if (!existing) {
-    throw new Error("Folder not found");
+    throw notFound("Folder");
   }
 
   const [updated] = await db
@@ -178,7 +179,7 @@ export async function deleteFolder(userId: string, folderId: string) {
     .limit(1);
 
   if (!existing) {
-    throw new Error("Folder not found");
+    throw notFound("Folder");
   }
 
   // Set favorites in this folder to null

@@ -19,9 +19,14 @@ import { Route as SevimlilarRouteImport } from './routes/sevimlilar'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardElonlarimRouteImport } from './routes/dashboard/elonlarim'
+import { Route as DashboardKorishlarRouteImport } from './routes/dashboard/korishlar'
+import { Route as DashboardSorovlarRouteImport } from './routes/dashboard/sorovlar'
+import { Route as DashboardSozlamalarRouteImport } from './routes/dashboard/sozlamalar'
 import { Route as ElonlarIndexRouteImport } from './routes/elonlar/index'
 import { Route as ElonlarIdRouteImport } from './routes/elonlar/$id'
 import { Route as ApiAdminPropertiesRouteImport } from './routes/api/admin/properties'
+import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
@@ -37,6 +42,10 @@ import { Route as ApiPaymentsPricingRouteImport } from './routes/api/payments/pr
 import { Route as ApiPropertiesIndexRouteImport } from './routes/api/properties/index'
 import { Route as ApiPropertiesIdRouteImport } from './routes/api/properties/$id'
 import { Route as ApiPropertiesFeaturedRouteImport } from './routes/api/properties/featured'
+import { Route as ApiPropertiesStatsRouteImport } from './routes/api/properties/stats'
+import { Route as ApiViewingRequestsIndexRouteImport } from './routes/api/viewing-requests/index'
+import { Route as ApiViewingRequestsIdRouteImport } from './routes/api/viewing-requests/$id'
+import { Route as ApiPropertiesIdContactRouteImport } from './routes/api/properties/$id.contact'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,6 +97,26 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardElonlarimRoute = DashboardElonlarimRouteImport.update({
+  id: '/dashboard/elonlarim',
+  path: '/dashboard/elonlarim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardKorishlarRoute = DashboardKorishlarRouteImport.update({
+  id: '/dashboard/korishlar',
+  path: '/dashboard/korishlar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardSorovlarRoute = DashboardSorovlarRouteImport.update({
+  id: '/dashboard/sorovlar',
+  path: '/dashboard/sorovlar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardSozlamalarRoute = DashboardSozlamalarRouteImport.update({
+  id: '/dashboard/sozlamalar',
+  path: '/dashboard/sozlamalar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ElonlarIndexRoute = ElonlarIndexRouteImport.update({
   id: '/elonlar/',
   path: '/elonlar/',
@@ -101,6 +130,11 @@ const ElonlarIdRoute = ElonlarIdRouteImport.update({
 const ApiAdminPropertiesRoute = ApiAdminPropertiesRouteImport.update({
   id: '/api/admin/properties',
   path: '/api/admin/properties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
+  id: '/api/admin/users',
+  path: '/api/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
@@ -178,6 +212,26 @@ const ApiPropertiesFeaturedRoute = ApiPropertiesFeaturedRouteImport.update({
   path: '/api/properties/featured',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPropertiesStatsRoute = ApiPropertiesStatsRouteImport.update({
+  id: '/api/properties/stats',
+  path: '/api/properties/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiViewingRequestsIndexRoute = ApiViewingRequestsIndexRouteImport.update({
+  id: '/api/viewing-requests/',
+  path: '/api/viewing-requests/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiViewingRequestsIdRoute = ApiViewingRequestsIdRouteImport.update({
+  id: '/api/viewing-requests/$id',
+  path: '/api/viewing-requests/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPropertiesIdContactRoute = ApiPropertiesIdContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => ApiPropertiesIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -188,11 +242,16 @@ export interface FileRoutesByFullPath {
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
   '/api/upload': typeof ApiUploadRoute
+  '/dashboard/elonlarim': typeof DashboardElonlarimRoute
+  '/dashboard/korishlar': typeof DashboardKorishlarRoute
+  '/dashboard/sorovlar': typeof DashboardSorovlarRoute
+  '/dashboard/sozlamalar': typeof DashboardSozlamalarRoute
   '/elonlar/$id': typeof ElonlarIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/elonlar/': typeof ElonlarIndexRoute
   '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
@@ -201,13 +260,17 @@ export interface FileRoutesByFullPath {
   '/api/payments/click': typeof ApiPaymentsClickRoute
   '/api/payments/payme': typeof ApiPaymentsPaymeRoute
   '/api/payments/pricing': typeof ApiPaymentsPricingRoute
-  '/api/properties/$id': typeof ApiPropertiesIdRoute
+  '/api/properties/$id': typeof ApiPropertiesIdRouteWithChildren
   '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/properties/stats': typeof ApiPropertiesStatsRoute
+  '/api/viewing-requests/$id': typeof ApiViewingRequestsIdRoute
   '/api/favorites/': typeof ApiFavoritesIndexRoute
   '/api/leads/': typeof ApiLeadsIndexRoute
   '/api/notifications/': typeof ApiNotificationsIndexRoute
   '/api/payments/': typeof ApiPaymentsIndexRoute
   '/api/properties/': typeof ApiPropertiesIndexRoute
+  '/api/viewing-requests/': typeof ApiViewingRequestsIndexRoute
+  '/api/properties/$id/contact': typeof ApiPropertiesIdContactRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -218,11 +281,16 @@ export interface FileRoutesByTo {
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
   '/api/upload': typeof ApiUploadRoute
+  '/dashboard/elonlarim': typeof DashboardElonlarimRoute
+  '/dashboard/korishlar': typeof DashboardKorishlarRoute
+  '/dashboard/sorovlar': typeof DashboardSorovlarRoute
+  '/dashboard/sozlamalar': typeof DashboardSozlamalarRoute
   '/elonlar/$id': typeof ElonlarIdRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/elonlar': typeof ElonlarIndexRoute
   '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
@@ -231,13 +299,17 @@ export interface FileRoutesByTo {
   '/api/payments/click': typeof ApiPaymentsClickRoute
   '/api/payments/payme': typeof ApiPaymentsPaymeRoute
   '/api/payments/pricing': typeof ApiPaymentsPricingRoute
-  '/api/properties/$id': typeof ApiPropertiesIdRoute
+  '/api/properties/$id': typeof ApiPropertiesIdRouteWithChildren
   '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/properties/stats': typeof ApiPropertiesStatsRoute
+  '/api/viewing-requests/$id': typeof ApiViewingRequestsIdRoute
   '/api/favorites': typeof ApiFavoritesIndexRoute
   '/api/leads': typeof ApiLeadsIndexRoute
   '/api/notifications': typeof ApiNotificationsIndexRoute
   '/api/payments': typeof ApiPaymentsIndexRoute
   '/api/properties': typeof ApiPropertiesIndexRoute
+  '/api/viewing-requests': typeof ApiViewingRequestsIndexRoute
+  '/api/properties/$id/contact': typeof ApiPropertiesIdContactRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -249,11 +321,16 @@ export interface FileRoutesById {
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
   '/api/upload': typeof ApiUploadRoute
+  '/dashboard/elonlarim': typeof DashboardElonlarimRoute
+  '/dashboard/korishlar': typeof DashboardKorishlarRoute
+  '/dashboard/sorovlar': typeof DashboardSorovlarRoute
+  '/dashboard/sozlamalar': typeof DashboardSozlamalarRoute
   '/elonlar/$id': typeof ElonlarIdRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/elonlar/': typeof ElonlarIndexRoute
   '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
@@ -262,13 +339,17 @@ export interface FileRoutesById {
   '/api/payments/click': typeof ApiPaymentsClickRoute
   '/api/payments/payme': typeof ApiPaymentsPaymeRoute
   '/api/payments/pricing': typeof ApiPaymentsPricingRoute
-  '/api/properties/$id': typeof ApiPropertiesIdRoute
+  '/api/properties/$id': typeof ApiPropertiesIdRouteWithChildren
   '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/properties/stats': typeof ApiPropertiesStatsRoute
+  '/api/viewing-requests/$id': typeof ApiViewingRequestsIdRoute
   '/api/favorites/': typeof ApiFavoritesIndexRoute
   '/api/leads/': typeof ApiLeadsIndexRoute
   '/api/notifications/': typeof ApiNotificationsIndexRoute
   '/api/payments/': typeof ApiPaymentsIndexRoute
   '/api/properties/': typeof ApiPropertiesIndexRoute
+  '/api/viewing-requests/': typeof ApiViewingRequestsIndexRoute
+  '/api/properties/$id/contact': typeof ApiPropertiesIdContactRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -281,11 +362,16 @@ export interface FileRouteTypes {
     | '/royxatdan-otish'
     | '/sevimlilar'
     | '/api/upload'
+    | '/dashboard/elonlarim'
+    | '/dashboard/korishlar'
+    | '/dashboard/sorovlar'
+    | '/dashboard/sozlamalar'
     | '/elonlar/$id'
     | '/admin/'
     | '/dashboard/'
     | '/elonlar/'
     | '/api/admin/properties'
+    | '/api/admin/users'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/me'
@@ -296,11 +382,15 @@ export interface FileRouteTypes {
     | '/api/payments/pricing'
     | '/api/properties/$id'
     | '/api/properties/featured'
+    | '/api/properties/stats'
+    | '/api/viewing-requests/$id'
     | '/api/favorites/'
     | '/api/leads/'
     | '/api/notifications/'
     | '/api/payments/'
     | '/api/properties/'
+    | '/api/viewing-requests/'
+    | '/api/properties/$id/contact'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -311,11 +401,16 @@ export interface FileRouteTypes {
     | '/royxatdan-otish'
     | '/sevimlilar'
     | '/api/upload'
+    | '/dashboard/elonlarim'
+    | '/dashboard/korishlar'
+    | '/dashboard/sorovlar'
+    | '/dashboard/sozlamalar'
     | '/elonlar/$id'
     | '/admin'
     | '/dashboard'
     | '/elonlar'
     | '/api/admin/properties'
+    | '/api/admin/users'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/me'
@@ -326,11 +421,15 @@ export interface FileRouteTypes {
     | '/api/payments/pricing'
     | '/api/properties/$id'
     | '/api/properties/featured'
+    | '/api/properties/stats'
+    | '/api/viewing-requests/$id'
     | '/api/favorites'
     | '/api/leads'
     | '/api/notifications'
     | '/api/payments'
     | '/api/properties'
+    | '/api/viewing-requests'
+    | '/api/properties/$id/contact'
   id:
     | '__root__'
     | '/'
@@ -341,11 +440,16 @@ export interface FileRouteTypes {
     | '/royxatdan-otish'
     | '/sevimlilar'
     | '/api/upload'
+    | '/dashboard/elonlarim'
+    | '/dashboard/korishlar'
+    | '/dashboard/sorovlar'
+    | '/dashboard/sozlamalar'
     | '/elonlar/$id'
     | '/admin/'
     | '/dashboard/'
     | '/elonlar/'
     | '/api/admin/properties'
+    | '/api/admin/users'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/me'
@@ -356,11 +460,15 @@ export interface FileRouteTypes {
     | '/api/payments/pricing'
     | '/api/properties/$id'
     | '/api/properties/featured'
+    | '/api/properties/stats'
+    | '/api/viewing-requests/$id'
     | '/api/favorites/'
     | '/api/leads/'
     | '/api/notifications/'
     | '/api/payments/'
     | '/api/properties/'
+    | '/api/viewing-requests/'
+    | '/api/properties/$id/contact'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -372,11 +480,16 @@ export interface RootRouteChildren {
   RoyxatdanOtishRoute: typeof RoyxatdanOtishRoute
   SevimlilarRoute: typeof SevimlilarRoute
   ApiUploadRoute: typeof ApiUploadRoute
+  DashboardElonlarimRoute: typeof DashboardElonlarimRoute
+  DashboardKorishlarRoute: typeof DashboardKorishlarRoute
+  DashboardSorovlarRoute: typeof DashboardSorovlarRoute
+  DashboardSozlamalarRoute: typeof DashboardSozlamalarRoute
   ElonlarIdRoute: typeof ElonlarIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   ElonlarIndexRoute: typeof ElonlarIndexRoute
   ApiAdminPropertiesRoute: typeof ApiAdminPropertiesRoute
+  ApiAdminUsersRoute: typeof ApiAdminUsersRoute
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthMeRoute: typeof ApiAuthMeRoute
@@ -385,13 +498,16 @@ export interface RootRouteChildren {
   ApiPaymentsClickRoute: typeof ApiPaymentsClickRoute
   ApiPaymentsPaymeRoute: typeof ApiPaymentsPaymeRoute
   ApiPaymentsPricingRoute: typeof ApiPaymentsPricingRoute
-  ApiPropertiesIdRoute: typeof ApiPropertiesIdRoute
+  ApiPropertiesIdRoute: typeof ApiPropertiesIdRouteWithChildren
   ApiPropertiesFeaturedRoute: typeof ApiPropertiesFeaturedRoute
+  ApiPropertiesStatsRoute: typeof ApiPropertiesStatsRoute
+  ApiViewingRequestsIdRoute: typeof ApiViewingRequestsIdRoute
   ApiFavoritesIndexRoute: typeof ApiFavoritesIndexRoute
   ApiLeadsIndexRoute: typeof ApiLeadsIndexRoute
   ApiNotificationsIndexRoute: typeof ApiNotificationsIndexRoute
   ApiPaymentsIndexRoute: typeof ApiPaymentsIndexRoute
   ApiPropertiesIndexRoute: typeof ApiPropertiesIndexRoute
+  ApiViewingRequestsIndexRoute: typeof ApiViewingRequestsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -466,6 +582,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/elonlarim': {
+      id: '/dashboard/elonlarim'
+      path: '/dashboard/elonlarim'
+      fullPath: '/dashboard/elonlarim'
+      preLoaderRoute: typeof DashboardElonlarimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/korishlar': {
+      id: '/dashboard/korishlar'
+      path: '/dashboard/korishlar'
+      fullPath: '/dashboard/korishlar'
+      preLoaderRoute: typeof DashboardKorishlarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/sorovlar': {
+      id: '/dashboard/sorovlar'
+      path: '/dashboard/sorovlar'
+      fullPath: '/dashboard/sorovlar'
+      preLoaderRoute: typeof DashboardSorovlarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/sozlamalar': {
+      id: '/dashboard/sozlamalar'
+      path: '/dashboard/sozlamalar'
+      fullPath: '/dashboard/sozlamalar'
+      preLoaderRoute: typeof DashboardSozlamalarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/elonlar/': {
       id: '/elonlar/'
       path: '/elonlar'
@@ -485,6 +629,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/properties'
       fullPath: '/api/admin/properties'
       preLoaderRoute: typeof ApiAdminPropertiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/users': {
+      id: '/api/admin/users'
+      path: '/api/admin/users'
+      fullPath: '/api/admin/users'
+      preLoaderRoute: typeof ApiAdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/login': {
@@ -592,8 +743,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPropertiesFeaturedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/properties/stats': {
+      id: '/api/properties/stats'
+      path: '/api/properties/stats'
+      fullPath: '/api/properties/stats'
+      preLoaderRoute: typeof ApiPropertiesStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/viewing-requests/': {
+      id: '/api/viewing-requests/'
+      path: '/api/viewing-requests'
+      fullPath: '/api/viewing-requests/'
+      preLoaderRoute: typeof ApiViewingRequestsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/viewing-requests/$id': {
+      id: '/api/viewing-requests/$id'
+      path: '/api/viewing-requests/$id'
+      fullPath: '/api/viewing-requests/$id'
+      preLoaderRoute: typeof ApiViewingRequestsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/properties/$id/contact': {
+      id: '/api/properties/$id/contact'
+      path: '/contact'
+      fullPath: '/api/properties/$id/contact'
+      preLoaderRoute: typeof ApiPropertiesIdContactRouteImport
+      parentRoute: typeof ApiPropertiesIdRoute
+    }
   }
 }
+
+interface ApiPropertiesIdRouteChildren {
+  ApiPropertiesIdContactRoute: typeof ApiPropertiesIdContactRoute
+}
+
+const ApiPropertiesIdRouteChildren: ApiPropertiesIdRouteChildren = {
+  ApiPropertiesIdContactRoute: ApiPropertiesIdContactRoute,
+}
+
+const ApiPropertiesIdRouteWithChildren = ApiPropertiesIdRoute._addFileChildren(
+  ApiPropertiesIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -604,11 +795,16 @@ const rootRouteChildren: RootRouteChildren = {
   RoyxatdanOtishRoute: RoyxatdanOtishRoute,
   SevimlilarRoute: SevimlilarRoute,
   ApiUploadRoute: ApiUploadRoute,
+  DashboardElonlarimRoute: DashboardElonlarimRoute,
+  DashboardKorishlarRoute: DashboardKorishlarRoute,
+  DashboardSorovlarRoute: DashboardSorovlarRoute,
+  DashboardSozlamalarRoute: DashboardSozlamalarRoute,
   ElonlarIdRoute: ElonlarIdRoute,
   AdminIndexRoute: AdminIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   ElonlarIndexRoute: ElonlarIndexRoute,
   ApiAdminPropertiesRoute: ApiAdminPropertiesRoute,
+  ApiAdminUsersRoute: ApiAdminUsersRoute,
   ApiAuthLoginRoute: ApiAuthLoginRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthMeRoute: ApiAuthMeRoute,
@@ -617,13 +813,16 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPaymentsClickRoute: ApiPaymentsClickRoute,
   ApiPaymentsPaymeRoute: ApiPaymentsPaymeRoute,
   ApiPaymentsPricingRoute: ApiPaymentsPricingRoute,
-  ApiPropertiesIdRoute: ApiPropertiesIdRoute,
+  ApiPropertiesIdRoute: ApiPropertiesIdRouteWithChildren,
   ApiPropertiesFeaturedRoute: ApiPropertiesFeaturedRoute,
+  ApiPropertiesStatsRoute: ApiPropertiesStatsRoute,
+  ApiViewingRequestsIdRoute: ApiViewingRequestsIdRoute,
   ApiFavoritesIndexRoute: ApiFavoritesIndexRoute,
   ApiLeadsIndexRoute: ApiLeadsIndexRoute,
   ApiNotificationsIndexRoute: ApiNotificationsIndexRoute,
   ApiPaymentsIndexRoute: ApiPaymentsIndexRoute,
   ApiPropertiesIndexRoute: ApiPropertiesIndexRoute,
+  ApiViewingRequestsIndexRoute: ApiViewingRequestsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

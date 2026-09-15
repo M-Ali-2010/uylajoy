@@ -1,14 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck, TrendingUp, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { listings } from "@/data/listings";
 import { useTranslation } from "@/i18n";
+import { useStats } from "@/lib/queries";
 import heroImage from "@/assets/hero-tashkent.jpg";
 import { HighlightTitle } from "./highlight-title";
 import { SearchPanel } from "./search-panel";
 
 export function Hero() {
   const { t } = useTranslation();
+  const { data: stats } = useStats();
 
   const assurances = [
     { icon: ShieldCheck, label: t.home.verifiedListings },
@@ -30,16 +31,18 @@ export function Hero() {
       <div className="shell w-full pt-28 pb-16 md:pt-32 md:pb-20 lg:py-32">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_22.5rem] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_25rem] xl:gap-20">
           <div className="max-w-2xl">
-            <p className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/8 py-1.5 pr-4 pl-2.5 text-[0.8125rem] font-medium text-white/85 backdrop-blur-sm">
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex size-full rounded-full bg-primary-bright opacity-70" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-primary-bright" />
-              </span>
-              <span className="tnum font-semibold text-white">{listings.length}+</span>
-              {t.home.heroBadge}
-              <span className="hidden h-3 w-px bg-white/25 sm:block" />
-              <span className="hidden text-white/60 sm:block">{t.home.heroBadgeRegion}</span>
-            </p>
+            {stats && stats.total > 0 && (
+              <p className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/8 py-1.5 pr-4 pl-2.5 text-[0.8125rem] font-medium text-white/85 backdrop-blur-sm">
+                <span className="relative flex size-1.5">
+                  <span className="absolute inline-flex size-full rounded-full bg-primary-bright opacity-70" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-primary-bright" />
+                </span>
+                <span className="tnum font-semibold text-white">{stats.total}</span>
+                {t.home.heroBadge}
+                <span className="hidden h-3 w-px bg-white/25 sm:block" />
+                <span className="hidden text-white/60 sm:block">{t.home.heroBadgeRegion}</span>
+              </p>
+            )}
 
             <HighlightTitle
               text={t.home.heroTitle}

@@ -52,10 +52,7 @@ function NarxlarPage() {
 
         <div className="mt-10 space-y-4">
           {market.map((m) => (
-            <div
-              key={m.city}
-              className="rounded-2xl border border-border bg-card p-5 shadow-card"
-            >
+            <div key={m.city} className="rounded-2xl border border-border bg-card p-5 shadow-card">
               <div className="flex items-center justify-between gap-4">
                 <p className="font-semibold">{m.city}</p>
                 <div className="flex items-center gap-4 text-sm">
@@ -66,7 +63,10 @@ function NarxlarPage() {
                 </div>
               </div>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
-                <div className="bg-brand h-full rounded-full" style={{ width: `${(m.price / max) * 100}%` }} />
+                <div
+                  className="bg-brand h-full rounded-full"
+                  style={{ width: `${(m.price / max) * 100}%` }}
+                />
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
                 Ijara daromadliligi: yiliga ~{m.rent}%

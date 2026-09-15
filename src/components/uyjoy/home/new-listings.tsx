@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { listings } from "@/data/listings";
 import { useTranslation } from "@/i18n";
+import { useRecent } from "@/lib/queries";
 import { PropertyCard } from "../property-card";
 import { Reveal } from "../reveal";
 import { SectionHeading } from "../section-heading";
+import { CardSkeleton } from "../states";
 
 /**
  * A snap rail that runs off the edge of the screen on phones and becomes a
@@ -13,7 +14,9 @@ import { SectionHeading } from "../section-heading";
  */
 export function NewListings() {
   const { t } = useTranslation();
-  const recent = listings.slice(0, 6);
+  const { data, isLoading } = useRecent(6);
+
+  if (!isLoading && (!data || data.length === 0)) return null;
 
   return (
     <section className="section-y">
@@ -38,7 +41,7 @@ export function NewListings() {
         </Reveal>
 
         <div className="snap-rail rail-bleed mt-10 md:grid md:grid-cols-2 md:gap-5 lg:grid-cols-3">
-          {recent.map((listing, index) => (
+          {(data ?? []).map((listing, index) => (
             <Reveal
               key={listing.id}
               delay={(index % 3) * 70}
@@ -47,6 +50,10 @@ export function NewListings() {
               <PropertyCard listing={listing} />
             </Reveal>
           ))}
+          {isLoading &&
+            [0, 1, 2].map((i) => (
+              <CardSkeleton key={i} className="w-[78vw] max-w-[21rem] md:w-auto md:max-w-none" />
+            ))}
         </div>
       </div>
     </section>

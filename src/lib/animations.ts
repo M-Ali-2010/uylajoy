@@ -5,7 +5,7 @@ export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" },
   },
 };
 
@@ -14,7 +14,7 @@ export const fadeInUp: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" },
   },
 };
 
@@ -23,7 +23,7 @@ export const fadeInDown: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" },
   },
 };
 
@@ -32,7 +32,7 @@ export const fadeInLeft: Variants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" },
   },
 };
 
@@ -41,7 +41,7 @@ export const fadeInRight: Variants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" },
   },
 };
 
@@ -51,7 +51,7 @@ export const scaleIn: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -60,7 +60,7 @@ export const scaleUp: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" },
   },
 };
 
@@ -98,19 +98,19 @@ export const cardHover = {
     scale: 1.02,
     y: -4,
     boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: "easeOut" },
   },
 };
 
 // Button animations
 export const buttonTap = {
   scale: 0.97,
-  transition: { duration: 0.1 }
+  transition: { duration: 0.1 },
 };
 
 export const buttonHover = {
   scale: 1.02,
-  transition: { duration: 0.2 }
+  transition: { duration: 0.2 },
 };
 
 // Slide animations
@@ -119,12 +119,12 @@ export const slideInFromBottom: Variants = {
   visible: {
     y: 0,
     opacity: 1,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
   },
   exit: {
     y: "100%",
     opacity: 0,
-    transition: { duration: 0.3, ease: "easeIn" }
+    transition: { duration: 0.3, ease: "easeIn" },
   },
 };
 
@@ -133,12 +133,12 @@ export const slideInFromRight: Variants = {
   visible: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
   },
   exit: {
     x: "100%",
     opacity: 0,
-    transition: { duration: 0.3, ease: "easeIn" }
+    transition: { duration: 0.3, ease: "easeIn" },
   },
 };
 
@@ -148,12 +148,12 @@ export const pageTransition: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: "easeOut" }
+    transition: { duration: 0.4, ease: "easeOut" },
   },
   exit: {
     opacity: 0,
     y: -10,
-    transition: { duration: 0.2, ease: "easeIn" }
+    transition: { duration: 0.2, ease: "easeIn" },
   },
 };
 
@@ -251,11 +251,11 @@ export const modalOverlay: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
 };
 
@@ -265,13 +265,13 @@ export const modalContent: Variants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
   },
   exit: {
     opacity: 0,
     scale: 0.95,
     y: 10,
-    transition: { duration: 0.2, ease: "easeIn" }
+    transition: { duration: 0.2, ease: "easeIn" },
   },
 };
 

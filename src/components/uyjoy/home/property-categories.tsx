@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Building2, Home, LandPlot, Warehouse } from "lucide-react";
-import { listings, type PropType } from "@/data/listings";
+import { TYPE_TO_API, type PropType } from "@/lib/listing";
+import { useStats } from "@/lib/queries";
 import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { Reveal } from "../reveal";
@@ -17,8 +18,9 @@ import prop3 from "@/assets/prop-3.jpg";
 export function PropertyCategories() {
   const { t } = useTranslation();
   const listingLabel = useListingLabel();
+  const { data: stats } = useStats();
 
-  const count = (type: PropType) => listings.filter((l) => l.type === type).length;
+  const count = (type: PropType) => stats?.byType[TYPE_TO_API[type]] ?? 0;
 
   const photo = [
     {

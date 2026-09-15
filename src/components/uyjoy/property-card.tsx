@@ -1,11 +1,22 @@
 "use client";
 
-import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Building2, Heart, Layers, MapPin, Ruler, Star } from "lucide-react";
-import { useState } from "react";
-import { typeLabels, type Listing } from "@/data/listings";
+import { Link, useNavigate } from "@tanstack/react-router";
+import {
+  ArrowUpRight,
+  Building2,
+  Heart,
+  Layers,
+  MapPin,
+  Ruler,
+  ShieldCheck,
+  Star,
+} from "lucide-react";
+import { toast } from "sonner";
 import { useTranslation } from "@/i18n";
+import { useAuthStore } from "@/lib/auth-store";
 import { formatListingPrice, useCurrency } from "@/lib/currency";
+import { typeLabels, type Listing } from "@/lib/listing";
+import { useFavoriteIds, useToggleFavorite } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
 /**
@@ -36,6 +47,7 @@ function useListingMeta(listing: Listing) {
       hovli: t.propertyType.house,
       ofis: t.propertyType.office,
       yer: t.propertyType.land,
+      tijorat: t.propertyType.commercial,
     }[listing.type] ?? typeLabels[listing.type];
 
   return { t, price, typeLabel };
@@ -51,15 +63,31 @@ function FavouriteButton({
   size?: "default" | "sm";
 }) {
   const { t } = useTranslation();
-  const [saved, setSaved] = useState(false);
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const saved = useFavoriteIds().has(listing.id);
+  const toggle = useToggleFavorite();
+
+  const onClick = () => {
+    if (!isAuthenticated) {
+      toast(t.favorites.loginToSave);
+      navigate({ to: "/kirish", search: { redirect: window.location.pathname } });
+      return;
+    }
+    toggle.mutate(
+      { id: listing.id, saved },
+      { onError: (error) => toast.error(error instanceof Error ? error.message : t.common.error) },
+    );
+  };
 
   return (
     <button
       type="button"
       data-active={saved}
       aria-pressed={saved}
+      disabled={toggle.isPending}
       aria-label={saved ? t.favorites.removeFromFavorites : t.favorites.addToFavorites}
-      onClick={() => setSaved((v) => !v)}
+      onClick={onClick}
       className={cn("media-action relative z-20", size === "sm" ? "size-8" : "size-9", className)}
     >
       <Heart
@@ -91,7 +119,8 @@ function DealBadge({ listing, tone = "media" }: { listing: Listing; tone?: "medi
   );
 }
 
-function Rating({ value, className }: { value: number; className?: string }) {
+function Rating({ value, className }: { value: number | undefined; className?: string }) {
+  if (value === undefined) return null;
   return (
     <span className={cn("inline-flex items-center gap-1 text-sm font-semibold", className)}>
       <Star className="size-3.5 fill-gold text-gold" />

@@ -1,261 +1,153 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  Home,
-  BarChart3,
-  Users,
-  MessageSquare,
-  Settings,
-  Plus,
-  Bell,
-  ChevronRight,
-} from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, CalendarClock, Eye, Home, Users } from "lucide-react";
+import { DashboardShell, StatusBadge } from "@/components/uyjoy/dashboard/shell";
+import { EmptyState } from "@/components/uyjoy/states";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "@/i18n";
-import { RequireAuth } from "@/components/uyjoy/require-auth";
+import { useAuthStore } from "@/lib/auth-store";
+import { useLeads, useMyListings, useViewingRequests } from "@/lib/queries";
 
 export const Route = createFileRoute("/dashboard/")({
   head: () => ({
-    meta: [
-      { title: "Boshqaruv paneli — UyJoy.uz" },
-      { name: "description", content: "Agent boshqaruv paneli" },
-    ],
+    meta: [{ title: "Boshqaruv paneli — UyJoy.uz" }, { name: "robots", content: "noindex" }],
   }),
-  component: DashboardGuarded,
+  component: () => (
+    <DashboardShell title="overview">
+      <Overview />
+    </DashboardShell>
+  ),
 });
 
-function DashboardGuarded() {
-  return (
-    <RequireAuth>
-      <DashboardLayout />
-    </RequireAuth>
-  );
-}
-
-function DashboardLayout() {
+function Overview() {
   const { t } = useTranslation();
-  const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+  const listings = useMyListings();
+  const leads = useLeads();
+  const viewings = useViewingRequests("owner");
 
-  const navItems = [
-    { to: "/dashboard", label: t.dashboard.overview, icon: LayoutDashboard, exact: true },
-    { to: "/dashboard/elonlarim", label: t.dashboard.myListings, icon: Home },
-    { to: "/dashboard/tahlillar", label: t.dashboard.analytics, icon: BarChart3 },
-    { to: "/dashboard/sorovlar", label: t.dashboard.leads, icon: Users },
-    { to: "/dashboard/xabarlar", label: t.dashboard.messages, icon: MessageSquare },
-    { to: "/dashboard/sozlamalar", label: t.dashboard.settings, icon: Settings },
-  ];
-
-  // Mock user data
-  const user = {
-    name: "Dilnoza Karimova",
-    email: "dilnoza@uyjoy.uz",
-    avatar: null,
-    role: "Agent",
-  };
-
-  // Mock stats
+  const all = listings.data ?? [];
   const stats = [
-    { label: t.dashboard.totalListings, value: 12, change: "+2" },
-    { label: t.dashboard.activeListings, value: 8, change: "0" },
-    { label: t.dashboard.totalViews, value: 1234, change: "+156" },
-    { label: t.dashboard.totalLeads, value: 24, change: "+5" },
-  ];
-
-  // Mock recent leads
-  const recentLeads = [
+    { label: t.dashboard.totalListings, value: all.length, icon: Home },
     {
-      id: 1,
-      name: "Sardor Yusupov",
-      property: "Yunusobodda 3 xonali",
-      time: "2 soat oldin",
-      status: "new",
+      label: t.dashboard.activeListings,
+      value: all.filter((l) => l.status === "active").length,
+      icon: Home,
     },
     {
-      id: 2,
-      name: "Nilufar Abdullayeva",
-      property: "Chilonzorda 2 xonali",
-      time: "5 soat oldin",
-      status: "contacted",
+      label: t.dashboard.pendingListings,
+      value: all.filter((l) => l.status === "pending").length,
+      icon: Home,
     },
+    { label: t.dashboard.totalViews, value: all.reduce((n, l) => n + l.viewCount, 0), icon: Eye },
+    { label: t.dashboard.totalLeads, value: leads.data?.length ?? 0, icon: Users },
     {
-      id: 3,
-      name: "Bobur Toshmatov",
-      property: "Sergeli 1 xonali",
-      time: "1 kun oldin",
-      status: "qualified",
+      label: t.dashboard.viewings,
+      value: viewings.data?.filter((v) => v.status === "new").length ?? 0,
+      icon: CalendarClock,
     },
   ];
-
-  const isExactMatch = (path: string) => location.pathname === path;
-  const isActive = (to: string, exact?: boolean) => {
-    if (exact) return isExactMatch(to);
-    return location.pathname.startsWith(to);
-  };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col border-r border-border bg-card lg:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="bg-brand flex size-9 items-center justify-center rounded-xl text-primary-foreground">
-              <Home className="size-5" />
-            </span>
-            <span className="font-display text-lg font-extrabold tracking-tight">UyJoy.uz</span>
-          </Link>
-        </div>
+    <div className="space-y-8">
+      <p className="text-muted-foreground">
+        {t.dashboard.welcome}, <span className="font-semibold text-foreground">{user?.name}</span>
+      </p>
 
-        <nav className="flex-1 space-y-1 p-4">
-          {navItems.map((item) => (
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-xl border border-border bg-card p-4">
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <s.icon className="size-3.5" /> {s.label}
+            </p>
+            <p className="type-price mt-2 text-2xl">
+              {listings.isLoading ? "…" : s.value.toLocaleString("en-US")}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {!listings.isLoading && all.length === 0 && (
+        <EmptyState
+          icon={Home}
+          title={t.dashboard.noListings}
+          description={t.dashboard.noListingsDesc}
+          action={
+            <Button asChild>
+              <Link to="/elon-joylash">{t.dashboard.createListing}</Link>
+            </Button>
+          }
+        />
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="rounded-xl border border-border bg-card">
+          <header className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h2 className="font-display font-bold">{t.dashboard.myListings}</h2>
             <Link
-              key={item.to}
-              to={item.to}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive(item.to, item.exact)
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-              }`}
+              to="/dashboard/elonlarim"
+              className="flex items-center gap-1 text-sm font-semibold text-primary"
             >
-              <item.icon className="size-5" />
-              {item.label}
+              {t.home.viewAll} <ArrowRight className="size-3.5" />
             </Link>
-          ))}
-        </nav>
-
-        <div className="border-t border-border p-4">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={user.avatar ?? undefined} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 truncate">
-              <p className="truncate text-sm font-medium">{user.name}</p>
-              <p className="truncate text-xs text-muted-foreground">{user.role}</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 lg:pl-64">
-        {/* Top bar */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur lg:px-8">
-          <h1 className="font-display text-xl font-bold">{t.dashboard.title}</h1>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="size-5" />
-              <span className="absolute right-1 top-1 size-2 rounded-full bg-destructive" />
-            </Button>
-            <Button variant="hero" asChild>
-              <Link to="/elon-joylash">
-                <Plus className="mr-2 size-4" />
-                {t.dashboard.createListing}
-              </Link>
-            </Button>
-          </div>
-        </header>
-
-        <div className="p-4 lg:p-8">
-          {/* Stats */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-2xl border border-border bg-card p-5 shadow-card"
-              >
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <p className="font-display text-3xl font-bold">{stat.value}</p>
-                  <span
-                    className={`text-xs ${stat.change.startsWith("+") ? "text-primary" : "text-muted-foreground"}`}
+          </header>
+          <ul className="divide-y divide-border">
+            {all.slice(0, 5).map((l) => (
+              <li key={l.id} className="flex items-center gap-3 px-5 py-3">
+                <img src={l.image} alt="" className="size-12 shrink-0 rounded-md object-cover" />
+                <div className="min-w-0 flex-1">
+                  <Link
+                    to="/elonlar/$id"
+                    params={{ id: l.id }}
+                    className="block truncate text-sm font-medium hover:text-primary"
                   >
-                    {stat.change}
+                    {l.title}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">
+                    {l.district}, {l.city} · <span className="tnum">{l.viewCount}</span>{" "}
+                    {t.property.views}
+                  </p>
+                </div>
+                <StatusBadge status={l.status} />
+              </li>
+            ))}
+            {all.length === 0 && !listings.isLoading && (
+              <li className="px-5 py-8 text-center text-sm text-muted-foreground">—</li>
+            )}
+          </ul>
+        </section>
+
+        <section className="rounded-xl border border-border bg-card">
+          <header className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h2 className="font-display font-bold">{t.dashboard.leads}</h2>
+            <Link
+              to="/dashboard/sorovlar"
+              className="flex items-center gap-1 text-sm font-semibold text-primary"
+            >
+              {t.home.viewAll} <ArrowRight className="size-3.5" />
+            </Link>
+          </header>
+          <ul className="divide-y divide-border">
+            {(leads.data ?? []).slice(0, 5).map((lead) => (
+              <li key={lead.id} className="px-5 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium">{lead.name}</p>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(lead.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-              </div>
+                <p className="truncate text-xs text-muted-foreground">
+                  {lead.property?.title ?? ""} · <span className="tnum">{lead.phone}</span>
+                </p>
+              </li>
             ))}
-          </div>
-
-          {/* Recent activity */}
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            {/* Recent leads */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-lg font-bold">{t.dashboard.leads}</h2>
-                <Button variant="ghost" size="sm" asChild>
-                  <a href="/dashboard/sorovlar">
-                    {t.home.viewAll}
-                    <ChevronRight className="ml-1 size-4" />
-                  </a>
-                </Button>
-              </div>
-              <div className="mt-4 space-y-3">
-                {recentLeads.map((lead) => (
-                  <div
-                    key={lead.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
-                  >
-                    <div>
-                      <p className="font-medium">{lead.name}</p>
-                      <p className="text-xs text-muted-foreground">{lead.property}</p>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                          lead.status === "new"
-                            ? "bg-primary/10 text-primary"
-                            : lead.status === "contacted"
-                              ? "bg-accent/10 text-accent"
-                              : "bg-secondary text-secondary-foreground"
-                        }`}
-                      >
-                        {lead.status === "new"
-                          ? "Yangi"
-                          : lead.status === "contacted"
-                            ? "Bog'lanildi"
-                            : "Tasdiqlandi"}
-                      </span>
-                      <p className="mt-1 text-xs text-muted-foreground">{lead.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick actions */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-              <h2 className="font-display text-lg font-bold">Tez amallar</h2>
-              <div className="mt-4 grid gap-3">
-                <Button variant="outline" className="justify-start" asChild>
-                  <Link to="/elon-joylash">
-                    <Plus className="mr-2 size-4" />
-                    Yangi e'lon joylash
-                  </Link>
-                </Button>
-                <Button variant="outline" className="justify-start" asChild>
-                  <a href="/dashboard/elonlarim">
-                    <Home className="mr-2 size-4" />
-                    E'lonlarimni boshqarish
-                  </a>
-                </Button>
-                <Button variant="outline" className="justify-start" asChild>
-                  <a href="/dashboard/xabarlar">
-                    <MessageSquare className="mr-2 size-4" />
-                    Xabarlarni ko'rish
-                  </a>
-                </Button>
-                <Button variant="outline" className="justify-start" asChild>
-                  <a href="/dashboard/tahlillar">
-                    <BarChart3 className="mr-2 size-4" />
-                    Tahlillarni ko'rish
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+            {(leads.data?.length ?? 0) === 0 && !leads.isLoading && (
+              <li className="px-5 py-8 text-center text-sm text-muted-foreground">
+                {t.dashboard.noLeads}
+              </li>
+            )}
+          </ul>
+        </section>
+      </div>
     </div>
   );
 }

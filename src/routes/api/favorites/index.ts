@@ -6,7 +6,9 @@ import {
   removeFromFavorites,
   isPropertyFavorited,
 } from "@/lib/server/favorites";
+import { track } from "@/lib/server/analytics";
 import { getCurrentUser } from "@/lib/server/auth";
+import { errorResponse, readJson } from "@/lib/server/http";
 import { z } from "zod";
 
 const addFavoriteSchema = z.object({
@@ -41,13 +43,7 @@ export const Route = createFileRoute("/api/favorites/")({
             favorites,
           });
         } catch (error) {
-          return json(
-            {
-              success: false,
-              error: "Failed to fetch favorites",
-            },
-            { status: 500 },
-          );
+          return errorResponse(error, "Failed to fetch favorites");
         }
       },
 
@@ -65,10 +61,11 @@ export const Route = createFileRoute("/api/favorites/")({
             );
           }
 
-          const body = await request.json();
+          const body = await readJson(request);
           const validated = addFavoriteSchema.parse(body);
 
           const favorite = await addToFavorites(user.id, validated.propertyId, validated.folderId);
+          void track("favorite_added", { propertyId: validated.propertyId, userId: user.id });
 
           return json(
             {
@@ -78,24 +75,7 @@ export const Route = createFileRoute("/api/favorites/")({
             { status: 201 },
           );
         } catch (error) {
-          if (error instanceof z.ZodError) {
-            return json(
-              {
-                success: false,
-                error: "Validation failed",
-                details: error.errors,
-              },
-              { status: 400 },
-            );
-          }
-
-          return json(
-            {
-              success: false,
-              error: "Failed to add to favorites",
-            },
-            { status: 500 },
-          );
+          return errorResponse(error, "Failed to add to favorites");
         }
       },
 
@@ -143,13 +123,7 @@ export const Route = createFileRoute("/api/favorites/")({
             message: "Removed from favorites",
           });
         } catch (error) {
-          return json(
-            {
-              success: false,
-              error: "Failed to remove from favorites",
-            },
-            { status: 500 },
-          );
+          return errorResponse(error, "Failed to remove from favorites");
         }
       },
     },

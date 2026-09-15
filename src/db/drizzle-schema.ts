@@ -59,6 +59,8 @@ export const verificationStatusEnum = pgEnum("verification_status", [
   "rejected",
 ]);
 
+export const viewingStatusEnum = pgEnum("viewing_status", ["new", "confirmed", "declined", "done"]);
+
 // Users table
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -298,6 +300,33 @@ export const payments = pgTable("payments", {
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Viewing requests — "I want to see this place" (§3.1)
+export const viewingRequests = pgTable("viewing_requests", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  propertyId: uuid("property_id")
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  phone: text("phone").notNull(),
+  preferredAt: timestamp("preferred_at").notNull(),
+  message: text("message"),
+  status: viewingStatusEnum("status").notNull().default("new"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Product analytics — one row per meaningful action, no personal data (§16)
+export const analyticsEvents = pgTable("analytics_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  type: text("type").notNull(),
+  propertyId: uuid("property_id").references(() => properties.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  visitorHash: text("visitor_hash"),
+  meta: jsonb("meta").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 // Admin action log — who did what to which record (§9)

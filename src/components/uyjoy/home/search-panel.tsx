@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cities, type Deal, type PropType } from "@/data/listings";
+import { cities, isPropType, type Deal, type PropType } from "@/lib/listing";
 import { useTranslation } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +38,7 @@ export function SearchPanel({ className }: { className?: string }) {
     { value: "hovli", label: t.propertyType.houses },
     { value: "ofis", label: t.propertyType.offices },
     { value: "yer", label: t.propertyType.lands },
+    { value: "tijorat", label: t.propertyType.commercial },
   ];
 
   const submit = (event: React.FormEvent) => {
@@ -48,7 +49,7 @@ export function SearchPanel({ className }: { className?: string }) {
         deal,
         q: query.trim() || undefined,
         city: city !== "all" ? city : undefined,
-        type: type !== "all" ? type : undefined,
+        type: isPropType(type) ? type : undefined,
       },
     });
   };

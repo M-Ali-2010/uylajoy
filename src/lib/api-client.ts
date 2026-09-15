@@ -77,11 +77,11 @@ export const authApi = {
   getMe: () => apiFetch<{ success: boolean; user: unknown }>("/auth/me"),
 
   updateProfile: (data: {
-    name?: string;
-    phone?: string;
-    avatar?: string;
-    language?: string;
-    currency?: string;
+    name?: string | undefined;
+    phone?: string | undefined;
+    avatar?: string | undefined;
+    language?: string | undefined;
+    currency?: string | undefined;
   }) =>
     apiFetch<{ success: boolean; user: unknown }>("/auth/me", {
       method: "PATCH",
@@ -97,21 +97,22 @@ export const authApi = {
 
 // Properties API
 export interface PropertyFilters {
-  type?: string;
-  dealType?: string;
-  city?: string;
-  district?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minRooms?: number;
-  maxRooms?: number;
-  minArea?: number;
-  maxArea?: number;
-  condition?: string;
-  search?: string;
-  sortBy?: string;
-  page?: number;
-  limit?: number;
+  type?: string | undefined;
+  dealType?: string | undefined;
+  city?: string | undefined;
+  district?: string | undefined;
+  minPrice?: number | undefined;
+  maxPrice?: number | undefined;
+  minRooms?: number | undefined;
+  maxRooms?: number | undefined;
+  minArea?: number | undefined;
+  maxArea?: number | undefined;
+  condition?: string | undefined;
+  search?: string | undefined;
+  sortBy?: string | undefined;
+  page?: number | undefined;
+  limit?: number | undefined;
+  mine?: "1" | undefined;
 }
 
 export const propertiesApi = {
@@ -195,8 +196,8 @@ export const leadsApi = {
     propertyId: string;
     name: string;
     phone: string;
-    email?: string;
-    message?: string;
+    email?: string | undefined;
+    message?: string | undefined;
   }) =>
     apiFetch<{ success: boolean; lead: unknown; message: string }>("/leads", {
       method: "POST",
@@ -314,3 +315,80 @@ export function fileToBase64(file: File): Promise<string> {
     reader.onerror = reject;
   });
 }
+
+// Viewing requests API
+export const viewingApi = {
+  create: (data: {
+    propertyId: string;
+    name: string;
+    phone: string;
+    preferredAt: string;
+    message?: string | undefined;
+  }) =>
+    apiFetch<{ success: boolean; request: unknown }>("/viewing-requests", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  getForOwner: (status?: string) =>
+    apiFetch<{ success: boolean; requests: unknown[] }>(
+      `/viewing-requests${status ? `?status=${status}` : ""}`,
+    ),
+
+  getSent: () =>
+    apiFetch<{ success: boolean; requests: unknown[] }>("/viewing-requests?scope=sent"),
+
+  updateStatus: (id: string, status: string) =>
+    apiFetch<{ success: boolean; request: unknown }>(`/viewing-requests/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+};
+
+// Public stats + contact reveal
+export const publicApi = {
+  stats: () =>
+    apiFetch<{
+      success: boolean;
+      total: number;
+      byType: Record<string, number>;
+      byCity: Record<string, number>;
+    }>("/properties/stats"),
+
+  revealContact: (propertyId: string) =>
+    apiFetch<{ success: boolean; contact: { name: string; phone: string | null } }>(
+      `/properties/${propertyId}/contact`,
+      { method: "POST" },
+    ),
+};
+
+// Admin API
+export const adminApi = {
+  queue: (status = "pending", page = 1) =>
+    apiFetch<{ success: boolean; properties: unknown[]; pagination: unknown }>(
+      `/admin/properties?status=${status}&page=${page}`,
+    ),
+
+  moderate: (data: {
+    propertyId: string;
+    action: "approve" | "reject" | "archive";
+    reason?: string;
+  }) =>
+    apiFetch<{ success: boolean; message: string }>("/admin/properties", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  users: (search = "", page = 1) =>
+    apiFetch<{
+      success: boolean;
+      users: unknown[];
+      pagination: { total: number; page: number; limit: number };
+    }>(`/admin/users?search=${encodeURIComponent(search)}&page=${page}`),
+
+  userAction: (data: { userId: string; action: "block" | "unblock"; reason?: string }) =>
+    apiFetch<{ success: boolean }>("/admin/users", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+};

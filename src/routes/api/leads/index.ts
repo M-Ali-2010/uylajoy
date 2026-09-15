@@ -7,6 +7,7 @@ import {
   updateLeadStatus,
   getLeadStats,
 } from "@/lib/server/leads";
+import { track } from "@/lib/server/analytics";
 import { getCurrentUser } from "@/lib/server/auth";
 import { clientIp, errorResponse, readJson } from "@/lib/server/http";
 import { RULES, rateLimit } from "@/lib/server/rate-limit";
@@ -94,6 +95,11 @@ export const Route = createFileRoute("/api/leads/")({
           const lead = await createLead({
             ...validated,
             buyerId: user?.id,
+          });
+          void track("lead_created", {
+            propertyId: validated.propertyId,
+            userId: user?.id,
+            ip: clientIp(request),
           });
 
           return json(

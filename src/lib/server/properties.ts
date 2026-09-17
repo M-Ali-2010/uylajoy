@@ -248,7 +248,9 @@ export async function getProperties(filters: PropertyFilters = {}) {
     conditions.push(eq(properties.agencyId, agencyId));
   }
 
-  // Search filter — case-insensitive, metacharacters escaped
+  // Search filter — case-insensitive, metacharacters escaped.
+  // `city` belongs here: the search box is labelled "city, district or street",
+  // and typing a city name is the first thing anyone does on a property site.
   if (search) {
     const pattern = `%${escapeLike(search.trim())}%`;
     conditions.push(
@@ -256,6 +258,7 @@ export async function getProperties(filters: PropertyFilters = {}) {
         ilike(properties.title, pattern),
         ilike(properties.description, pattern),
         ilike(properties.address, pattern),
+        ilike(properties.city, pattern),
         ilike(properties.district, pattern),
       ),
     );

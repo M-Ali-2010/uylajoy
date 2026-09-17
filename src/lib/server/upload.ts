@@ -2,11 +2,33 @@ import { v2 as cloudinary } from "cloudinary";
 import { AppError } from "./errors";
 
 // Configure Cloudinary
+const CLOUD_NAME = process.env["CLOUDINARY_CLOUD_NAME"] ?? "";
+const API_KEY = process.env["CLOUDINARY_API_KEY"] ?? "";
+const API_SECRET = process.env["CLOUDINARY_API_SECRET"] ?? "";
+
 cloudinary.config({
-  cloud_name: process.env["CLOUDINARY_CLOUD_NAME"] ?? "",
-  api_key: process.env["CLOUDINARY_API_KEY"] ?? "",
-  api_secret: process.env["CLOUDINARY_API_SECRET"] ?? "",
+  cloud_name: CLOUD_NAME,
+  api_key: API_KEY,
+  api_secret: API_SECRET,
 });
+
+/**
+ * Posting a listing requires at least one photo, so an unconfigured Cloudinary
+ * blocks the whole flow. Without this check the SDK fails deep inside with an
+ * opaque error and the operator sees only "Failed to upload image" — naming the
+ * missing variables turns a support ticket into a one-line fix.
+ */
+function assertConfigured() {
+  const missing = [
+    !CLOUD_NAME && "CLOUDINARY_CLOUD_NAME",
+    !API_KEY && "CLOUDINARY_API_KEY",
+    !API_SECRET && "CLOUDINARY_API_SECRET",
+  ].filter(Boolean);
+
+  if (missing.length > 0) {
+    throw new AppError(503, `Image upload is not configured: missing ${missing.join(", ")}`);
+  }
+}
 
 export interface UploadResult {
   url: string;
@@ -68,6 +90,7 @@ export async function uploadImage(
   folder: string = "properties",
 ): Promise<UploadResult> {
   assertValidImage(base64Data);
+  assertConfigured();
   const result = await cloudinary.uploader.upload(base64Data, {
     folder: `uyjoy/${folder}`,
     resource_type: "image",
@@ -145,6 +168,7 @@ export function generateUploadSignature(folder: string = "properties"): {
 // Upload avatar
 export async function uploadAvatar(base64Data: string, userId: string): Promise<UploadResult> {
   assertValidImage(base64Data);
+  assertConfigured();
   const result = await cloudinary.uploader.upload(base64Data, {
     folder: "uyjoy/avatars",
     public_id: userId,

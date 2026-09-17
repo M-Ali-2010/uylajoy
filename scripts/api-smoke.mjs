@@ -202,6 +202,15 @@ try {
     (r.json?.properties ?? []).some((p) => p.id === propertyId),
   );
 
+  // The search box is labelled "city, district or street", so the city has to
+  // match — typing the city name is the first search anyone runs.
+  r = await api("GET", "/api/properties?search=toshkent");
+  check(
+    "search matches the city",
+    (r.json?.properties ?? []).some((p) => p.id === propertyId),
+    `found ${r.json?.pagination?.total ?? 0}`,
+  );
+
   // --- leads & favourites -------------------------------------------------
   r = await api("POST", "/api/leads", {
     body: { propertyId, name: "Buyer", phone: "+998901234567", message: "Hi" },

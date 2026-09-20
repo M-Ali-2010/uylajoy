@@ -41,13 +41,18 @@ export function rateLimit(scope: string, key: string, rule: RateLimitRule): void
   bucket.count += 1;
   if (bucket.count > rule.limit) {
     const retryAfter = Math.ceil((bucket.resetAt - now) / 1000);
-    throw new AppError(429, `Too many requests. Try again in ${retryAfter}s`, { retryAfter });
+    throw new AppError(
+      429,
+      `Too many requests. Try again in ${retryAfter}s`,
+      { retryAfter },
+      "rate_limited",
+    );
   }
 }
 
 export const RULES = {
   login: { limit: 10, windowMs: 15 * 60_000 },
-  register: { limit: 5, windowMs: 60 * 60_000 },
+  register: { limit: 10, windowMs: 60 * 60_000 },
   lead: { limit: 10, windowMs: 60 * 60_000 },
   upload: { limit: 40, windowMs: 60 * 60_000 },
   createListing: { limit: 20, windowMs: 60 * 60_000 },

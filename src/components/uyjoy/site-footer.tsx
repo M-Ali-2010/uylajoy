@@ -132,10 +132,10 @@ export function SiteFooter() {
             {t.footer.allRightsReserved}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <Link to="/" className="transition-colors hover:text-white">
+            <Link to="/maxfiylik" className="transition-colors hover:text-white">
               {t.footer.privacy}
             </Link>
-            <Link to="/" className="transition-colors hover:text-white">
+            <Link to="/shartlar" className="transition-colors hover:text-white">
               {t.footer.terms}
             </Link>
             <span className="hidden text-white/30 md:inline">{t.footer.madeIn}</span>

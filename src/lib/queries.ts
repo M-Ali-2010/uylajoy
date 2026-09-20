@@ -318,6 +318,15 @@ export function useDeleteNotification() {
 
 // --- admin -------------------------------------------------------------------
 
+export function useAdminStats() {
+  return useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: () => adminApi.stats(),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+}
+
 export function useModerationQueue(status = "pending", page = 1) {
   return useQuery({
     queryKey: queryKeys.moderation(status, page),
@@ -339,6 +348,7 @@ export function useModerate() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["moderation"] });
       qc.invalidateQueries({ queryKey: queryKeys.stats });
+      qc.invalidateQueries({ queryKey: ["admin-stats"] });
     },
   });
 }
@@ -370,7 +380,10 @@ export function useUserAction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: adminApi.userAction,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-users"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-users"] });
+      qc.invalidateQueries({ queryKey: ["admin-stats"] });
+    },
   });
 }
 

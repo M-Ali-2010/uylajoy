@@ -28,3 +28,16 @@ export const phoneSchema = z
     }
     return normalized;
   });
+
+/**
+ * Password policy, mirrored by the registration form: at least 8 characters
+ * with one letter and one digit. Deliberately no uppercase/symbol rule —
+ * strict composition rules push people to reuse one password everywhere.
+ */
+export const PASSWORD_MIN = 8;
+export const isStrongPassword = (value: string) =>
+  value.length >= PASSWORD_MIN && /[A-Za-z]/.test(value) && /\d/.test(value);
+
+export const passwordSchema = z.string().max(200).refine(isStrongPassword, {
+  message: "Password must be at least 8 characters with a letter and a digit",
+});

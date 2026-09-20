@@ -8,6 +8,8 @@ export class AppError extends Error {
     public readonly status: number,
     message: string,
     public readonly details?: unknown,
+    /** Stable identifier the client maps to a localised message. */
+    public readonly code?: string,
   ) {
     super(message);
     this.name = "AppError";

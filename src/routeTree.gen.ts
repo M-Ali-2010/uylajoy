@@ -13,10 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ElonJoylashRouteImport } from './routes/elon-joylash'
 import { Route as IpotekaRouteImport } from './routes/ipoteka'
 import { Route as KirishRouteImport } from './routes/kirish'
+import { Route as MaxfiylikRouteImport } from './routes/maxfiylik'
 import { Route as NarxlarRouteImport } from './routes/narxlar'
 import { Route as RoyxatdanOtishRouteImport } from './routes/royxatdan-otish'
 import { Route as SevimlilarRouteImport } from './routes/sevimlilar'
+import { Route as ShartlarRouteImport } from './routes/shartlar'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardBildirishnomalarRouteImport } from './routes/dashboard/bildirishnomalar'
@@ -27,6 +30,7 @@ import { Route as DashboardSozlamalarRouteImport } from './routes/dashboard/sozl
 import { Route as ElonlarIndexRouteImport } from './routes/elonlar/index'
 import { Route as ElonlarIdRouteImport } from './routes/elonlar/$id'
 import { Route as ApiAdminPropertiesRouteImport } from './routes/api/admin/properties'
+import { Route as ApiAdminStatsRouteImport } from './routes/api/admin/stats'
 import { Route as ApiAdminUsersRouteImport } from './routes/api/admin/users'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
@@ -68,6 +72,11 @@ const KirishRoute = KirishRouteImport.update({
   path: '/kirish',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MaxfiylikRoute = MaxfiylikRouteImport.update({
+  id: '/maxfiylik',
+  path: '/maxfiylik',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NarxlarRoute = NarxlarRouteImport.update({
   id: '/narxlar',
   path: '/narxlar',
@@ -83,9 +92,19 @@ const SevimlilarRoute = SevimlilarRouteImport.update({
   path: '/sevimlilar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShartlarRoute = ShartlarRouteImport.update({
+  id: '/shartlar',
+  path: '/shartlar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUploadRoute = ApiUploadRouteImport.update({
@@ -137,6 +156,11 @@ const ElonlarIdRoute = ElonlarIdRouteImport.update({
 const ApiAdminPropertiesRoute = ApiAdminPropertiesRouteImport.update({
   id: '/api/admin/properties',
   path: '/api/admin/properties',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminStatsRoute = ApiAdminStatsRouteImport.update({
+  id: '/api/admin/stats',
+  path: '/api/admin/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
@@ -245,9 +269,12 @@ export interface FileRoutesByFullPath {
   '/elon-joylash': typeof ElonJoylashRoute
   '/ipoteka': typeof IpotekaRoute
   '/kirish': typeof KirishRoute
+  '/maxfiylik': typeof MaxfiylikRoute
   '/narxlar': typeof NarxlarRoute
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
+  '/shartlar': typeof ShartlarRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/upload': typeof ApiUploadRoute
   '/dashboard/bildirishnomalar': typeof DashboardBildirishnomalarRoute
   '/dashboard/elonlarim': typeof DashboardElonlarimRoute
@@ -259,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/elonlar/': typeof ElonlarIndexRoute
   '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -285,9 +313,12 @@ export interface FileRoutesByTo {
   '/elon-joylash': typeof ElonJoylashRoute
   '/ipoteka': typeof IpotekaRoute
   '/kirish': typeof KirishRoute
+  '/maxfiylik': typeof MaxfiylikRoute
   '/narxlar': typeof NarxlarRoute
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
+  '/shartlar': typeof ShartlarRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/upload': typeof ApiUploadRoute
   '/dashboard/bildirishnomalar': typeof DashboardBildirishnomalarRoute
   '/dashboard/elonlarim': typeof DashboardElonlarimRoute
@@ -299,6 +330,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/elonlar': typeof ElonlarIndexRoute
   '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -326,9 +358,12 @@ export interface FileRoutesById {
   '/elon-joylash': typeof ElonJoylashRoute
   '/ipoteka': typeof IpotekaRoute
   '/kirish': typeof KirishRoute
+  '/maxfiylik': typeof MaxfiylikRoute
   '/narxlar': typeof NarxlarRoute
   '/royxatdan-otish': typeof RoyxatdanOtishRoute
   '/sevimlilar': typeof SevimlilarRoute
+  '/shartlar': typeof ShartlarRoute
+  '/api/health': typeof ApiHealthRoute
   '/api/upload': typeof ApiUploadRoute
   '/dashboard/bildirishnomalar': typeof DashboardBildirishnomalarRoute
   '/dashboard/elonlarim': typeof DashboardElonlarimRoute
@@ -340,6 +375,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/elonlar/': typeof ElonlarIndexRoute
   '/api/admin/properties': typeof ApiAdminPropertiesRoute
+  '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/admin/users': typeof ApiAdminUsersRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -368,9 +404,12 @@ export interface FileRouteTypes {
     | '/elon-joylash'
     | '/ipoteka'
     | '/kirish'
+    | '/maxfiylik'
     | '/narxlar'
     | '/royxatdan-otish'
     | '/sevimlilar'
+    | '/shartlar'
+    | '/api/health'
     | '/api/upload'
     | '/dashboard/bildirishnomalar'
     | '/dashboard/elonlarim'
@@ -382,6 +421,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/elonlar/'
     | '/api/admin/properties'
+    | '/api/admin/stats'
     | '/api/admin/users'
     | '/api/auth/login'
     | '/api/auth/logout'
@@ -408,9 +448,12 @@ export interface FileRouteTypes {
     | '/elon-joylash'
     | '/ipoteka'
     | '/kirish'
+    | '/maxfiylik'
     | '/narxlar'
     | '/royxatdan-otish'
     | '/sevimlilar'
+    | '/shartlar'
+    | '/api/health'
     | '/api/upload'
     | '/dashboard/bildirishnomalar'
     | '/dashboard/elonlarim'
@@ -422,6 +465,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/elonlar'
     | '/api/admin/properties'
+    | '/api/admin/stats'
     | '/api/admin/users'
     | '/api/auth/login'
     | '/api/auth/logout'
@@ -448,9 +492,12 @@ export interface FileRouteTypes {
     | '/elon-joylash'
     | '/ipoteka'
     | '/kirish'
+    | '/maxfiylik'
     | '/narxlar'
     | '/royxatdan-otish'
     | '/sevimlilar'
+    | '/shartlar'
+    | '/api/health'
     | '/api/upload'
     | '/dashboard/bildirishnomalar'
     | '/dashboard/elonlarim'
@@ -462,6 +509,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/elonlar/'
     | '/api/admin/properties'
+    | '/api/admin/stats'
     | '/api/admin/users'
     | '/api/auth/login'
     | '/api/auth/logout'
@@ -489,9 +537,12 @@ export interface RootRouteChildren {
   ElonJoylashRoute: typeof ElonJoylashRoute
   IpotekaRoute: typeof IpotekaRoute
   KirishRoute: typeof KirishRoute
+  MaxfiylikRoute: typeof MaxfiylikRoute
   NarxlarRoute: typeof NarxlarRoute
   RoyxatdanOtishRoute: typeof RoyxatdanOtishRoute
   SevimlilarRoute: typeof SevimlilarRoute
+  ShartlarRoute: typeof ShartlarRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiUploadRoute: typeof ApiUploadRoute
   DashboardBildirishnomalarRoute: typeof DashboardBildirishnomalarRoute
   DashboardElonlarimRoute: typeof DashboardElonlarimRoute
@@ -503,6 +554,7 @@ export interface RootRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   ElonlarIndexRoute: typeof ElonlarIndexRoute
   ApiAdminPropertiesRoute: typeof ApiAdminPropertiesRoute
+  ApiAdminStatsRoute: typeof ApiAdminStatsRoute
   ApiAdminUsersRoute: typeof ApiAdminUsersRoute
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
@@ -554,6 +606,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KirishRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/maxfiylik': {
+      id: '/maxfiylik'
+      path: '/maxfiylik'
+      fullPath: '/maxfiylik'
+      preLoaderRoute: typeof MaxfiylikRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/narxlar': {
       id: '/narxlar'
       path: '/narxlar'
@@ -575,11 +634,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SevimlilarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shartlar': {
+      id: '/shartlar'
+      path: '/shartlar'
+      fullPath: '/shartlar'
+      preLoaderRoute: typeof ShartlarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/upload': {
@@ -650,6 +723,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/properties'
       fullPath: '/api/admin/properties'
       preLoaderRoute: typeof ApiAdminPropertiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/stats': {
+      id: '/api/admin/stats'
+      path: '/api/admin/stats'
+      fullPath: '/api/admin/stats'
+      preLoaderRoute: typeof ApiAdminStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/users': {
@@ -812,9 +892,12 @@ const rootRouteChildren: RootRouteChildren = {
   ElonJoylashRoute: ElonJoylashRoute,
   IpotekaRoute: IpotekaRoute,
   KirishRoute: KirishRoute,
+  MaxfiylikRoute: MaxfiylikRoute,
   NarxlarRoute: NarxlarRoute,
   RoyxatdanOtishRoute: RoyxatdanOtishRoute,
   SevimlilarRoute: SevimlilarRoute,
+  ShartlarRoute: ShartlarRoute,
+  ApiHealthRoute: ApiHealthRoute,
   ApiUploadRoute: ApiUploadRoute,
   DashboardBildirishnomalarRoute: DashboardBildirishnomalarRoute,
   DashboardElonlarimRoute: DashboardElonlarimRoute,
@@ -826,6 +909,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   ElonlarIndexRoute: ElonlarIndexRoute,
   ApiAdminPropertiesRoute: ApiAdminPropertiesRoute,
+  ApiAdminStatsRoute: ApiAdminStatsRoute,
   ApiAdminUsersRoute: ApiAdminUsersRoute,
   ApiAuthLoginRoute: ApiAuthLoginRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,

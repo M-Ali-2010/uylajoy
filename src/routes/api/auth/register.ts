@@ -4,11 +4,11 @@ import { z } from "zod";
 import { registerUser } from "@/lib/server/auth";
 import { clientIp, errorResponse, readJson } from "@/lib/server/http";
 import { RULES, rateLimit } from "@/lib/server/rate-limit";
-import { phoneSchema } from "@/lib/server/validation";
+import { passwordSchema, phoneSchema } from "@/lib/server/validation";
 
 const registerSchema = z.object({
   email: z.string().trim().toLowerCase().email("Invalid email address").max(254),
-  password: z.string().min(8, "Password must be at least 8 characters").max(200),
+  password: passwordSchema,
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
   phone: phoneSchema.optional(),
   // `admin` and `agency_admin` are intentionally not accepted here.

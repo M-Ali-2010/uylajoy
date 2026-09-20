@@ -4,6 +4,7 @@ import { getCurrentUser, updateUserProfile, changePassword } from "@/lib/server/
 import { errorResponse, readJson } from "@/lib/server/http";
 import { phoneSchema } from "@/lib/server/validation";
 import { z } from "zod";
+import { passwordSchema } from "@/lib/server/validation";
 
 // `role`, `isVerified`, `isActive` and `email` are not in this schema on
 // purpose: a user must never be able to promote or verify themselves.
@@ -19,7 +20,7 @@ const updateProfileSchema = z
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1).max(200),
-  newPassword: z.string().min(8).max(200),
+  newPassword: passwordSchema,
 });
 
 export const Route = createFileRoute("/api/auth/me")({

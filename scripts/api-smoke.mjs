@@ -99,6 +99,46 @@ try {
     r.status === 401 && !/select|from|query/i.test(r.json?.error ?? ""),
     r.json?.error,
   );
+  check("wrong password carries code bad_credentials", r.json?.code === "bad_credentials");
+
+  r = await api("POST", "/api/auth/register", {
+    body: { ...owner, email: `weak-${stamp}@test.uyjoy`, password: "onlyletters" },
+  });
+  check(
+    "register rejects a password without a digit",
+    r.status === 400 && r.json?.details?.password,
+    JSON.stringify(r.json),
+  );
+
+  r = await api("POST", "/api/auth/register", {
+    body: { ...owner, email: `phone-${stamp}@test.uyjoy`, phone: "12" },
+  });
+  check(
+    "register rejects a malformed phone with a field error",
+    r.status === 400 && r.json?.details?.phone,
+  );
+
+  r = await api("POST", "/api/auth/register", {
+    body: { ...owner, email: `local-${stamp}@test.uyjoy`, phone: "90 123 45 67", role: "seller" },
+  });
+  check(
+    "register normalises a local phone to E.164 and keeps role",
+    r.status === 201 && r.json?.user?.phone === "+998901234567" && r.json?.user?.role === "seller",
+    JSON.stringify(r.json?.user),
+  );
+
+  r = await api("POST", "/api/auth/register", { body: owner });
+  check(
+    "duplicate email is a 409 with code email_taken",
+    r.status === 409 && r.json?.code === "email_taken",
+  );
+
+  r = await api("GET", "/api/health");
+  check(
+    "health reports a reachable, migrated database",
+    r.status === 200 && r.json?.checks?.database === "ok",
+    JSON.stringify(r.json?.checks),
+  );
 
   // --- listing lifecycle --------------------------------------------------
   r = await api("POST", "/api/properties", { body: listing });
@@ -304,6 +344,18 @@ try {
 
   r = await api("GET", "/api/admin/users", { token: ownerToken });
   check("non-admin cannot list users", r.status === 403);
+
+  r = await api("GET", "/api/admin/stats", { token: adminToken });
+  check(
+    "admin stats returns counts, activity and the action log",
+    r.status === 200 &&
+      typeof r.json?.users?.total === "number" &&
+      Array.isArray(r.json?.recentActions) &&
+      r.json.recentActions.length >= 1,
+    `status ${r.status}`,
+  );
+  r = await api("GET", "/api/admin/stats", { token: ownerToken });
+  check("non-admin cannot read admin stats", r.status === 403);
 
   r =
     await sql`select count(*)::int as n from analytics_events where property_id = ${propertyId}::uuid`;

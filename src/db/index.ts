@@ -21,6 +21,10 @@ const client = postgres(connectionString, {
   max: pooled ? 3 : 10,
   idle_timeout: 20,
   connect_timeout: 10,
+  // Columns are `timestamp` without time zone and JS reads them as UTC, so
+  // `now()` must also be UTC — otherwise a dev machine in UTC+5 shows every
+  // fresh row as "in 5 hours".
+  connection: { TimeZone: "UTC" },
   ...(pooled ? { prepare: false } : {}),
 });
 

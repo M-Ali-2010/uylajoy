@@ -22,6 +22,23 @@ export function getAuthToken(): string | null {
   return authToken;
 }
 
+/**
+ * Every failed request throws this. `code` is the stable identifier the UI
+ * maps to a localised sentence; `fields` carries per-field validation errors.
+ */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code: string,
+    public readonly fields: Record<string, string[]> = {},
+    public readonly details?: unknown,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 // Base fetch with auth
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
@@ -35,18 +52,34 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "API request failed");
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  } catch {
+    throw new ApiError("Network error", 0, "network");
   }
 
-  return data;
+  const data = (await response.json().catch(() => ({}))) as {
+    error?: string;
+    code?: string;
+    details?: unknown;
+  };
+
+  if (!response.ok) {
+    const fields =
+      data.code === "validation" && data.details && typeof data.details === "object"
+        ? (data.details as Record<string, string[]>)
+        : {};
+    throw new ApiError(
+      data.error || "API request failed",
+      response.status,
+      data.code ?? (response.status === 401 ? "unauthorized" : "internal"),
+      fields,
+      data.details,
+    );
+  }
+
+  return data as T;
 }
 
 // Auth API
@@ -363,7 +396,27 @@ export const publicApi = {
 };
 
 // Admin API
+export interface AdminStats {
+  listings: Record<string, number>;
+  users: { total: number; week: number; blocked: number };
+  leads: { total: number; week: number; open: number };
+  viewings: { total: number; open: number };
+  eventsWeek: Record<string, number>;
+  recentActions: {
+    id: string;
+    action: string;
+    targetType: string;
+    targetId: string;
+    reason: string | null;
+    createdAt: string;
+    adminName: string | null;
+  }[];
+  recentUsers: { id: string; name: string; email: string; role: string; createdAt: string }[];
+}
+
 export const adminApi = {
+  stats: () => apiFetch<{ success: boolean } & AdminStats>("/admin/stats"),
+
   queue: (status = "pending", page = 1) =>
     apiFetch<{ success: boolean; properties: unknown[]; pagination: unknown }>(
       `/admin/properties?status=${status}&page=${page}`,

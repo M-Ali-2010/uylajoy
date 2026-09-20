@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Archive, Check, Inbox, Search, ShieldBan, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AdminOverview } from "@/components/uyjoy/admin/overview";
 import { StatusBadge } from "@/components/uyjoy/dashboard/shell";
 import { BrandLockup } from "@/components/uyjoy/brand-mark";
 import { RequireAuth } from "@/components/uyjoy/require-auth";
@@ -33,14 +34,15 @@ export const Route = createFileRoute("/admin/")({
   ),
 });
 
-type Tab = "queue" | "listings" | "users";
+type Tab = "overview" | "queue" | "listings" | "users";
 
 function AdminPage() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
-  const [tab, setTab] = useState<Tab>("queue");
+  const [tab, setTab] = useState<Tab>("overview");
 
   const tabs: { id: Tab; label: string }[] = [
+    { id: "overview", label: t.admin.overview },
     { id: "queue", label: t.admin.queue },
     { id: "listings", label: t.admin.listings },
     { id: "users", label: t.admin.users },
@@ -79,6 +81,7 @@ function AdminPage() {
       </header>
 
       <main className="shell flex-1 py-8">
+        {tab === "overview" && <AdminOverview onOpenQueue={() => setTab("queue")} />}
         {tab === "queue" && <Queue status="pending" />}
         {tab === "listings" && <Queue status="active" allowStatusSwitch />}
         {tab === "users" && <UsersTab />}

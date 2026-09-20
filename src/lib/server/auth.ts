@@ -15,6 +15,20 @@ const JWT_SECRET: string = jwtSecretFromEnv;
 const JWT_EXPIRES_IN = "7d";
 const SESSION_EXPIRES_DAYS = 7;
 
+/**
+ * First-admin bootstrap. Registration can never hand out the admin role, so the
+ * very first admin is whoever is listed in ADMIN_EMAILS (comma-separated).
+ * Promotion also happens on login, so an existing account gets the role the
+ * moment the variable is set — no SQL against production needed.
+ */
+function isBootstrapAdmin(email: string): boolean {
+  const list = (process.env["ADMIN_EMAILS"] ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return list.includes(email.trim().toLowerCase());
+}
+
 // Types
 export interface AuthUser {
   id: string;
@@ -150,8 +164,10 @@ export async function registerUser(
     .limit(1);
 
   if (existingUser) {
-    throw new AppError(409, "User with this email already exists");
+    throw new AppError(409, "User with this email already exists", undefined, "email_taken");
   }
+
+  const role = isBootstrapAdmin(input.email) ? "admin" : input.role || "buyer";
 
   // Hash password
   const passwordHash = await hashPassword(input.password);
@@ -164,7 +180,7 @@ export async function registerUser(
       passwordHash,
       name: input.name,
       phone: input.phone,
-      role: input.role || "buyer",
+      role,
       isVerified: true, // For now, auto-verify. In production, send verification email
     })
     .returning();
@@ -211,16 +227,23 @@ export async function loginUser(input: LoginInput): Promise<{ user: AuthUser; to
     .limit(1);
 
   if (!user) {
-    throw new AppError(401, "Invalid email or password");
+    throw new AppError(401, "Invalid email or password", undefined, "bad_credentials");
   }
 
   const isValidPassword = await verifyPassword(input.password, user.passwordHash);
   if (!isValidPassword) {
-    throw new AppError(401, "Invalid email or password");
+    throw new AppError(401, "Invalid email or password", undefined, "bad_credentials");
   }
 
   if (!user.isActive) {
-    throw new AppError(403, "Account is deactivated");
+    throw new AppError(403, "Account is deactivated", undefined, "account_blocked");
+  }
+
+  // Bootstrap: promote a listed email the first time it signs in
+  let role = user.role;
+  if (role !== "admin" && isBootstrapAdmin(user.email)) {
+    role = "admin";
+    await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, user.id));
   }
 
   // Create session
@@ -231,7 +254,7 @@ export async function loginUser(input: LoginInput): Promise<{ user: AuthUser; to
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role,
+      role,
       avatar: user.avatar,
       phone: user.phone,
       isVerified: user.isVerified,
@@ -316,7 +339,7 @@ export async function changePassword(
 
   const isValidPassword = await verifyPassword(currentPassword, user.passwordHash);
   if (!isValidPassword) {
-    throw new AppError(400, "Current password is incorrect");
+    throw new AppError(400, "Current password is incorrect", undefined, "bad_credentials");
   }
 
   const newPasswordHash = await hashPassword(newPassword);

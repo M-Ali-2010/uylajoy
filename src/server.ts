@@ -3,6 +3,14 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
+// Node exits on an unhandled rejection. In a serverless instance that means
+// every in-flight request on it dies with the one query that failed after its
+// caller had already returned (seen with a pooler statement timeout). Log it
+// and keep serving.
+process.on("unhandledRejection", (reason) => {
+  console.error("unhandledRejection", reason);
+});
+
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };

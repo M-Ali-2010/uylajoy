@@ -22,7 +22,13 @@ export const Route = createFileRoute("/api/health")({
         };
 
         try {
-          await db.execute(sql`select 1`);
+          // Never let the health check itself hang on a dead socket
+          await Promise.race([
+            db.execute(sql`select 1`),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("timeout after 8s")), 8000),
+            ),
+          ]);
           // Reachable — now: is the schema there? The newest table proves all
           // three migrations ran, whichever tool applied them.
           const [row] = await db.execute<{ present: boolean }>(

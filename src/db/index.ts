@@ -19,7 +19,11 @@ const pooled = /pooler\.supabase\.com|:6543/.test(connectionString);
 // Create postgres client
 const client = postgres(connectionString, {
   max: pooled ? 3 : 10,
-  idle_timeout: 20,
+  // Serverless instances get frozen between requests; a socket that sat idle
+  // through a freeze is often dead on the other side. Release early and never
+  // keep a connection for long.
+  idle_timeout: 10,
+  max_lifetime: 5 * 60,
   connect_timeout: 10,
   // Columns are `timestamp` without time zone and JS reads them as UTC, so
   // `now()` must also be UTC — otherwise a dev machine in UTC+5 shows every

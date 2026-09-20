@@ -12,6 +12,7 @@ const DB_DOWN_CODES = new Set([
   "28P01", // invalid password
   "3D000", // database does not exist
   "57P01", // admin shutdown
+  "XX000", // Supabase pooler: "Tenant or user not found" (project deleted / wrong ref)
 ]);
 
 /** True for driver errors that mean "the database is not reachable/usable". */
@@ -22,7 +23,7 @@ export function isDatabaseDown(error: unknown): boolean {
   const message = (error as { message?: unknown }).message;
   if (
     typeof message === "string" &&
-    /DATABASE_URL is not set|relation ".+" does not exist/.test(message)
+    /DATABASE_URL is not set|relation ".+" does not exist|Tenant or user not found/.test(message)
   ) {
     return true;
   }

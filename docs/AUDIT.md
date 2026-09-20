@@ -43,6 +43,8 @@ API-файлы: 17 штук в `src/routes/api/**`.
 
 ### C2. База данных недоступна
 
+> **Поправка 2026-09-20:** проект `zodcfloutvbwyfkzrhia` жив (ACTIVE_HEALTHY). Не резолвился прямой хост `db.<ref>.supabase.co`, потому что у него только IPv6-адрес. Подключаться нужно через pooler `aws-1-eu-west-1.pooler.supabase.com:6543`; пароль в `.env` неверный. Актуально — `docs/HANDOFF.md` §2.
+
 Хост `db.zodcfloutvbwyfkzrhia.supabase.co` и REST-хост проекта **не резолвятся в DNS** (проект удалён/остановлен либо ref неверный; сеть исправна — `supabase.com`, `vercel.app` резолвятся). Нет свидетельств, что миграция когда-либо применялась. В миграции **0 индексов** и **RLS не включён ни на одной таблице** (пока API идёт через `DATABASE_URL` это не дыра, но при любом использовании anon-ключа/PostgREST таблица `users` с `password_hash` будет открыта).
 
 ### C3. Frontend полностью на mock-данных

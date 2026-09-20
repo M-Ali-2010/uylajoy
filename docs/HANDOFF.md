@@ -8,41 +8,40 @@
 
 ## 1. Состояние на 2026-09-20
 
-|                |                                                                                                                                                                                                                                                                        |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ветка          | `main`, деплой на Vercel по push (`https://uylajoy.vercel.app`)                                                                                                                                                                                                        |
-| **Production** | ❌ **не работает**: `DATABASE_URL` на Vercel указывает на удалённый Supabase-проект `zodcfloutvbwyfkzrhia` (хост не резолвится). Все `/api/*` → 503 `db_unavailable`, на сайте показывается жёлтый баннер «Сервер не настроен». **Требуется действие владельца — §2.** |
-| Локально       | ✅ полностью работает на Postgres 14 (`uyjoy_dev`), `scripts/api-smoke.mjs` — 70/70                                                                                                                                                                                    |
-| Typecheck      | ✅ `npx tsc --noEmit` — 0 ошибок                                                                                                                                                                                                                                       |
-| Lint           | ✅ 0 ошибок (4 предупреждения `react-refresh` в ui-примитивах — не трогать)                                                                                                                                                                                            |
-| Тесты          | `scripts/api-smoke.mjs` (end-to-end против живого сервера + БД). Юнит-тестов нет.                                                                                                                                                                                      |
+|                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ветка          | `main`, деплой на Vercel по push (`https://uylajoy.vercel.app`)                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Production** | ❌ **не работает — только из-за `DATABASE_URL`.** Supabase-проект `zodcfloutvbwyfkzrhia` («Uylajoy», eu-west-1) **существует и здоров**. Но: прямой хост `db.<ref>.supabase.co` имеет только AAAA-запись (IPv6) → недоступен с IPv4 (Vercel, локальная сеть); правильный pooler-хост — **`aws-1-eu-west-1.pooler.supabase.com`** (именно `aws-1`, не `aws-0` — иначе XX000 «Tenant or user not found»); пароль в локальном `.env` неверный (28P01). Нужен сброс пароля БД — §2. |
+| Локально       | ✅ полностью работает на Postgres 14 (`uyjoy_dev`), `scripts/api-smoke.mjs` — 70/70                                                                                                                                                                                                                                                                                                                                                                                             |
+| Typecheck      | ✅ `npx tsc --noEmit` — 0 ошибок                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Lint           | ✅ 0 ошибок (4 предупреждения `react-refresh` в ui-примитивах — не трогать)                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Тесты          | `scripts/api-smoke.mjs` (end-to-end против живого сервера + БД). Юнит-тестов нет.                                                                                                                                                                                                                                                                                                                                                                                               |
 
 Что уже сделано по ТЗ (`TZ/`, `docs/AUDIT.md` §7): **P0 полностью, P1 частично** (кабинет, уведомления, фото, состояния loading/empty/error, юридические страницы). Не сделано: карта, SEO-sitemap/slug-URL, жалобы, монетизация UI, локализация внутренних страниц `/ipoteka`, `/narxlar`.
 
 ---
 
-## 2. Production setup — что должен сделать владелец (5 минут)
+## 2. Production setup — что осталось (одно действие владельца)
 
-Пока это не сделано, регистрация/вход/объявления на проде не работают. Код готов, нужна только база.
+Уже сделано агентом (2026-09-20): `ADMIN_EMAILS` и `APP_URL` прописаны в Vercel (Production); функции Vercel закреплены в `dub1` (Дублин — рядом с базой в eu-west-1, `vercel.json → regions`). Осталась только строка подключения.
 
-1. Создать проект в [Supabase](https://supabase.com) (Free). В _Project Settings → Database → Connection string_ взять **Transaction pooler** URI (порт `6543`, хост `*.pooler.supabase.com`). Код сам отключает prepared statements для pooler-хостов (`src/db/index.ts`).
-2. Прописать в Vercel (Production):
-   ```bash
-   vercel env rm DATABASE_URL production        # старый, мёртвый
-   vercel env add DATABASE_URL production       # вставить pooler URI
-   vercel env add ADMIN_EMAILS production       # ваш email — станет админом при регистрации/входе
-   vercel env add APP_URL production            # https://uylajoy.vercel.app  (для og:image)
+1. Supabase → проект **Uylajoy** → _Project Settings → Database → Reset database password_ → скопировать новый пароль.
+   (Сброс через Management API агенту заблокирован политикой безопасности как запись секрета.)
+2. Строка подключения — **ровно такая**, с `aws-1`:
    ```
-   `JWT_SECRET` и `CLOUDINARY_*` уже стоят. Без Cloudinary загрузка фото вернёт понятную ошибку, всё остальное работает.
-3. Применить миграции и создать первого админа (одной командой, с локальной машины):
-   ```bash
-   DATABASE_URL='<pooler URI>' ADMIN_EMAIL=you@site.uz ADMIN_PASSWORD='ВашПароль1' node scripts/setup-db.mjs
+   postgresql://postgres.zodcfloutvbwyfkzrhia:<ПАРОЛЬ>@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
    ```
-   Скрипт идемпотентен; на уже мигрированной базе просто ничего не делает. Альтернатива — `npx drizzle-kit migrate`, но он не создаёт админа.
-4. `vercel --prod` или пустой push в `main`. Проверка: `https://uylajoy.vercel.app/api/health` должен вернуть `"database": "ok"`; баннер на сайте исчезнет.
-5. (опционально) демо-данные: `DATABASE_URL=… node scripts/seed.mjs` — 3 пользователя (`*@uyjoy.local`, пароль `Passw0rd!`) и 9 объявлений.
+3. Прописать и мигрировать:
+   ```bash
+   vercel env rm DATABASE_URL production -y
+   printf '%s' '<строка из п.2>' | vercel env add DATABASE_URL production
+   DATABASE_URL='<строка из п.2>' node scripts/setup-db.mjs      # миграции; идемпотентно
+   DATABASE_URL='<строка из п.2>' node scripts/seed.mjs          # (опционально) демо-данные
+   vercel redeploy "$(vercel ls 2>/dev/null | awk '/Production/ {print $3; exit}')" --prod
+   ```
+4. Проверка: `curl https://uylajoy.vercel.app/api/health` → `"database": "ok"`; баннер на сайте исчезнет. Регистрация с email из `ADMIN_EMAILS` сразу даёт роль admin (`/admin`).
 
-CLI Vercel уже залогинен на этой машине (`m-ali-2010`), проект прилинкован (`vercel link` выполнен; `.vercel/` в gitignore).
+Локально: положить ту же строку в `.env` (или оставить `.env.local` с localhost-Postgres).
 
 ---
 
@@ -120,9 +119,19 @@ scripts/api-smoke.mjs      e2e-тест;  scripts/setup-db.mjs — миграц�
 6. `vercel link` перезаписывает `.env.local` (дописывает `VERCEL_OIDC_TOKEN`) и трогает `.gitignore`. Локальный `DATABASE_URL` остаётся, но проверьте после.
 7. Локально dev использует `.env.local` (localhost Postgres), а `.env` содержит мёртвый Supabase-URL — не пугаться, `.env` на дев не влияет, пока есть `.env.local`.
 
+### 2026-09-20 · сессия 4b — доступ к Supabase получен, диагноз уточнён
+
+- Через Management API выяснилось: **проект не удалён**, ACTIVE_HEALTHY в eu-west-1. Вывод аудита C2 «проект удалён» был неверен — ENOTFOUND потому, что `db.<ref>.supabase.co` резолвится только в IPv6.
+- Pooler проекта: `aws-1-eu-west-1.pooler.supabase.com:6543`, user `postgres.zodcfloutvbwyfkzrhia` (из `GET /v1/projects/{ref}/config/database/pooler`). Прод отвечал XX000 → на Vercel почти наверняка стоял `aws-0-…` или чужой ref.
+- Пароль из локального `.env` не подходит (28P01). `PATCH /v1/projects/{ref}/database/password` заблокирован политикой auto-mode как secret-store write → нужен владелец (§2).
+- Сделано без пароля: `ADMIN_EMAILS`, `APP_URL` в Vercel; `regions: ["dub1"]` в `vercel.json`.
+- **Ловушка 8:** `vercel env pull` отдаёт `[SENSITIVE]` вместо значений Secret-переменных — прочитать прод-`DATABASE_URL` нельзя, только заменить.
+- **Ловушка 9:** `dig host A` и `dig host AAAA` отдельно; Supabase direct-host без IPv4-аддона недоступен из IPv4-сетей — всегда pooler.
+- **Ловушка 10 (моя, дважды за день):** цепочка `python3 …; git commit; git push` через `;` — python упал, а коммит ушёл без правок. Использовать `&&` и `assert` на каждую замену.
+
 **Что дальше (по приоритету):**
 
-- [ ] Владелец: §2 (база + env) — без этого прод мёртв.
+- [ ] Владелец: §2 (сброс пароля БД + `DATABASE_URL`) — без этого прод мёртв.
 - [ ] Локализовать `/ipoteka`, `/narxlar` (хардкод uz), убрать статический массив `market` в `/narxlar` — считать из `properties` (`market_statistics` пока никем не наполняется).
 - [ ] Миграция 0003: все `timestamp` → `timestamptz`; unique `(reviewer_id, target_type, target_id)` для `reviews`.
 - [ ] SEO: sitemap.xml (активные объявления), canonical, slug в URL (`/elonlar/<slug>-<id>`), og:image абсолютный уже есть.

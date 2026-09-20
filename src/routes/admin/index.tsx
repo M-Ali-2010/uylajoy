@@ -51,33 +51,37 @@ function AdminPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="shell flex h-16 items-center gap-6">
+        <div className="shell flex h-16 items-center gap-4">
           <Link to="/" className="group" aria-label="UyJoy.uz">
             <BrandLockup />
           </Link>
-          <span className="rounded-md bg-ink px-2 py-0.5 text-xs font-bold tracking-wider text-white uppercase">
+          <span className="rounded-md bg-ink px-2 py-0.5 text-[0.6875rem] font-bold tracking-wider text-white uppercase">
             {t.admin.title}
           </span>
-          <nav className="ml-auto flex gap-1" aria-label={t.admin.title}>
+
+          {/* Tabs share the row from md up; on phones they get their own scrollable row below */}
+          <nav className="ml-auto hidden gap-1 md:flex" aria-label={t.admin.title}>
             {tabs.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-pressed={tab === item.id}
-                onClick={() => setTab(item.id)}
-                className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors",
-                  tab === item.id
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
+              <TabButton key={item.id} active={tab === item.id} onClick={() => setTab(item.id)}>
                 {item.label}
-              </button>
+              </TabButton>
             ))}
           </nav>
-          <span className="hidden text-sm text-muted-foreground md:block">{user?.email}</span>
+          <span className="hidden truncate text-sm text-muted-foreground lg:block">
+            {user?.email}
+          </span>
         </div>
+
+        <nav
+          className="scrollbar-hide flex gap-1 overflow-x-auto px-3 pb-2 md:hidden"
+          aria-label={t.admin.title}
+        >
+          {tabs.map((item) => (
+            <TabButton key={item.id} active={tab === item.id} onClick={() => setTab(item.id)}>
+              {item.label}
+            </TabButton>
+          ))}
+        </nav>
       </header>
 
       <main className="shell flex-1 py-8">
@@ -87,6 +91,30 @@ function AdminPage() {
         {tab === "users" && <UsersTab />}
       </main>
     </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={cn(
+        "shrink-0 rounded-md px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors",
+        active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 

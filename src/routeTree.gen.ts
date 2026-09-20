@@ -47,6 +47,7 @@ import { Route as ApiPaymentsPricingRouteImport } from './routes/api/payments/pr
 import { Route as ApiPropertiesIndexRouteImport } from './routes/api/properties/index'
 import { Route as ApiPropertiesIdRouteImport } from './routes/api/properties/$id'
 import { Route as ApiPropertiesFeaturedRouteImport } from './routes/api/properties/featured'
+import { Route as ApiPropertiesMarketRouteImport } from './routes/api/properties/market'
 import { Route as ApiPropertiesStatsRouteImport } from './routes/api/properties/stats'
 import { Route as ApiViewingRequestsIndexRouteImport } from './routes/api/viewing-requests/index'
 import { Route as ApiViewingRequestsIdRouteImport } from './routes/api/viewing-requests/$id'
@@ -243,6 +244,11 @@ const ApiPropertiesFeaturedRoute = ApiPropertiesFeaturedRouteImport.update({
   path: '/api/properties/featured',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPropertiesMarketRoute = ApiPropertiesMarketRouteImport.update({
+  id: '/api/properties/market',
+  path: '/api/properties/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPropertiesStatsRoute = ApiPropertiesStatsRouteImport.update({
   id: '/api/properties/stats',
   path: '/api/properties/stats',
@@ -298,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/api/payments/pricing': typeof ApiPaymentsPricingRoute
   '/api/properties/$id': typeof ApiPropertiesIdRouteWithChildren
   '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/properties/market': typeof ApiPropertiesMarketRoute
   '/api/properties/stats': typeof ApiPropertiesStatsRoute
   '/api/viewing-requests/$id': typeof ApiViewingRequestsIdRoute
   '/api/favorites/': typeof ApiFavoritesIndexRoute
@@ -342,6 +349,7 @@ export interface FileRoutesByTo {
   '/api/payments/pricing': typeof ApiPaymentsPricingRoute
   '/api/properties/$id': typeof ApiPropertiesIdRouteWithChildren
   '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/properties/market': typeof ApiPropertiesMarketRoute
   '/api/properties/stats': typeof ApiPropertiesStatsRoute
   '/api/viewing-requests/$id': typeof ApiViewingRequestsIdRoute
   '/api/favorites': typeof ApiFavoritesIndexRoute
@@ -387,6 +395,7 @@ export interface FileRoutesById {
   '/api/payments/pricing': typeof ApiPaymentsPricingRoute
   '/api/properties/$id': typeof ApiPropertiesIdRouteWithChildren
   '/api/properties/featured': typeof ApiPropertiesFeaturedRoute
+  '/api/properties/market': typeof ApiPropertiesMarketRoute
   '/api/properties/stats': typeof ApiPropertiesStatsRoute
   '/api/viewing-requests/$id': typeof ApiViewingRequestsIdRoute
   '/api/favorites/': typeof ApiFavoritesIndexRoute
@@ -433,6 +442,7 @@ export interface FileRouteTypes {
     | '/api/payments/pricing'
     | '/api/properties/$id'
     | '/api/properties/featured'
+    | '/api/properties/market'
     | '/api/properties/stats'
     | '/api/viewing-requests/$id'
     | '/api/favorites/'
@@ -477,6 +487,7 @@ export interface FileRouteTypes {
     | '/api/payments/pricing'
     | '/api/properties/$id'
     | '/api/properties/featured'
+    | '/api/properties/market'
     | '/api/properties/stats'
     | '/api/viewing-requests/$id'
     | '/api/favorites'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/api/payments/pricing'
     | '/api/properties/$id'
     | '/api/properties/featured'
+    | '/api/properties/market'
     | '/api/properties/stats'
     | '/api/viewing-requests/$id'
     | '/api/favorites/'
@@ -566,6 +578,7 @@ export interface RootRouteChildren {
   ApiPaymentsPricingRoute: typeof ApiPaymentsPricingRoute
   ApiPropertiesIdRoute: typeof ApiPropertiesIdRouteWithChildren
   ApiPropertiesFeaturedRoute: typeof ApiPropertiesFeaturedRoute
+  ApiPropertiesMarketRoute: typeof ApiPropertiesMarketRoute
   ApiPropertiesStatsRoute: typeof ApiPropertiesStatsRoute
   ApiViewingRequestsIdRoute: typeof ApiViewingRequestsIdRoute
   ApiFavoritesIndexRoute: typeof ApiFavoritesIndexRoute
@@ -844,6 +857,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPropertiesFeaturedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/properties/market': {
+      id: '/api/properties/market'
+      path: '/api/properties/market'
+      fullPath: '/api/properties/market'
+      preLoaderRoute: typeof ApiPropertiesMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/properties/stats': {
       id: '/api/properties/stats'
       path: '/api/properties/stats'
@@ -921,6 +941,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPaymentsPricingRoute: ApiPaymentsPricingRoute,
   ApiPropertiesIdRoute: ApiPropertiesIdRouteWithChildren,
   ApiPropertiesFeaturedRoute: ApiPropertiesFeaturedRoute,
+  ApiPropertiesMarketRoute: ApiPropertiesMarketRoute,
   ApiPropertiesStatsRoute: ApiPropertiesStatsRoute,
   ApiViewingRequestsIdRoute: ApiViewingRequestsIdRoute,
   ApiFavoritesIndexRoute: ApiFavoritesIndexRoute,

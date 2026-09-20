@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SiteHeader } from "@/components/uyjoy/site-header";
+import { useTranslation } from "@/i18n";
 import { SiteFooter } from "@/components/uyjoy/site-footer";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -46,22 +47,22 @@ function IpotekaPage() {
     };
   }, [price, downPct, years, rate]);
 
+  const { t } = useTranslation();
   const usd = (v: number) => `$${Math.round(v).toLocaleString("en-US")}`;
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 py-14">
-        <h1 className="font-display text-3xl font-extrabold md:text-4xl">Ipoteka kalkulyatori</h1>
-        <p className="mt-3 max-w-2xl text-muted-foreground">
-          Uy narxi, boshlang'ich to'lov, muddat va bank foizini kiriting — oylik to'lov darhol
-          hisoblanadi.
-        </p>
+      <main className="shell max-w-5xl py-14">
+        <h1 className="type-h1">{t.mortgage.title}</h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground">{t.mortgage.subtitle}</p>
 
         <div className="mt-10 grid gap-8 md:grid-cols-[1fr_320px]">
-          <div className="space-y-8 rounded-2xl border border-border bg-card p-6 shadow-card">
+          <div className="space-y-8 rounded-xl border border-border bg-card p-6 shadow-card">
             <div className="space-y-3">
-              <Label>Uy narxi: {usd(price)}</Label>
+              <Label>
+                {t.mortgage.propertyPrice}: {usd(price)}
+              </Label>
               <Slider
                 value={[price]}
                 min={20000}
@@ -72,7 +73,7 @@ function IpotekaPage() {
             </div>
             <div className="space-y-3">
               <Label>
-                Boshlang'ich to'lov: {downPct}% ({usd((price * downPct) / 100)})
+                {t.mortgage.downPayment}: {downPct}% ({usd((price * downPct) / 100)})
               </Label>
               <Slider
                 value={[downPct]}
@@ -83,7 +84,9 @@ function IpotekaPage() {
               />
             </div>
             <div className="space-y-3">
-              <Label>Muddat: {years} yil</Label>
+              <Label>
+                {t.mortgage.loanTerm}: {years} {t.property.years}
+              </Label>
               <Slider
                 value={[years]}
                 min={3}
@@ -93,7 +96,7 @@ function IpotekaPage() {
               />
             </div>
             <div className="space-y-3">
-              <Label htmlFor="rate">Yillik foiz stavkasi (%)</Label>
+              <Label htmlFor="rate">{t.mortgage.interestRate} (%)</Label>
               <Input
                 id="rate"
                 type="number"
@@ -106,17 +109,17 @@ function IpotekaPage() {
             </div>
           </div>
 
-          <aside className="h-fit space-y-4 rounded-2xl border border-border bg-card p-6 shadow-float">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Oylik to'lov</p>
+          <aside className="h-fit space-y-4 rounded-xl border border-border bg-card p-6 shadow-float">
+            <p className="text-xs tracking-wide text-muted-foreground uppercase">
+              {t.mortgage.monthlyPayment}
+            </p>
             <p className="font-display text-4xl font-extrabold text-primary">{usd(monthly)}</p>
             <dl className="space-y-3 border-t border-border pt-4 text-sm">
-              <Row label="Kredit summasi" value={usd(loan)} />
-              <Row label="Umumiy to'lov" value={usd(total)} />
-              <Row label="Umumiy foiz" value={usd(interest)} />
+              <Row label={t.mortgage.loanAmount} value={usd(loan)} />
+              <Row label={t.mortgage.totalPayment} value={usd(total)} />
+              <Row label={t.mortgage.totalInterest} value={usd(interest)} />
             </dl>
-            <p className="text-xs text-muted-foreground">
-              Hisob-kitob taxminiy. Aniq shartlar bank bilan kelishiladi.
-            </p>
+            <p className="text-xs text-muted-foreground">{t.mortgage.disclaimer}</p>
           </aside>
         </div>
       </main>

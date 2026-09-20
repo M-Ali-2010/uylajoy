@@ -314,6 +314,14 @@ export const en: TranslationKeys = {
     yearlyChange: "Yearly Change",
     rentalYield: "Rental Yield",
     perYear: "per year",
+    basedOn: "in the sample",
+    saleColumn: "Sale, per m²",
+    rentColumn: "Rent, per m² / month",
+    yieldColumn: "Gross rental yield",
+    noData: "No data yet",
+    method:
+      "Figures are medians of the platform's active listings — asking prices, not closed deals; accuracy grows with volume.",
+    empty: "City prices will appear here once there are active listings.",
   },
 
   // Auth

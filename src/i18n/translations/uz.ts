@@ -313,6 +313,14 @@ export const uz = {
     yearlyChange: "Yillik o'zgarish",
     rentalYield: "Ijara daromadliligi",
     perYear: "yiliga",
+    basedOn: "e'lon asosida",
+    saleColumn: "Sotuv, 1 m²",
+    rentColumn: "Ijara, oyiga 1 m²",
+    yieldColumn: "Ijara daromadliligi",
+    noData: "Hozircha ma'lumot yo'q",
+    method:
+      "Ko'rsatkichlar platformadagi faol e'lonlarning medianasi. Bu taklif narxi, bitim narxi emas; e'lonlar ko'paygani sari aniqlik oshadi.",
+    empty: "Faol e'lonlar paydo bo'lgach, bu yerda shaharlar bo'yicha narxlar ko'rinadi.",
   },
 
   // Auth
